@@ -61,7 +61,7 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="relative z-10 mt-12 border-t border-white/10 bg-[#0b0e12]/95 text-white backdrop-blur-md">
+    <footer className="relative z-10 mt-auto border-t border-white/10 bg-[#0b0e12]/95 text-white backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cyan-500/6 to-transparent" />
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_0.9fr_0.9fr_1.8fr]">
@@ -93,7 +93,7 @@ export default function Footer() {
             <p className="mb-5 text-sm font-bold text-white">Main</p>
             <ul className="space-y-3 text-sm" style={{ color: "#a1a1aa" }}>
               <li><Link href="/" className="transition hover:text-white">Home</Link></li>
-              <li><Link href="/boosting" className="transition hover:text-white">Boosting</Link></li>
+              <li><Link href="/en/rainbow-six-siege-boost" className="transition hover:text-white">Boosting</Link></li>
               <li><a href="#" className="transition hover:text-white">Membership</a></li>
             </ul>
           </div>
@@ -104,6 +104,8 @@ export default function Footer() {
             <ul className="space-y-3 text-sm" style={{ color: "#a1a1aa" }}>
               <li><a href="#" className="transition hover:text-white">Contact Us</a></li>
               <li><a href="#" className="transition hover:text-white">Work with us</a></li>
+              <li><Link href="/terms" className="transition hover:text-white">Terms &amp; Conditions</Link></li>
+              <li><Link href="/privacy" className="transition hover:text-white">Privacy Policy</Link></li>
             </ul>
           </div>
 

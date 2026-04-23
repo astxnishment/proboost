@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,9 +19,12 @@ export const metadata: Metadata = {
   description: "Queue with pros. Win more games.",
   icons: {
     icon: [
-      { url: "/tab-logo-64.png", sizes: "64x64" },
-      { url: "/tab-logo.png", sizes: "any" },
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-64.png", sizes: "64x64", type: "image/png" },
+      { url: "/favicon-256.png", sizes: "256x256", type: "image/png" },
     ],
+    apple: "/favicon-180.png",
   },
 };
 
@@ -34,7 +38,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}<Footer /></body>
+      <body className="min-h-full flex flex-col"><Navbar />{children}<Footer /></body>
     </html>
   );
 }

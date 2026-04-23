@@ -33,6 +33,10 @@ select {
   color-scheme: dark;
 }
 
+button {
+  outline: none;
+}
+
 select option {
   background: #0a0a0a;
   color: #fff;

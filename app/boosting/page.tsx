@@ -1,1598 +1,816 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import TrustSection from "../components/TrustSection";
 import FaqSection from "../components/FaqSection";
-import InfoSection from "../components/InfoSection";
 
-type Rank = {
-  name: string;
-  color: string;
-  icon: string;
+type LangCode = "en" | "it" | "fr" | "es" | "de" | "nl" | "pt" | "uk" | "ru";
+
+const LANGUAGES: { code: LangCode; name: string; flag: string }[] = [
+  { code: "en", name: "English",    flag: "us" },
+  { code: "it", name: "Italiano",   flag: "it" },
+  { code: "fr", name: "Français",   flag: "fr" },
+  { code: "es", name: "Español",    flag: "es" },
+  { code: "de", name: "Deutsch",    flag: "de" },
+  { code: "nl", name: "Nederlands", flag: "nl" },
+  { code: "pt", name: "Português",  flag: "br" },
+  { code: "uk", name: "Українська", flag: "ua" },
+  { code: "ru", name: "Русский",    flag: "ru" },
+];
+
+const PAGE_I18N: Record<LangCode, {
+  heroSub: string; boostersOnline: string;
+  boostingLabel: string; viewAll: string;
+  trust: { title: string; desc: string }[];
+  howLabel: string; howTitle: string; howSub: string;
+  steps: { step: string; title: string; description: string }[];
+  faqLabel: string; faqTitle: string;
+  faq: { q: string; a: string }[];
+  services: { title: string; bullets: [string, string, string] }[];
+}> = {
+  en: {
+    heroSub: "Top-tier boosters. Rank Boost, Placements and Win Boosting available on all regions, 24/7.",
+    boostersOnline: "Boosters Online", boostingLabel: "Boosting", viewAll: "View All",
+    trust: [
+      { title: "Safe service", desc: "Region matching, session discipline, and account-safe handling are the default, not upsells." },
+      { title: "24/7 support", desc: "You get order updates, ETA changes, and escalation paths without chasing for answers." },
+      { title: "Refund clarity", desc: "If a session cannot be delivered in the agreed format, the fallback and refund path is explicit." },
+      { title: "Encrypted workflow", desc: "VPN-aware handling and secure checkout are built into the order flow from the start." },
+    ],
+    howLabel: "How it works", howTitle: "Order in 3 steps.",
+    howSub: "No hidden steps, no waiting in the dark. Your order moves from selection to delivery with full visibility.",
+    steps: [
+      { step: "01", title: "Choose your service", description: "Pick the boost type that fits your goal — ranked climb, Champion push, competitive wins, unrated sessions, or a coaching package." },
+      { step: "02", title: "Set your preferences", description: "Lock in your region, platform, desired rank range, VPN on/off, duo play option, and any special account notes before we start." },
+      { step: "03", title: "We deliver, you track", description: "A verified booster picks up your order and you get live progress updates. Reach out to support at any stage — response in under 5 minutes." },
+    ],
+    faqLabel: "Siege FAQ", faqTitle: "Common questions.",
+    faq: [
+      { q: "What Siege services are available on this page?", a: "This page currently focuses on ranked boosting, Champion pushes, competitive win packages, unrated sessions, and coaching-based E-learning for Rainbow Six Siege." },
+      { q: "Is E-learning a separate service or part of boosting?", a: "E-learning is presented as its own Siege service so players can book coaching, gameplay review, and improvement sessions without starting a full rank boost order." },
+      { q: "Is the season countdown real or static?", a: "The season timer on this page uses fixed start and end dates for the current Siege season and updates live instead of relying on a fake rolling counter." },
+      { q: "Do you support all Siege platforms?", a: "The page is set up around PC, Xbox, and PlayStation support, with order routing adjusted around platform and region availability." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Rank up to Champion", "Free Operators of choice", "Available on all regions"] },
+      { title: "Champion Rank Boost", bullets: ["Rank Above Champion", "Guaranteed Result", "Available on all platforms"] },
+      { title: "Competitive Wins", bullets: ["Increase your Rank & Win Rate", "Free Operators of choice", "Available on all regions"] },
+      { title: "Unrated Matches", bullets: ["Play with your favorite Booster", "No Win Rate impact", "Available on all regions and servers"] },
+      { title: "E-Learning", bullets: ["Level up with expert coaching", "Tips to improve gameplay", "Real-time skill growth"] },
+    ],
+  },
+  it: {
+    heroSub: "Booster di alto livello. Rank Boost, Placements e Win Boosting disponibili in tutte le regioni, 24/7.",
+    boostersOnline: "Booster Online", boostingLabel: "Boost", viewAll: "Vedi Tutti",
+    trust: [
+      { title: "Servizio sicuro", desc: "Corrispondenza regionale, disciplina delle sessioni e gestione dell'account sicura sono la norma, non extra." },
+      { title: "Supporto 24/7", desc: "Ricevi aggiornamenti sugli ordini, modifiche agli ETA e percorsi di escalation senza dover cercare risposte." },
+      { title: "Rimborsi chiari", desc: "Se una sessione non può essere consegnata nel formato concordato, il percorso di rimborso è esplicito." },
+      { title: "Flusso crittografato", desc: "Gestione VPN e checkout sicuro sono integrati nel flusso degli ordini fin dall'inizio." },
+    ],
+    howLabel: "Come funziona", howTitle: "Ordina in 3 passi.",
+    howSub: "Nessun passaggio nascosto, nessuna attesa al buio. Il tuo ordine passa dalla selezione alla consegna con piena visibilità.",
+    steps: [
+      { step: "01", title: "Scegli il tuo servizio", description: "Scegli il tipo di boost adatto al tuo obiettivo: salita in classifica, spinta Champion, vittorie competitive, sessioni non classificate o un pacchetto di coaching." },
+      { step: "02", title: "Imposta le preferenze", description: "Definisci regione, piattaforma, range di rank desiderato, VPN on/off, opzione duo e note speciali prima di iniziare." },
+      { step: "03", title: "Consegniamo, tu monitori", description: "Un booster verificato prende in carico il tuo ordine e ricevi aggiornamenti in tempo reale. Contatta il supporto in qualsiasi momento — risposta in meno di 5 minuti." },
+    ],
+    faqLabel: "Domande frequenti", faqTitle: "Domande comuni.",
+    faq: [
+      { q: "Quali servizi Siege sono disponibili?", a: "Questa pagina si concentra su boost ranked, spinte Champion, pacchetti di vittorie competitive, sessioni non classificate e E-learning per R6 Siege." },
+      { q: "L'E-learning è separato dal boost?", a: "L'E-learning è presentato come servizio indipendente per prenotare coaching, revisioni di gameplay e sessioni di miglioramento senza avviare un ordine di boost." },
+      { q: "Il conto alla rovescia della stagione è reale?", a: "Il timer della stagione utilizza date di inizio e fine fisse per la stagione Siege corrente e si aggiorna in tempo reale." },
+      { q: "Supportate tutte le piattaforme Siege?", a: "La pagina è configurata per PC, Xbox e PlayStation con instradamento degli ordini adattato a piattaforma e regione." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Sali fino a Champion", "Operatori a scelta gratuiti", "Disponibile in tutte le regioni"] },
+      { title: "Champion Rank Boost", bullets: ["Supera il rank Champion", "Risultato garantito", "Disponibile su tutte le piattaforme"] },
+      { title: "Vittorie Competitive", bullets: ["Aumenta rank e win rate", "Operatori a scelta gratuiti", "Disponibile in tutte le regioni"] },
+      { title: "Partite Non Classificate", bullets: ["Gioca col tuo booster preferito", "Nessun impatto sul win rate", "Disponibile in tutte le regioni"] },
+      { title: "E-Learning", bullets: ["Coaching esperto", "Consigli per migliorare", "Crescita in tempo reale"] },
+    ],
+  },
+  fr: {
+    heroSub: "Boosters de haut niveau. Rank Boost, Placements et Win Boosting disponibles dans toutes les régions, 24h/24.",
+    boostersOnline: "Boosters en ligne", boostingLabel: "Boost", viewAll: "Voir tout",
+    trust: [
+      { title: "Service sécurisé", desc: "Correspondance régionale, discipline de session et gestion sécurisée du compte sont la norme, pas des options." },
+      { title: "Support 24/7", desc: "Mises à jour de commande, changements d'ETA et chemins d'escalade sans chercher de réponses." },
+      { title: "Remboursements clairs", desc: "Si une session ne peut être livrée dans le format convenu, le chemin de remboursement est explicite." },
+      { title: "Flux chiffré", desc: "Gestion VPN et paiement sécurisé intégrés dès le début du processus de commande." },
+    ],
+    howLabel: "Comment ça marche", howTitle: "Commandez en 3 étapes.",
+    howSub: "Aucune étape cachée, aucune attente dans l'obscurité. Votre commande passe de la sélection à la livraison en toute transparence.",
+    steps: [
+      { step: "01", title: "Choisissez votre service", description: "Choisissez le type de boost adapté à votre objectif : montée en rang, push Champion, victoires compétitives, sessions non classées ou coaching." },
+      { step: "02", title: "Définissez vos préférences", description: "Définissez votre région, plateforme, plage de rang, VPN activé/désactivé, option duo et notes spéciales." },
+      { step: "03", title: "On livre, vous suivez", description: "Un booster vérifié prend en charge votre commande et vous recevez des mises à jour en direct. Support disponible à tout moment — réponse en moins de 5 minutes." },
+    ],
+    faqLabel: "FAQ Siege", faqTitle: "Questions fréquentes.",
+    faq: [
+      { q: "Quels services Siege sont disponibles ?", a: "Cette page se concentre sur le boost ranked, les pushes Champion, les victoires compétitives, les sessions non classées et l'E-learning pour R6 Siege." },
+      { q: "L'E-learning est-il séparé du boost ?", a: "L'E-learning est un service indépendant pour réserver du coaching, des revues de gameplay et des sessions d'amélioration sans démarrer un order de boost." },
+      { q: "Le compte à rebours de saison est-il réel ?", a: "Le minuteur utilise les dates de début et de fin de la saison Siege actuelle et se met à jour en temps réel." },
+      { q: "Prenez-vous en charge toutes les plateformes Siege ?", a: "La page prend en charge PC, Xbox et PlayStation avec un routage adapté à la plateforme et à la région." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Montez jusqu'à Champion", "Opérateurs au choix gratuits", "Disponible dans toutes les régions"] },
+      { title: "Champion Rank Boost", bullets: ["Au-delà du rang Champion", "Résultat garanti", "Disponible sur toutes les plateformes"] },
+      { title: "Victoires Compétitives", bullets: ["Améliorez rang et win rate", "Opérateurs au choix gratuits", "Disponible dans toutes les régions"] },
+      { title: "Matchs Non Classés", bullets: ["Jouez avec votre booster favori", "Aucun impact sur le win rate", "Disponible dans toutes les régions"] },
+      { title: "E-Learning", bullets: ["Coaching expert", "Conseils pour progresser", "Croissance en temps réel"] },
+    ],
+  },
+  es: {
+    heroSub: "Boosters de primer nivel. Rank Boost, Placements y Win Boosting disponibles en todas las regiones, 24/7.",
+    boostersOnline: "Boosters en línea", boostingLabel: "Boost", viewAll: "Ver todo",
+    trust: [
+      { title: "Servicio seguro", desc: "Coincidencia regional, disciplina de sesión y manejo seguro de cuenta son el estándar, no extras." },
+      { title: "Soporte 24/7", desc: "Recibes actualizaciones de pedidos, cambios de ETA y rutas de escalación sin buscar respuestas." },
+      { title: "Reembolsos claros", desc: "Si una sesión no puede entregarse en el formato acordado, el proceso de reembolso es explícito." },
+      { title: "Flujo encriptado", desc: "Gestión VPN y pago seguro integrados en el flujo de pedidos desde el principio." },
+    ],
+    howLabel: "Cómo funciona", howTitle: "Pide en 3 pasos.",
+    howSub: "Sin pasos ocultos, sin esperar en la oscuridad. Tu pedido va de la selección a la entrega con total visibilidad.",
+    steps: [
+      { step: "01", title: "Elige tu servicio", description: "Selecciona el tipo de boost que se adapta a tu objetivo: subida de rango, push a Champion, victorias competitivas, sesiones sin clasificar o coaching." },
+      { step: "02", title: "Configura tus preferencias", description: "Define tu región, plataforma, rango deseado, VPN on/off, opción dúo y notas especiales antes de empezar." },
+      { step: "03", title: "Entregamos, tú sigues", description: "Un booster verificado toma tu pedido y recibes actualizaciones en vivo. Contacta soporte en cualquier momento — respuesta en menos de 5 minutos." },
+    ],
+    faqLabel: "Preguntas Siege", faqTitle: "Preguntas frecuentes.",
+    faq: [
+      { q: "¿Qué servicios de Siege están disponibles?", a: "Esta página se centra en boost ranked, pushes a Champion, paquetes de victorias competitivas, sesiones sin clasificar y E-learning para R6 Siege." },
+      { q: "¿El E-learning es independiente del boost?", a: "El E-learning es un servicio propio para reservar coaching, revisiones de gameplay y sesiones de mejora sin iniciar un pedido de boost." },
+      { q: "¿La cuenta atrás de temporada es real?", a: "El temporizador usa fechas de inicio y fin fijas de la temporada actual de Siege y se actualiza en tiempo real." },
+      { q: "¿Soportan todas las plataformas de Siege?", a: "La página está configurada para PC, Xbox y PlayStation con enrutamiento adaptado a plataforma y región." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Sube hasta Champion", "Operadores a elegir gratis", "Disponible en todas las regiones"] },
+      { title: "Champion Rank Boost", bullets: ["Por encima del rango Champion", "Resultado garantizado", "Disponible en todas las plataformas"] },
+      { title: "Victorias Competitivas", bullets: ["Mejora rango y win rate", "Operadores a elegir gratis", "Disponible en todas las regiones"] },
+      { title: "Partidas No Clasificadas", bullets: ["Juega con tu booster favorito", "Sin impacto en win rate", "Disponible en todas las regiones"] },
+      { title: "E-Learning", bullets: ["Coaching experto", "Consejos para mejorar", "Crecimiento en tiempo real"] },
+    ],
+  },
+  de: {
+    heroSub: "Top-Booster. Rank Boost, Placements und Win Boosting in allen Regionen, rund um die Uhr.",
+    boostersOnline: "Booster Online", boostingLabel: "Boosting", viewAll: "Alle ansehen",
+    trust: [
+      { title: "Sicherer Service", desc: "Regionale Übereinstimmung, Session-Disziplin und sicherer Account-Umgang sind Standard, keine Extras." },
+      { title: "24/7-Support", desc: "Bestellupdates, ETA-Änderungen und Eskalationspfade ohne langwierige Suche nach Antworten." },
+      { title: "Klare Rückerstattungen", desc: "Wenn eine Session nicht im vereinbarten Format geliefert werden kann, ist der Rückerstattungspfad klar." },
+      { title: "Verschlüsselter Workflow", desc: "VPN-bewusstes Handling und sicherer Checkout sind von Anfang an im Bestellablauf integriert." },
+    ],
+    howLabel: "So funktioniert es", howTitle: "In 3 Schritten bestellen.",
+    howSub: "Keine versteckten Schritte, kein Warten im Dunkeln. Deine Bestellung geht von der Auswahl bis zur Lieferung mit voller Transparenz.",
+    steps: [
+      { step: "01", title: "Wähle deinen Service", description: "Wähle den Boost-Typ, der zu deinem Ziel passt: Rang-Aufstieg, Champion-Push, Wettkampfsiege, ungewertete Sessions oder Coaching." },
+      { step: "02", title: "Präferenzen festlegen", description: "Region, Plattform, gewünschter Rangbereich, VPN an/aus, Duo-Option und besondere Kontonotizen festlegen, bevor wir starten." },
+      { step: "03", title: "Wir liefern, du verfolgst", description: "Ein verifizierter Booster übernimmt deine Bestellung und du erhältst Live-Updates. Support jederzeit erreichbar — Antwort in unter 5 Minuten." },
+    ],
+    faqLabel: "Siege FAQ", faqTitle: "Häufige Fragen.",
+    faq: [
+      { q: "Welche Siege-Services sind verfügbar?", a: "Diese Seite umfasst Rang-Boost, Champion-Pushes, Wettkampfsiege, ungewertete Sessions und E-Learning-Coaching für R6 Siege." },
+      { q: "Ist E-Learning von Boosting getrennt?", a: "E-Learning ist ein eigenständiger Siege-Service für Coaching, Gameplay-Reviews und Verbesserungssessions ohne einen vollen Boost-Auftrag." },
+      { q: "Ist der Saisonzähler echt?", a: "Der Saisontimer verwendet feste Start- und Enddaten der aktuellen Siege-Saison und aktualisiert sich live." },
+      { q: "Unterstützt ihr alle Siege-Plattformen?", a: "Die Seite ist für PC, Xbox und PlayStation ausgelegt, mit angepasstem Routing nach Plattform und Region." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Bis Champion aufsteigen", "Gratis Operatoren nach Wahl", "In allen Regionen verfügbar"] },
+      { title: "Champion Rank Boost", bullets: ["Über Champion hinaus", "Garantiertes Ergebnis", "Auf allen Plattformen verfügbar"] },
+      { title: "Wettkampfsiege", bullets: ["Rang und Win-Rate verbessern", "Gratis Operatoren nach Wahl", "In allen Regionen verfügbar"] },
+      { title: "Ungewertete Matches", bullets: ["Mit deinem Lieblings-Booster spielen", "Kein Einfluss auf die Win-Rate", "In allen Regionen verfügbar"] },
+      { title: "E-Learning", bullets: ["Experten-Coaching", "Tipps zur Verbesserung", "Echtzeit-Wachstum"] },
+    ],
+  },
+  nl: {
+    heroSub: "Topboosters. Rank Boost, Placements en Win Boosting beschikbaar in alle regio's, 24/7.",
+    boostersOnline: "Boosters Online", boostingLabel: "Boosting", viewAll: "Alles bekijken",
+    trust: [
+      { title: "Veilige service", desc: "Regionale afstemming, sessiediscipline en veilig accountbeheer zijn standaard, geen extra's." },
+      { title: "24/7 support", desc: "Je krijgt bestelupdates, ETA-wijzigingen en escalatiepaden zonder te hoeven zoeken naar antwoorden." },
+      { title: "Duidelijke terugbetalingen", desc: "Als een sessie niet in het overeengekomen formaat kan worden geleverd, is het terugbetalingspad expliciet." },
+      { title: "Versleuteld proces", desc: "VPN-bewuste verwerking en veilig afrekenen zijn vanaf het begin ingebouwd in de bestelstroom." },
+    ],
+    howLabel: "Hoe het werkt", howTitle: "Bestel in 3 stappen.",
+    howSub: "Geen verborgen stappen, geen wachten in het donker. Je bestelling gaat van selectie naar levering met volledige zichtbaarheid.",
+    steps: [
+      { step: "01", title: "Kies je service", description: "Kies het boosttype dat past bij jouw doel: rangklimmen, Champion-push, competitieve overwinningen, unrated sessies of coaching." },
+      { step: "02", title: "Stel je voorkeuren in", description: "Vergrendel regio, platform, gewenst rangbereik, VPN aan/uit, duo-optie en speciale accountnotities voordat we beginnen." },
+      { step: "03", title: "Wij leveren, jij volgt", description: "Een geverifieerde booster pakt je bestelling op en je krijgt live voortgangsupdates. Neem op elk moment contact op met support — reactie binnen 5 minuten." },
+    ],
+    faqLabel: "Siege FAQ", faqTitle: "Veelgestelde vragen.",
+    faq: [
+      { q: "Welke Siege-services zijn beschikbaar?", a: "Deze pagina richt zich op ranked boosting, Champion-pushes, competitieve winstpakketten, unrated sessies en E-learning coaching voor R6 Siege." },
+      { q: "Is E-learning apart van boosting?", a: "E-learning is een eigen Siege-service voor het boeken van coaching, gameplaybeoordeling en verbeteringssessies zonder een volledig boost-order." },
+      { q: "Is de seizoenstimer echt?", a: "De seizoenstimer gebruikt vaste start- en einddatums voor het huidige Siege-seizoen en wordt live bijgewerkt." },
+      { q: "Ondersteunen jullie alle Siege-platforms?", a: "De pagina is opgezet voor pc, Xbox en PlayStation met orderrouting aangepast aan platform en regio." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Klim tot Champion", "Gratis operators naar keuze", "Beschikbaar in alle regio's"] },
+      { title: "Champion Rank Boost", bullets: ["Boven Champion-rang", "Gegarandeerd resultaat", "Beschikbaar op alle platforms"] },
+      { title: "Competitieve Overwinningen", bullets: ["Verbeter rang en win-rate", "Gratis operators naar keuze", "Beschikbaar in alle regio's"] },
+      { title: "Unrated Matches", bullets: ["Speel met je favoriete booster", "Geen impact op win-rate", "Beschikbaar in alle regio's"] },
+      { title: "E-Learning", bullets: ["Expertcoaching", "Tips om te verbeteren", "Realtime groei"] },
+    ],
+  },
+  pt: {
+    heroSub: "Boosters de alto nível. Rank Boost, Placements e Win Boosting disponíveis em todas as regiões, 24/7.",
+    boostersOnline: "Boosters Online", boostingLabel: "Boosting", viewAll: "Ver tudo",
+    trust: [
+      { title: "Serviço seguro", desc: "Correspondência regional, disciplina de sessão e manuseio seguro da conta são padrão, não extras." },
+      { title: "Suporte 24/7", desc: "Você recebe atualizações de pedidos, mudanças de ETA e caminhos de escalonamento sem precisar procurar respostas." },
+      { title: "Reembolsos claros", desc: "Se uma sessão não puder ser entregue no formato combinado, o caminho de reembolso é explícito." },
+      { title: "Fluxo criptografado", desc: "Manuseio com VPN e checkout seguro estão integrados ao fluxo de pedidos desde o início." },
+    ],
+    howLabel: "Como funciona", howTitle: "Peça em 3 etapas.",
+    howSub: "Nenhuma etapa oculta, nenhuma espera no escuro. Seu pedido vai da seleção à entrega com total visibilidade.",
+    steps: [
+      { step: "01", title: "Escolha seu serviço", description: "Escolha o tipo de boost que se encaixa no seu objetivo: subida de rank, push para Champion, vitórias competitivas, sessões não classificadas ou coaching." },
+      { step: "02", title: "Configure suas preferências", description: "Defina sua região, plataforma, faixa de rank desejada, VPN ligado/desligado, opção duo e notas especiais antes de começar." },
+      { step: "03", title: "Entregamos, você acompanha", description: "Um booster verificado pega seu pedido e você recebe atualizações ao vivo. Contate o suporte a qualquer momento — resposta em menos de 5 minutos." },
+    ],
+    faqLabel: "FAQ Siege", faqTitle: "Perguntas comuns.",
+    faq: [
+      { q: "Quais serviços do Siege estão disponíveis?", a: "Esta página foca em boost ranked, pushes para Champion, pacotes de vitórias competitivas, sessões não classificadas e E-learning para R6 Siege." },
+      { q: "O E-learning é separado do boost?", a: "O E-learning é um serviço próprio do Siege para reservar coaching, revisões de gameplay e sessões de melhoria sem iniciar um pedido de boost." },
+      { q: "A contagem regressiva da temporada é real?", a: "O timer da temporada usa datas fixas de início e fim da temporada atual do Siege e se atualiza ao vivo." },
+      { q: "Vocês suportam todas as plataformas do Siege?", a: "A página é configurada para PC, Xbox e PlayStation com roteamento de pedidos ajustado por plataforma e região." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Suba até Champion", "Operators à escolha grátis", "Disponível em todas as regiões"] },
+      { title: "Champion Rank Boost", bullets: ["Acima do rank Champion", "Resultado garantido", "Disponível em todas as plataformas"] },
+      { title: "Vitórias Competitivas", bullets: ["Melhore rank e win rate", "Operators à escolha grátis", "Disponível em todas as regiões"] },
+      { title: "Partidas Não Classificadas", bullets: ["Jogue com seu booster favorito", "Sem impacto no win rate", "Disponível em todas as regiões"] },
+      { title: "E-Learning", bullets: ["Coaching especializado", "Dicas para melhorar", "Crescimento em tempo real"] },
+    ],
+  },
+  uk: {
+    heroSub: "Бустери найвищого рівня. Rank Boost, Placements та Win Boosting у всіх регіонах, 24/7.",
+    boostersOnline: "Бустерів онлайн", boostingLabel: "Буст", viewAll: "Переглянути все",
+    trust: [
+      { title: "Безпечний сервіс", desc: "Регіональна відповідність, дисципліна сесій та безпечна робота з акаунтом — це стандарт, а не додаткові послуги." },
+      { title: "Підтримка 24/7", desc: "Ви отримуєте оновлення замовлень, зміни ETA та шляхи ескалації без пошуку відповідей." },
+      { title: "Чіткі відшкодування", desc: "Якщо сесію неможливо доставити в узгодженому форматі, шлях відшкодування чітко визначений." },
+      { title: "Шифрований процес", desc: "Обробка з VPN та безпечна оплата вбудовані у процес замовлення з самого початку." },
+    ],
+    howLabel: "Як це працює", howTitle: "Замовте за 3 кроки.",
+    howSub: "Жодних прихованих кроків, жодного очікування в темряві. Ваше замовлення переходить від вибору до доставки з повною прозорістю.",
+    steps: [
+      { step: "01", title: "Оберіть свій сервіс", description: "Виберіть тип буста для вашої цілі: підйом у рейтингу, штовхання до Champion, конкурентні перемоги, нерейтингові сесії або коучинг." },
+      { step: "02", title: "Налаштуйте параметри", description: "Визначте регіон, платформу, бажаний діапазон рангу, VPN вкл/викл, опцію дуо та спеціальні нотатки перед початком." },
+      { step: "03", title: "Ми доставляємо, ви стежите", description: "Перевірений бустер бере ваше замовлення, і ви отримуєте оновлення в реальному часі. Зверніться до підтримки будь-коли — відповідь менш ніж за 5 хвилин." },
+    ],
+    faqLabel: "Питання Siege", faqTitle: "Поширені запитання.",
+    faq: [
+      { q: "Які сервіси Siege доступні?", a: "Ця сторінка охоплює ranked буст, штовхання до Champion, пакети конкурентних перемог, нерейтингові сесії та E-learning для R6 Siege." },
+      { q: "E-learning — окрема послуга?", a: "E-learning є самостійним сервісом Siege для бронювання коучингу, перегляду ігрового процесу та сесій покращення без повного замовлення буста." },
+      { q: "Зворотний відлік сезону реальний?", a: "Таймер сезону використовує фіксовані дати початку та кінця поточного сезону Siege і оновлюється в реальному часі." },
+      { q: "Чи підтримуєте всі платформи Siege?", a: "Сторінка налаштована для PC, Xbox та PlayStation із маршрутизацією замовлень адаптованою до платформи та регіону." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Піднятися до Champion", "Безкоштовні Operators на вибір", "Доступно у всіх регіонах"] },
+      { title: "Champion Rank Boost", bullets: ["Вище Champion рангу", "Гарантований результат", "Доступно на всіх платформах"] },
+      { title: "Конкурентні Перемоги", bullets: ["Покращіть ранг та win rate", "Безкоштовні Operators на вибір", "Доступно у всіх регіонах"] },
+      { title: "Нерейтингові Матчі", bullets: ["Грайте з улюбленим бустером", "Без впливу на win rate", "Доступно у всіх регіонах"] },
+      { title: "E-Learning", bullets: ["Експертний коучинг", "Поради для покращення", "Ріст у реальному часі"] },
+    ],
+  },
+  ru: {
+    heroSub: "Бустеры высшего уровня. Rank Boost, Placements и Win Boosting во всех регионах, 24/7.",
+    boostersOnline: "Бустеров онлайн", boostingLabel: "Буст", viewAll: "Посмотреть все",
+    trust: [
+      { title: "Безопасный сервис", desc: "Региональное соответствие, дисциплина сессий и безопасная работа с аккаунтом — стандарт, не дополнение." },
+      { title: "Поддержка 24/7", desc: "Вы получаете обновления заказов, изменения ETA и пути эскалации без поиска ответов." },
+      { title: "Чёткие возвраты", desc: "Если сессию невозможно доставить в оговорённом формате, путь возврата явно определён." },
+      { title: "Зашифрованный процесс", desc: "Обработка с VPN и безопасная оплата встроены в процесс заказа с самого начала." },
+    ],
+    howLabel: "Как это работает", howTitle: "Закажите за 3 шага.",
+    howSub: "Никаких скрытых шагов, никакого ожидания в темноте. Ваш заказ переходит от выбора к доставке с полной прозрачностью.",
+    steps: [
+      { step: "01", title: "Выберите сервис", description: "Выберите тип буста для своей цели: подъём в рейтинге, пуш к Champion, конкурентные победы, нерейтинговые сессии или коучинг." },
+      { step: "02", title: "Настройте параметры", description: "Укажите регион, платформу, желаемый диапазон ранга, VPN вкл/выкл, опцию дуо и особые заметки перед стартом." },
+      { step: "03", title: "Мы доставляем, вы следите", description: "Проверенный бустер берёт ваш заказ, и вы получаете обновления в реальном времени. Обратитесь в поддержку в любой момент — ответ менее чем за 5 минут." },
+    ],
+    faqLabel: "Вопросы о Siege", faqTitle: "Частые вопросы.",
+    faq: [
+      { q: "Какие сервисы Siege доступны?", a: "Страница охватывает ranked буст, пуши к Champion, пакеты конкурентных побед, нерейтинговые сессии и E-learning для R6 Siege." },
+      { q: "E-learning — отдельный сервис?", a: "E-learning является самостоятельным сервисом Siege для бронирования коучинга, просмотра геймплея и улучшающих сессий без полного заказа буста." },
+      { q: "Обратный отсчёт сезона реальный?", a: "Таймер сезона использует фиксированные даты начала и окончания текущего сезона Siege и обновляется в реальном времени." },
+      { q: "Поддерживаете ли все платформы Siege?", a: "Страница настроена для PC, Xbox и PlayStation с маршрутизацией заказов под платформу и регион." },
+    ],
+    services: [
+      { title: "Rank Up Boost", bullets: ["Подняться до Champion", "Бесплатные Операторы на выбор", "Доступно во всех регионах"] },
+      { title: "Champion Rank Boost", bullets: ["Выше ранга Champion", "Гарантированный результат", "Доступно на всех платформах"] },
+      { title: "Конкурентные Победы", bullets: ["Улучшите ранг и win rate", "Бесплатные Операторы на выбор", "Доступно во всех регионах"] },
+      { title: "Нерейтинговые Матчи", bullets: ["Играйте с любимым бустером", "Без влияния на win rate", "Доступно во всех регионах"] },
+      { title: "E-Learning", bullets: ["Экспертный коучинг", "Советы по улучшению", "Рост в реальном времени"] },
+    ],
+  },
 };
 
-function Toggle({
-  enabled,
-  setEnabled,
-}: {
-  enabled: boolean;
-  setEnabled: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+type GameMenuItem = {
+  id: string;
+  label: string;
+  chipLabel?: string;
+  iconSrc?: string;
+  shortLabel: string;
+  fallbackClass: string;
+  comingSoon?: boolean;
+};
+
+type ServiceCard = {
+  id: string;
+  tag: string;
+  title: string;
+  description: string;
+  image?: string;
+  bullets: string[];
+  href: string;
+};
+
+const GAME_MENU_ITEMS: GameMenuItem[] = [
+  { id: "lol", label: "League of Legends", shortLabel: "L", fallbackClass: "bg-[#0e5a68] text-[#d4af37]" },
+  { id: "wow", label: "World of Warcraft", iconSrc: "/game-icons/game_icon (1).webp", shortLabel: "W", fallbackClass: "bg-[#23314f] text-[#f3c356]" },
+  { id: "valorant", label: "Valorant", iconSrc: "/game-icons/game_icon (2).webp", shortLabel: "V", fallbackClass: "bg-[#ff5468] text-black" },
+  { id: "r6", label: "Rainbow Six Siege", chipLabel: "Rainbow Six Siege X", iconSrc: "/game-icons/r6-icon.webp", shortLabel: "R6", fallbackClass: "bg-cyan-400 text-black" },
+  { id: "rocket-league", label: "Rocket League", iconSrc: "/game-icons/game_icon (3).webp", shortLabel: "RL", fallbackClass: "bg-[#3d6ef7] text-white" },
+  { id: "overwatch", label: "Overwatch", iconSrc: "/game-icons/game_icon (4).webp", shortLabel: "OW", fallbackClass: "bg-zinc-700 text-white" },
+  { id: "cs2", label: "Counter Strike 2", iconSrc: "/game-icons/game_icon (5).webp", shortLabel: "CS2", fallbackClass: "bg-[#f97316] text-black" },
+  { id: "dota-2", label: "Dota 2", iconSrc: "/game-icons/game_icon (6).webp", shortLabel: "D2", fallbackClass: "bg-[#7f1d1d] text-white" },
+  { id: "apex", label: "Apex Legends", iconSrc: "/game-icons/game_icon (7).webp", shortLabel: "A", fallbackClass: "bg-[#93333b] text-white" },
+  { id: "fortnite", label: "Fortnite", iconSrc: "/game-icons/game_icon (8).webp", shortLabel: "F", fallbackClass: "bg-[#7c3aed] text-white" },
+  { id: "tft", label: "Teamfight Tactics", shortLabel: "TFT", fallbackClass: "bg-[#4f46e5] text-white", comingSoon: true },
+  { id: "finals", label: "The Finals", iconSrc: "/game-icons/game_icon (9).webp", shortLabel: "TF", fallbackClass: "bg-[#dc2626] text-white", comingSoon: true },
+  { id: "cod", label: "Call of Duty", iconSrc: "/game-icons/game_icon (10).webp", shortLabel: "COD", fallbackClass: "bg-zinc-800 text-white", comingSoon: true },
+  { id: "marvel-rivals", label: "Marvel Rivals", shortLabel: "MR", fallbackClass: "bg-[#111827] text-white", comingSoon: true },
+  { id: "fc26", label: "FC26", shortLabel: "FC", fallbackClass: "bg-[#14532d] text-[#22c55e]", comingSoon: true },
+  { id: "poe2", label: "Path of Exile 2", shortLabel: "POE2", fallbackClass: "bg-[#3f1d12] text-[#f59e0b]", comingSoon: true },
+  { id: "rematch", label: "Rematch", iconSrc: "/game-icons/game_icon (11).webp", shortLabel: "RM", fallbackClass: "bg-[#0f172a] text-white", comingSoon: true },
+  { id: "clash-royale", label: "Clash Royale", shortLabel: "CR", fallbackClass: "bg-[#1d4ed8] text-white", comingSoon: true },
+  { id: "battlefield-6", label: "Battlefield 6", iconSrc: "/game-icons/game_icon (12).webp", shortLabel: "B6", fallbackClass: "bg-[#ea580c] text-white", comingSoon: true },
+  { id: "arc-raiders", label: "Arc Raiders", iconSrc: "/game-icons/game_icon (13).webp", shortLabel: "AR", fallbackClass: "bg-[#f3f4f6] text-black", comingSoon: true },
+  { id: "gta6", label: "Grand Theft Auto 6", iconSrc: "/game-icons/game_icon (14).webp", shortLabel: "VI", fallbackClass: "bg-[#7c3aed] text-white", comingSoon: true },
+];
+
+function buildSectionTabs(basePath: string) {
+  return [
+    { id: "overview", label: "Overview", href: null },
+    { id: "boosting", label: "Boosting", href: `${basePath}/rainbow-six-siege-rank-boost` },
+    { id: "e-learning", label: "E-learning", href: "/en/rainbow-six-siege-boost/elearning" },
+    { id: "boosters", label: "Boosters", href: null },
+  ];
+}
+
+function buildServiceCards(basePath: string): ServiceCard[] {
+  return [
+    {
+      id: "rank-up",
+      tag: "-15%",
+      title: "Rank Up Boost",
+      image: "/r6-rank-boost.png",
+      description: "",
+      href: `${basePath}/rainbow-six-siege-rank-boost`,
+      bullets: ["Rank up to Champion", "Free Operators of choice", "Available on all regions"],
+    },
+    {
+      id: "champion",
+      tag: "-15%",
+      title: "Champion Rank Boost",
+      image: "/ranks/rank_8.webp",
+      description: "",
+      href: "/en/rainbow-six-siege-boost/champion",
+      bullets: ["Rank Above Champion", "Guaranteed Result", "Available on all platforms"],
+    },
+    {
+      id: "competitive",
+      tag: "-15%",
+      title: "Competitive Wins",
+      image: "/rainbow-competitive-wins.png",
+      description: "",
+      href: "/en/rainbow-six-siege-boost/competitive",
+      bullets: ["Increase your Rank & Win Rate", "Free Operators of choice", "Available on all regions"],
+    },
+    {
+      id: "unrated",
+      tag: "-15%",
+      title: "Unrated Matches",
+      image: "/rainbow-six-siege-unrated-matches-boost.webp",
+      description: "",
+      href: "/en/rainbow-six-siege-boost/unrated",
+      bullets: ["Play with your favorite Booster", "No Win Rate", "Available on all regions and servers"],
+    },
+    {
+      id: "elearning",
+      tag: "-15%",
+      title: "E-Learning",
+      image: "/e-learning_boost.webp",
+      description: "",
+      href: "/en/rainbow-six-siege-boost/elearning",
+      bullets: ["Level up expert gaming coaching", "Tips to improve gameplay", "Real-time skill growth"],
+    },
+  ];
+}
+
+const TRUST_ITEMS = [
+  {
+    title: "Safe service",
+    description: "Region matching, session discipline, and account-safe handling are the default, not upsells.",
+    iconSrc: "/icons/safe-service.png",
+  },
+  {
+    title: "24/7 support",
+    description: "You get order updates, ETA changes, and escalation paths without chasing for answers.",
+    iconSrc: "/icons/24-7-support.png",
+  },
+  {
+    title: "Refund clarity",
+    description: "If a session cannot be delivered in the agreed format, the fallback and refund path is explicit.",
+    iconSrc: "/icons/money-refunds.png",
+  },
+  {
+    title: "Encrypted workflow",
+    description: "VPN-aware handling and secure checkout are built into the order flow from the start.",
+    iconSrc: "/icons/ssl.png",
+  },
+];
+
+const FAQ_COPY = {
+  label: "Siege FAQ",
+  items: [
+    {
+      q: "What Siege services are available on this page?",
+      a: "This page currently focuses on ranked boosting, Champion pushes, competitive win packages, unrated sessions, and coaching-based E-learning for Rainbow Six Siege.",
+    },
+    {
+      q: "Is E-learning a separate service or part of boosting?",
+      a: "E-learning is presented as its own Siege service so players can book coaching, gameplay review, and improvement sessions without starting a full rank boost order.",
+    },
+    {
+      q: "Is the season countdown real or static?",
+      a: "The season timer on this page uses fixed start and end dates for the current Siege season and updates live instead of relying on a fake rolling counter.",
+    },
+    {
+      q: "Do you support all Siege platforms?",
+      a: "The page is set up around PC, Xbox, and PlayStation support, with order routing adjusted around platform and region availability.",
+    },
+  ],
+};
+
+function GameMenuIcon({ item, className = "h-10 w-10", priority = false }: { item: GameMenuItem; className?: string; priority?: boolean }) {
+  if (item.iconSrc) {
+    return (
+      <span className={`flex ${className} items-center justify-center overflow-hidden rounded-full bg-white/[0.04]`}>
+        <Image
+          src={item.iconSrc}
+          alt=""
+          width={48}
+          height={48}
+          priority={priority}
+          unoptimized
+          className="h-full w-full object-cover"
+        />
+      </span>
+    );
+  }
+
   return (
-    <button
-      type="button"
-      onClick={() => setEnabled(!enabled)}
-      className={`flex h-7 w-14 items-center rounded-full p-1 transition-colors duration-200 ${
-        enabled ? "bg-gradient-to-r from-cyan-400 to-cyan-600" : "bg-zinc-700"
-      }`}
-    >
-      <div
-        className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ease-out ${
-          enabled ? "translate-x-7" : ""
-        }`}
-      />
-    </button>
+    <span className={`flex ${className} items-center justify-center rounded-full text-[11px] font-black tracking-[0.08em] ${item.fallbackClass}`}>
+      {item.shortLabel}
+    </span>
   );
 }
 
-function AffiliateIcon() {
+function ChevronDownIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="4" cy="4" r="1.4" />
-      <circle cx="12" cy="4" r="1.4" />
-      <circle cx="8" cy="12" r="1.4" />
-      <path d="M5.2 5.1l1.8 5.4M10.8 5.1L9 10.5M5.4 4h5.2" />
+    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 6.5 8 11l4.5-4.5" />
     </svg>
   );
 }
 
-export default function ProBoostCalculator() {
-  const seasonStart = Date.parse("2026-03-03T14:00:00Z");
-  const seasonEnd = Date.parse("2026-06-03T14:00:00Z");
+function ArrowUpRightIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 11 11 5" />
+      <path d="M6 5h5v5" />
+    </svg>
+  );
+}
 
-  const [discountEnd] = React.useState(() => {
-    const end = new Date();
-    end.setHours(end.getHours() + 10, end.getMinutes() + 5, end.getSeconds() + 40);
-    return end.getTime();
-  });
+function ArrowLeftIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 3.5 5.5 8 10 12.5" />
+    </svg>
+  );
+}
 
-  const computeTimeLeft = (target: number) => {
-    const diff = Math.max(0, target - Date.now());
-    return {
-      days: Math.floor(diff / 86400000),
-      hours: Math.floor((diff % 86400000) / 3600000),
-      minutes: Math.floor((diff % 3600000) / 60000),
-      seconds: Math.floor((diff % 60000) / 1000),
-    };
-  };
+function ArrowRightIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m6 3.5 4.5 4.5L6 12.5" />
+    </svg>
+  );
+}
 
-  const [discountTime, setDiscountTime] = React.useState(() => computeTimeLeft(discountEnd));
-  const [seasonTime, setSeasonTime] = React.useState(() => computeTimeLeft(seasonEnd));
+function LightningIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+      <path d="M8.8 1.5 3.7 8h3l-.7 6.5L12.2 8H9.1l-.3-6.5Z" />
+    </svg>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 1.5 13 3.5v3.8c0 3-2 5.7-5 7.2-3-1.5-5-4.2-5-7.2V3.5L8 1.5Z" />
+      <path d="m6.3 8 1.2 1.2L10 6.7" />
+    </svg>
+  );
+}
+
+function ServiceArtwork({ image }: { serviceId: string; image?: string }) {
+  if (!image) return null;
+
+  return (
+    <div className="relative flex h-[132px] w-full items-end justify-end overflow-hidden">
+      <Image
+        src={image}
+        alt=""
+        width={160}
+        height={160}
+        className="h-auto max-h-[132px] w-auto max-w-full object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.55)]"
+      />
+    </div>
+  );
+}
+
+export default function SiegeBoostingPage({ basePath = "/boosting" }: { basePath?: string }) {
+  const SECTION_TABS = buildSectionTabs(basePath);
+  const SERVICE_CARDS_BASE = buildServiceCards(basePath);
+
+  const [selectedLang, setSelectedLang] = React.useState<LangCode>("en");
+  const [langOpen, setLangOpen] = React.useState(false);
+  const langRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const interval = setInterval(() => {
-      setDiscountTime(computeTimeLeft(discountEnd));
-      setSeasonTime(computeTimeLeft(seasonEnd));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [discountEnd, seasonEnd]);
+    const saved = localStorage.getItem("proboost_lang");
+    if (saved) setSelectedLang(saved as never);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const t = PAGE_I18N[selectedLang];
+  const currentFlag = LANGUAGES.find((l) => l.code === selectedLang)!.flag;
 
-  const seasonDaysLeft = seasonTime.days + (seasonTime.hours > 0 || seasonTime.minutes > 0 || seasonTime.seconds > 0 ? 1 : 0);
-  const seasonDuration = Math.max(seasonEnd - seasonStart, 1);
-  const seasonProgress = Math.min(
-    Math.max((Date.now() - seasonStart) / seasonDuration, 0),
-    1,
-  );
-  const circumference = 2 * Math.PI * 18;
-  const seasonDashoffset = circumference * (1 - seasonProgress);
+  const SERVICE_CARDS = SERVICE_CARDS_BASE.map((card, i) => ({
+    ...card,
+    title: t.services[i]?.title ?? card.title,
+    bullets: t.services[i]?.bullets ?? card.bullets,
+  }));
 
-  const formatTime = (num: number) => String(num).padStart(2, "0");
+  React.useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
-  const getBoosterCount = () => {
+  const [selectedServiceId, setSelectedServiceId] = React.useState<string | null>(null);
+
+  const getBoosterCount = React.useCallback(() => {
     const now = new Date();
     const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
     const slot = Math.floor((now.getHours() * 60 + now.getMinutes()) / 144);
     const hash = ((seed * 9301 + slot * 49297) % 233280) / 233280;
     return Math.floor(hash * 41) + 80;
-  };
-
-  const [boosterCount, setBoosterCount] = React.useState(getBoosterCount);
-
-  React.useEffect(() => {
-    const interval = setInterval(() => setBoosterCount(getBoosterCount()), 60000);
-    return () => clearInterval(interval);
   }, []);
 
-  const ranks: Rank[] = [
-    {
-      name: "Copper",
-      color: "from-orange-500/15 to-orange-700/5",
-      icon: "/ranks/rank_1.webp",
-    },
-    {
-      name: "Bronze",
-      color: "from-amber-500/15 to-amber-700/5",
-      icon: "/ranks/rank_2.webp",
-    },
-    {
-      name: "Silver",
-      color: "from-zinc-300/15 to-zinc-500/5",
-      icon: "/ranks/rank_3.webp",
-    },
-    {
-      name: "Gold",
-      color: "from-yellow-400/15 to-yellow-600/5",
-      icon: "/ranks/rank_4.webp",
-    },
-    {
-      name: "Platinum",
-      color: "from-cyan-400/15 to-cyan-600/5",
-      icon: "/ranks/rank_5.webp",
-    },
-    {
-      name: "Emerald",
-      color: "from-emerald-400/15 to-emerald-600/5",
-      icon: "/ranks/rank_6.webp",
-    },
-    {
-      name: "Diamond",
-      color: "from-violet-400/15 to-violet-600/5",
-      icon: "/ranks/rank_7.webp",
-    },
-    {
-      name: "Champion",
-      color: "from-pink-500/15 to-pink-700/5",
-      icon: "/ranks/rank_8.webp",
-    },
-  ];
-
-  const divisions = ["V", "IV", "III", "II", "I"] as const;
-  const platforms = ["PC", "Xbox", "PlayStation"] as const;
-  const servers = [
-    "Europe",
-    "North America",
-    "Latin America",
-    "Asia",
-    "Oceania",
-    "Brazil",
-    "Middle East",
-    "Japan",
-    "South Korea",
-  ] as const;
-  const paymentMethods = [
-    { name: "PayPal", icon: "/payments/paypal.webp" },
-    { name: "Mastercard", icon: "/payments/mastercard.webp" },
-    { name: "Visa", icon: "/payments/visa.webp" },
-    { name: "Google Pay", icon: "/payments/gpay.webp" },
-    { name: "Apple Pay", icon: "/payments/apay.webp" },
-    { name: "American Express", icon: "/payments/americanexpress.webp" },
-    { name: "UnionPay", icon: "/payments/unionpay.webp" },
-    { name: "JCB", icon: "/payments/jcb.webp" },
-  ];
-  const rpOptions = [
-    "1/10 RP",
-    "11/20 RP",
-    "21/30 RP",
-    "31/40 RP",
-    "41/50 RP",
-    "51/60 RP",
-    "61/70 RP",
-    "71/80 RP",
-    "81/90 RP",
-    "90+ RP",
-  ] as const;
-
-  const flattenRank = (rankName: string, division: string) => {
-    const rankIndex = ranks.findIndex((r) => r.name === rankName);
-    const divisionIndex = divisions.findIndex((d) => d === division);
-    return rankIndex * divisions.length + divisionIndex;
-  };
-
-  const [queueType, setQueueType] = React.useState<"Solo" | "Duo">("Solo");
-  const [duoBoosterCount, setDuoBoosterCount] = React.useState(1);
-  const [currentRank, setCurrentRank] = React.useState("Copper");
-  const [currentDivision, setCurrentDivision] = React.useState<string>("V");
-  const [desiredRank, setDesiredRank] = React.useState("Diamond");
-  const [desiredDivision, setDesiredDivision] = React.useState<string>("V");
-  const [platform, setPlatform] = React.useState<string>("PC");
-  const [server, setServer] = React.useState<string>("Europe");
-  const [rpGain, setRpGain] = React.useState<string>("71/80 RP");
-
-  const [specificBooster, setSpecificBooster] = React.useState(false);
-  const [playOffline, setPlayOffline] = React.useState(false);
-  const [specificOperators, setSpecificOperators] = React.useState(false);
-  const [streaming, setStreaming] = React.useState(false);
-  const [express, setExpress] = React.useState(false);
-  const [highKillCount, setHighKillCount] = React.useState(false);
-  const [oneTrickPony, setOneTrickPony] = React.useState(false);
-  const [rankInsurance, setRankInsurance] = React.useState(false);
-  const [vipPriority, setVipPriority] = React.useState(false);
-  const [insaneClipDrop, setInsaneClipDrop] = React.useState(false);
-  const [eliteTier, setEliteTier] = React.useState(false);
-
-  const [promoCode, setPromoCode] = React.useState("");
-  const [promoExpanded, setPromoExpanded] = React.useState(false);
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
-  const [toastType, setToastType] = React.useState<"error" | "success">("error");
-
-  const handleApplyPromo = () => {
-    if (promoCode.trim().toUpperCase() === "WELCOME6") {
-      setToastType("success");
-      setToastMessage(selectedLang === "it" ? "Coupon applicato con successo! Hai ottenuto il 6% di sconto." : selectedLang === "fr" ? "Coupon appliqué avec succès ! Vous avez obtenu 6% de réduction." : selectedLang === "es" ? "¡Cupón aplicado correctamente! Has obtenido un 6% de descuento." : selectedLang === "de" ? "Coupon erfolgreich angewendet! Du hast 6% Rabatt erhalten." : selectedLang === "nl" ? "Coupon succesvol toegepast! Je hebt 6% korting gekregen." : selectedLang === "pt" ? "Cupom aplicado com sucesso! Você recebeu 6% de desconto." : selectedLang === "uk" ? "Купон успішно застосовано! Ви отримали знижку 6%." : selectedLang === "ru" ? "Купон успешно применен! Вы получили скидку 6%." : "Coupon applied successfully! You got 6% off.");
-      setTimeout(() => setToastMessage(null), 4000);
-    } else {
-      setToastType("error");
-      setToastMessage(selectedLang === "it" ? "Coupon non trovato, contatta il supporto." : selectedLang === "fr" ? "Coupon introuvable, veuillez contacter le support." : selectedLang === "es" ? "Cupón no encontrado, contacta con soporte." : selectedLang === "de" ? "Coupon nicht gefunden, bitte kontaktiere den Support." : selectedLang === "nl" ? "Coupon niet gevonden, neem contact op met support." : selectedLang === "pt" ? "Cupom não encontrado, entre em contato com o suporte." : selectedLang === "uk" ? "Купон не знайдено, зверніться до підтримки." : selectedLang === "ru" ? "Купон не найден, обратитесь в поддержку." : "Ops, coupon not found, please contact support.");
-      setTimeout(() => setToastMessage(null), 4000);
-    }
-  };
-
-  const currentValue = flattenRank(currentRank, currentDivision);
-  const desiredValue = flattenRank(desiredRank, desiredDivision);
-  const safeDesiredValue = Math.max(desiredValue, currentValue + 1);
-  const steps = safeDesiredValue - currentValue;
-
-  const rpMultiplierMap: Record<string, number> = {
-    "1/10 RP": 1.35,
-    "11/20 RP": 1.25,
-    "21/30 RP": 1.15,
-    "31/40 RP": 1.1,
-    "41/50 RP": 1.05,
-    "51/60 RP": 1,
-    "61/70 RP": 0.95,
-    "71/80 RP": 0.9,
-    "81/90 RP": 0.85,
-    "90+ RP": 0.8,
-  };
-
-  const basePerStep = queueType === "Solo" ? 4.35 : 5.65 * (1 + (duoBoosterCount - 1) * 0.25);
-  const platformMultiplier = platform === "PC" ? 1 : 1.2;
-  const rpMultiplier = rpMultiplierMap[rpGain] ?? 1;
-  const boosterFee = specificBooster ? 7.5 : 0;
-
-  let subtotal = steps * basePerStep * platformMultiplier * rpMultiplier + boosterFee;
-
-  if (streaming) subtotal += 9;
-
-  let multiplier = 1;
-  if (express) multiplier += 0.2;
-  if (highKillCount) multiplier += 0.4;
-  if (oneTrickPony) multiplier += 0.3;
-  if (rankInsurance) multiplier += 0.5;
-  if (vipPriority) multiplier += 0.5;
-  if (insaneClipDrop) multiplier += 0.15;
-  if (eliteTier) multiplier += 0.5;
-
-  subtotal *= multiplier;
-
-  const promoDiscount =
-    promoCode.trim().toUpperCase() === "WELCOME6" ? subtotal * 0.06 : 0;
-  const extraDiscountThreshold = 50;
-  const hasExtraDiscount = subtotal >= extraDiscountThreshold;
-  const extraDiscount = hasExtraDiscount ? subtotal * 0.03 : 0;
-  const discount = promoDiscount + extraDiscount;
-  const extraDiscountPercent = (promoDiscount > 0 ? 6 : 0) + (hasExtraDiscount ? 3 : 0);
-  const amountToExtraDiscount = Math.max(0, extraDiscountThreshold - subtotal);
-
-  const total = Math.max(0, subtotal - discount);
-
-  const isDesiredRankDisabled = (rankName: string) =>
-    flattenRank(rankName, "I") <= currentValue;
-
-  const isDesiredDivisionDisabled = (division: string) =>
-    flattenRank(desiredRank, division) <= currentValue;
-
-  const rankCard = (selected: boolean, disabled: boolean) =>
-    `group rounded-2xl border p-3 transition-all duration-200 ease-out cursor-pointer ${
-      disabled
-        ? "border-white/10 bg-white/[0.02] text-zinc-500 opacity-60 cursor-not-allowed"
-        : selected
-        ? "border-cyan-400/60 bg-gradient-to-br from-cyan-400/20 to-cyan-600/10 shadow-lg shadow-cyan-500/30 scale-[1.02]"
-        : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05] hover:shadow-md hover:shadow-white/5 hover:scale-[1.01]"
-    }`;
-
-  const pillButton = (selected: boolean, disabled = false) =>
-    `rounded-xl border px-4 py-3 text-sm font-semibold transition-all duration-200 ease-out cursor-pointer ${
-      disabled
-        ? "border-white/10 bg-white/[0.02] text-zinc-500 opacity-60 cursor-not-allowed"
-        : selected
-        ? "border-cyan-400/60 bg-gradient-to-r from-cyan-400/20 to-cyan-600/20 text-white shadow-lg shadow-cyan-500/25"
-        : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.05] hover:border-white/20"
-    }`;
-
-  const addOnCard = (
-    title: string,
-    tag: string,
-    enabled: boolean,
-    setEnabled: React.Dispatch<React.SetStateAction<boolean>>,
-    description?: string
-  ) => (
-    <div className={`relative rounded-2xl border p-4 transition-all duration-200 ease-out ${
-      enabled
-        ? "border-cyan-400/40 bg-cyan-400/10 shadow-lg shadow-cyan-500/20"
-        : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
-    }`}>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="font-semibold text-white">{title}</p>
-            {description && (
-              <span className="group/tip relative cursor-help">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500/20 text-[10px] font-bold text-cyan-400">?</span>
-                <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-56 -translate-x-1/2 rounded-xl border border-white/10 bg-zinc-900 px-3 py-2 text-xs text-zinc-300 opacity-0 shadow-xl transition-opacity duration-200 group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
-                  {description}
-                </span>
-              </span>
-            )}
-          </div>
-          <span className={`mt-2 inline-block rounded-md border px-2.5 py-1 text-xs font-bold ${
-            enabled
-              ? "border-emerald-400 bg-emerald-400/20 text-emerald-300"
-              : tag === annotations.free || tag === localizedAnnotations.en.free
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-              : "border-orange-500/30 bg-orange-500/10 text-orange-400"
-          }`}>
-            {tag}
-          </span>
-        </div>
-        <Toggle enabled={enabled} setEnabled={setEnabled} />
-      </div>
-    </div>
-  );
-
-  const currentRankData = ranks.find((r) => r.name === currentRank);
-  const desiredRankData = ranks.find((r) => r.name === desiredRank);
-
-  const rankTextColorMap: Record<string, string> = {
-    "Copper": "text-orange-400",
-    "Bronze": "text-amber-400",
-    "Silver": "text-zinc-300",
-    "Gold": "text-yellow-400",
-    "Platinum": "text-cyan-400",
-    "Emerald": "text-emerald-400",
-    "Diamond": "text-violet-400",
-    "Champion": "text-pink-400",
-  };
-
-  const [checkoutLoading, setCheckoutLoading] = React.useState(false);
-  const [showDetails, setShowDetails] = React.useState(false);
-
-  const languages = [
-    { code: "en", name: "English", flag: "us" },
-    { code: "it", name: "Italiano", flag: "it" },
-    { code: "fr", name: "Français", flag: "fr" },
-    { code: "es", name: "Español", flag: "es" },
-    { code: "de", name: "Deutsch", flag: "de" },
-    { code: "nl", name: "Nederlands", flag: "nl" },
-    { code: "pt", name: "Português", flag: "pt" },
-    { code: "uk", name: "Українська", flag: "ua" },
-    { code: "ru", name: "Русский", flag: "ru" },
-  ];
-  const [selectedLang, setSelectedLang] = React.useState("en");
-  const [langOpen, setLangOpen] = React.useState(false);
-  const langRef = React.useRef<HTMLDivElement>(null);
-
-  const englishAddOns = {
-    playOffline: { title: "Play Offline", desc: "The Booster will appear offline during the progression of the order, to ensure maximum safety." },
-    express: { title: "Express Delivery", desc: "Your order will be prioritized and completed faster than standard delivery." },
-    rankInsurance: { title: "Rank Insurance", desc: "Stay secure at your new rank. Your boost ends with extra wins added as a buffer, so you don't risk dropping back down right away." },
-    eliteTier: { title: "Elite 0.01% Tier", desc: "Your boost will be handled by one of our top 0.01% highest-rated boosters." },
-    specificOperators: { title: "Specific Operators", desc: "Choose which operators the booster will play during your boost session." },
-    highKillCount: { title: "High Kill Count", desc: "The booster will focus on achieving a high number of kills each game for better stats." },
-    vipPriority: { title: "VIP Priority", desc: "Your order jumps to the front of the queue and gets assigned to a booster immediately." },
-    streaming: { title: "Streaming", desc: "Watch your boost live via a private stream link so you can follow every game in real time." },
-    oneTrickPony: { title: "One Trick Pony", desc: "The booster will play only one specific operator of your choice for the entire boost." },
-    insaneClipDrop: { title: "Insane Clip Drop", desc: "Receive highlight clips of the best plays and kills from your boost sessions." },
-  };
-  const englishTrustFeatures = [
-    { title: "Money-Back Guarantee", desc: "Your satisfaction is our promise - if we don't deliver, you get a full refund. No questions asked." },
-    { title: "Zero-Ban Protection", desc: "100% safe boosting with advanced VPN routes and real players only - zero bots, zero risks." },
-    { title: "Fair & Transparent Pricing", desc: "Top-tier quality at honest prices - you pay for real performance, not empty promises." },
-    { title: "The World's Strongest Players", desc: "Every booster is verified, ranked, and battle-tested - elite talent that guarantees results." },
-    { title: "24/7 Live Support", desc: "We're always online to assist you - instant updates, real people, real help anytime." },
-  ];
-
-  const localizedUi = {
-    en: {
-      onlineBoosters: "Online Boosters",
-      login: "Log In",
-      affiliateProgram: "Affiliate Program",
-      membership: "Membership",
-      answersHub: "Answers Hub",
-      workWithUs: "Work with us",
-      contact: "Contact",
-      overview: "Overview",
-      boosting: "Boosting",
-      eLearning: "E-learning",
-      boosters: "Boosters",
-      heroTitle: "Rainbow Six Siege Rank Boost",
-      heroDesc: "Take your gameplay to the next level! Dominate the battlegrounds of Rainbow 6 Siege with our expert boosters. Experience the thrill of victory as you climb the ranks and outplay your opponents. Unlock your true potential and become a true champion in Rainbow 6 Siege!",
-      badges: ["SSL Secure", "VPN", "Safe Service", "24/7 Support", "Money Refunds", "Cashback"],
-      seasonName: "Year 11 Season 1 — Operation Silent Hunt",
-      daysLeft: "DAYS LEFT",
-      serviceButtons: ["Rank Boost", "Champion Rank Boost", "Competitive Wins", "Unrated Matches"],
-      rated: "Rated 4.9+",
-      discountTitle: "Limited-Time Discount for the Same Elite Experience",
-      discountSubtitle: "Trusted by top players and built for a premium, polished experience.",
-      discountEnds: "Discount Ends In",
-      currentRank: "Current Rank",
-      desiredRank: "Desired Rank",
-      selectPlatform: "Select Platform",
-      summary: "Summary",
-      policyTitle: "Estimated Starting Time Policy",
-      policyLine1: "The delivery time displayed is an",
-      policyHighlight1: "estimate based on average completion times",
-      policyLine2: "Actual delivery or starting time may vary depending on factors such as",
-      policyHighlight2: ["order volume", "customer response times", "booster availability"],
-      policyLine3: "We appreciate your understanding and will do our best to meet your expectations promptly.",
-      solo: "Solo",
-      duo: "Duo",
-      specificBooster: "Specific Booster",
-      specificBoosterDesc: "Your boost will be assigned to a specific booster of your choice.",
-      applyPromo: "Apply Promo Code",
-      enterCoupon: "Enter Coupon",
-      apply: "Apply",
-      trustHeading: "Why Players Trust ProBoost",
-      faqLabel: "FAQs",
-      infoHeadings: [
-        "Rank Higher & Win More Games!",
-        "Pick Your Own Booster!",
-        "The Easiest Way To Boost Your RP",
-        "Cut Down the Loss Ratio with R6 Boosting",
-        "Fast & Simple Rainbow Six Siege Boosting Services",
-        "The Most Secure R6 Boosting",
-        "Benefits of Rainbow Six Siege Boosting",
-        "Your Satisfaction Is Important To Us",
-      ],
-    },
-    it: { onlineBoosters: "Booster online", login: "Accedi", affiliateProgram: "Programma Affiliazione", membership: "Abbonamento", answersHub: "Centro Risposte", workWithUs: "Lavora con noi", contact: "Contatti", overview: "Panoramica", boosting: "Boosting", eLearning: "E-learning", boosters: "Booster", heroTitle: "Boost Rank Rainbow Six Siege", heroDesc: "Porta il tuo gameplay al livello successivo con i nostri booster esperti e scala i rank più velocemente.", badges: ["SSL Sicuro", "VPN", "Servizio Sicuro", "Supporto 24/7", "Rimborsi", "Cashback"], seasonName: "Anno 11 Stagione 1 — Operation Silent Hunt", daysLeft: "GIORNI RIMASTI", serviceButtons: ["Boost Rank", "Boost Champion", "Vittorie Competitive", "Partite Unrated"], rated: "Valutato 4.9+", discountTitle: "Sconto Limitato per la Stessa Esperienza Elite", discountSubtitle: "Scelto dai migliori giocatori per un servizio premium.", discountEnds: "Lo sconto termina tra", currentRank: "Rank Attuale", desiredRank: "Rank Desiderato", selectPlatform: "Seleziona Piattaforma", summary: "Riepilogo", policyTitle: "Politica Tempi Stimati", policyLine1: "Il tempo mostrato è una", policyHighlight1: "stima basata sui tempi medi di completamento", policyLine2: "I tempi effettivi possono variare in base a", policyHighlight2: ["volume ordini", "tempi di risposta del cliente", "disponibilità booster"], policyLine3: "Faremo del nostro meglio per soddisfare rapidamente il tuo ordine.", solo: "Solo", duo: "Duo", specificBooster: "Booster Specifico", specificBoosterDesc: "Il tuo ordine verrà assegnato a un booster specifico scelto da te.", applyPromo: "Applica Codice Promo", enterCoupon: "Inserisci Coupon", apply: "Applica", trustHeading: "Perché i giocatori scelgono ProBoost", faqLabel: "FAQ", infoHeadings: ["Sali di Rank e Vinci di Più!", "Scegli il Tuo Booster!", "Il modo più facile per aumentare i tuoi RP", "Riduci le sconfitte con il boosting R6", "Servizi di boosting semplici e veloci", "Il boosting R6 più sicuro", "Vantaggi del boosting Rainbow Six Siege", "La tua soddisfazione è importante"] },
-    fr: { onlineBoosters: "Boosters en ligne", login: "Connexion", affiliateProgram: "Affiliation", membership: "Adhésion", answersHub: "Centre d'aide", workWithUs: "Travaillez avec nous", contact: "Contact", overview: "Aperçu", boosting: "Boosting", eLearning: "E-learning", boosters: "Boosters", heroTitle: "Boost de rang Rainbow Six Siege", heroDesc: "Passez au niveau supérieur avec nos boosters experts et grimpez plus vite dans les rangs.", badges: ["SSL sécurisé", "VPN", "Service sûr", "Support 24/7", "Remboursements", "Cashback"], seasonName: "Année 11 Saison 1 — Operation Silent Hunt", daysLeft: "JOURS RESTANTS", serviceButtons: ["Boost de rang", "Boost Champion", "Victoires classées", "Matchs non classés"], rated: "Noté 4.9+", discountTitle: "Réduction limitée pour la même expérience premium", discountSubtitle: "Choisi par les meilleurs joueurs pour une expérience soignée.", discountEnds: "La réduction se termine dans", currentRank: "Rang actuel", desiredRank: "Rang désiré", selectPlatform: "Choisir la plateforme", summary: "Résumé", policyTitle: "Politique de délai estimé", policyLine1: "Le délai affiché est une", policyHighlight1: "estimation basée sur les temps moyens", policyLine2: "Le délai réel peut varier selon", policyHighlight2: ["volume de commandes", "temps de réponse client", "disponibilité des boosters"], policyLine3: "Nous ferons le maximum pour répondre rapidement à votre commande.", solo: "Solo", duo: "Duo", specificBooster: "Booster spécifique", specificBoosterDesc: "Votre commande sera assignée au booster de votre choix.", applyPromo: "Appliquer un code promo", enterCoupon: "Entrer le coupon", apply: "Appliquer", trustHeading: "Pourquoi les joueurs font confiance à ProBoost", faqLabel: "FAQ", infoHeadings: ["Montez de rang et gagnez plus !", "Choisissez votre booster !", "Le moyen le plus simple d'augmenter vos RP", "Réduisez vos défaites avec le boosting R6", "Services de boosting rapides et simples", "Le boosting R6 le plus sûr", "Avantages du boosting Rainbow Six Siege", "Votre satisfaction est importante"] },
-    es: { onlineBoosters: "Boosters en línea", login: "Iniciar sesión", affiliateProgram: "Programa de afiliados", membership: "Membresía", answersHub: "Centro de ayuda", workWithUs: "Trabaja con nosotros", contact: "Contacto", overview: "Resumen", boosting: "Boosting", eLearning: "E-learning", boosters: "Boosters", heroTitle: "Boost de rango Rainbow Six Siege", heroDesc: "Lleva tu nivel al siguiente escalón con nuestros boosters expertos y sube de rango más rápido.", badges: ["SSL Seguro", "VPN", "Servicio Seguro", "Soporte 24/7", "Reembolsos", "Cashback"], seasonName: "Año 11 Temporada 1 — Operation Silent Hunt", daysLeft: "DÍAS RESTANTES", serviceButtons: ["Boost de rango", "Boost Champion", "Victorias competitivas", "Partidas no clasificadas"], rated: "Valorado 4.9+", discountTitle: "Descuento limitado para la misma experiencia elite", discountSubtitle: "Elegido por los mejores jugadores para una experiencia premium.", discountEnds: "El descuento termina en", currentRank: "Rango actual", desiredRank: "Rango deseado", selectPlatform: "Seleccionar plataforma", summary: "Resumen", policyTitle: "Política de tiempo estimado", policyLine1: "El tiempo mostrado es una", policyHighlight1: "estimación basada en tiempos promedio", policyLine2: "El tiempo real puede variar según", policyHighlight2: ["volumen de pedidos", "tiempos de respuesta del cliente", "disponibilidad del booster"], policyLine3: "Haremos todo lo posible para cumplir tu pedido rápidamente.", solo: "Solo", duo: "Duo", specificBooster: "Booster específico", specificBoosterDesc: "Tu boost será asignado al booster específico que elijas.", applyPromo: "Aplicar código promo", enterCoupon: "Introducir cupón", apply: "Aplicar", trustHeading: "Por qué los jugadores confían en ProBoost", faqLabel: "FAQ", infoHeadings: ["¡Sube de rango y gana más!", "¡Elige tu booster!", "La forma más fácil de aumentar tus RP", "Reduce las derrotas con R6 Boosting", "Servicios de boosting rápidos y simples", "El boosting R6 más seguro", "Beneficios del boosting Rainbow Six Siege", "Tu satisfacción es importante"] },
-    de: { onlineBoosters: "Booster online", login: "Anmelden", affiliateProgram: "Partnerprogramm", membership: "Mitgliedschaft", answersHub: "Hilfecenter", workWithUs: "Arbeite mit uns", contact: "Kontakt", overview: "Übersicht", boosting: "Boosting", eLearning: "E-Learning", boosters: "Booster", heroTitle: "Rainbow Six Siege Rank Boost", heroDesc: "Steige mit unseren Experten schneller im Rang auf und dominiere mehr Matches.", badges: ["SSL Sicher", "VPN", "Sicherer Service", "24/7 Support", "Rückerstattung", "Cashback"], seasonName: "Jahr 11 Saison 1 — Operation Silent Hunt", daysLeft: "TAGE ÜBRIG", serviceButtons: ["Rank Boost", "Champion Boost", "Gewertete Siege", "Unrated-Matches"], rated: "Bewertet mit 4.9+", discountTitle: "Zeitlich begrenzter Rabatt für dieselbe Elite-Erfahrung", discountSubtitle: "Von Top-Spielern gewählt für ein hochwertiges Erlebnis.", discountEnds: "Rabatt endet in", currentRank: "Aktueller Rang", desiredRank: "Gewünschter Rang", selectPlatform: "Plattform wählen", summary: "Zusammenfassung", policyTitle: "Richtlinie zur geschätzten Startzeit", policyLine1: "Die angezeigte Zeit ist eine", policyHighlight1: "Schätzung auf Basis durchschnittlicher Abschlusszeiten", policyLine2: "Die tatsächliche Zeit kann variieren durch", policyHighlight2: ["Bestellvolumen", "Antwortzeiten des Kunden", "Booster-Verfügbarkeit"], policyLine3: "Wir geben unser Bestes, deine Bestellung schnell zu erfüllen.", solo: "Solo", duo: "Duo", specificBooster: "Spezifischer Booster", specificBoosterDesc: "Dein Auftrag wird einem Booster deiner Wahl zugewiesen.", applyPromo: "Promo-Code anwenden", enterCoupon: "Coupon eingeben", apply: "Anwenden", trustHeading: "Warum Spieler ProBoost vertrauen", faqLabel: "FAQ", infoHeadings: ["Steige höher und gewinne mehr!", "Wähle deinen Booster!", "Der einfachste Weg, deine RP zu erhöhen", "Weniger Niederlagen mit R6 Boosting", "Schnelle und einfache Boosting-Services", "Das sicherste R6 Boosting", "Vorteile von Rainbow Six Siege Boosting", "Deine Zufriedenheit ist wichtig"] },
-    nl: { onlineBoosters: "Boosters online", login: "Inloggen", affiliateProgram: "Affiliateprogramma", membership: "Lidmaatschap", answersHub: "Helpcentrum", workWithUs: "Werk met ons", contact: "Contact", overview: "Overzicht", boosting: "Boosting", eLearning: "E-learning", boosters: "Boosters", heroTitle: "Rainbow Six Siege Rank Boost", heroDesc: "Til je gameplay naar een hoger niveau met onze expert-boosters en klim sneller in rank.", badges: ["SSL Beveiligd", "VPN", "Veilige Service", "24/7 Support", "Terugbetalingen", "Cashback"], seasonName: "Jaar 11 Seizoen 1 — Operation Silent Hunt", daysLeft: "DAGEN OVER", serviceButtons: ["Rank Boost", "Champion Boost", "Competitieve Wins", "Unrated Wedstrijden"], rated: "Beoordeeld 4.9+", discountTitle: "Tijdelijke korting voor dezelfde elite-ervaring", discountSubtitle: "Vertrouwd door topspelers voor een premium ervaring.", discountEnds: "Korting eindigt over", currentRank: "Huidige rank", desiredRank: "Gewenste rank", selectPlatform: "Selecteer platform", summary: "Samenvatting", policyTitle: "Beleid geschatte starttijd", policyLine1: "De getoonde tijd is een", policyHighlight1: "schatting op basis van gemiddelde voltooiingstijden", policyLine2: "De werkelijke tijd kan variëren door", policyHighlight2: ["ordervolume", "reactietijden van klanten", "beschikbaarheid van boosters"], policyLine3: "We doen ons best om je bestelling snel af te ronden.", solo: "Solo", duo: "Duo", specificBooster: "Specifieke Booster", specificBoosterDesc: "Je boost wordt toegewezen aan een booster van jouw keuze.", applyPromo: "Promocode toepassen", enterCoupon: "Coupon invoeren", apply: "Toepassen", trustHeading: "Waarom spelers ProBoost vertrouwen", faqLabel: "FAQ", infoHeadings: ["Rank hoger en win meer!", "Kies je eigen booster!", "De makkelijkste manier om je RP te verhogen", "Verlaag je verliesratio met R6 Boosting", "Snelle en eenvoudige boostingservices", "De veiligste R6 boosting", "Voordelen van Rainbow Six Siege Boosting", "Jouw tevredenheid is belangrijk"] },
-    pt: { onlineBoosters: "Boosters online", login: "Entrar", affiliateProgram: "Programa de Afiliados", membership: "Membro", answersHub: "Central de Ajuda", workWithUs: "Trabalhe conosco", contact: "Contato", overview: "Visão geral", boosting: "Boosting", eLearning: "E-learning", boosters: "Boosters", heroTitle: "Boost de rank Rainbow Six Siege", heroDesc: "Leve sua gameplay ao próximo nível com nossos boosters especialistas e suba de rank mais rápido.", badges: ["SSL Seguro", "VPN", "Serviço Seguro", "Suporte 24/7", "Reembolsos", "Cashback"], seasonName: "Ano 11 Temporada 1 — Operation Silent Hunt", daysLeft: "DIAS RESTANTES", serviceButtons: ["Boost de rank", "Boost Champion", "Vitórias competitivas", "Partidas sem rank"], rated: "Avaliado 4.9+", discountTitle: "Desconto por tempo limitado para a mesma experiência elite", discountSubtitle: "Confiado pelos melhores jogadores para uma experiência premium.", discountEnds: "Desconto termina em", currentRank: "Rank atual", desiredRank: "Rank desejado", selectPlatform: "Selecionar plataforma", summary: "Resumo", policyTitle: "Política de tempo estimado", policyLine1: "O tempo exibido é uma", policyHighlight1: "estimativa baseada no tempo médio de conclusão", policyLine2: "O tempo real pode variar por", policyHighlight2: ["volume de pedidos", "tempo de resposta do cliente", "disponibilidade do booster"], policyLine3: "Faremos o possível para concluir seu pedido rapidamente.", solo: "Solo", duo: "Duo", specificBooster: "Booster específico", specificBoosterDesc: "Seu boost será atribuído a um booster da sua escolha.", applyPromo: "Aplicar código promocional", enterCoupon: "Inserir cupom", apply: "Aplicar", trustHeading: "Por que os jogadores confiam na ProBoost", faqLabel: "FAQ", infoHeadings: ["Suba mais alto e ganhe mais!", "Escolha seu booster!", "A maneira mais fácil de aumentar seu RP", "Reduza as derrotas com R6 Boosting", "Serviços de boosting rápidos e simples", "O boosting R6 mais seguro", "Benefícios do Rainbow Six Siege Boosting", "Sua satisfação é importante"] },
-    uk: { onlineBoosters: "Бустери онлайн", login: "Увійти", affiliateProgram: "Партнерська програма", membership: "Підписка", answersHub: "Центр відповідей", workWithUs: "Працюйте з нами", contact: "Контакт", overview: "Огляд", boosting: "Бустинг", eLearning: "E-learning", boosters: "Бустери", heroTitle: "Буст рангу Rainbow Six Siege", heroDesc: "Підійміть свій рівень гри з нашими досвідченими бустерами та швидше підіймайтеся в ранзі.", badges: ["SSL Захист", "VPN", "Безпечний сервіс", "Підтримка 24/7", "Повернення коштів", "Кешбек"], seasonName: "Рік 11 Сезон 1 — Operation Silent Hunt", daysLeft: "ДНІВ ЗАЛИШИЛОСЯ", serviceButtons: ["Буст рангу", "Буст Champion", "Рейтингові перемоги", "Нерейтингові матчі"], rated: "Рейтинг 4.9+", discountTitle: "Обмежена знижка на той самий преміальний сервіс", discountSubtitle: "Нас обирають топ-гравці за якісний сервіс.", discountEnds: "Знижка закінчується через", currentRank: "Поточний ранг", desiredRank: "Бажаний ранг", selectPlatform: "Виберіть платформу", summary: "Підсумок", policyTitle: "Політика орієнтовного часу старту", policyLine1: "Показаний час — це", policyHighlight1: "оцінка на основі середнього часу виконання", policyLine2: "Фактичний час може змінюватися залежно від", policyHighlight2: ["обсягу замовлень", "часу відповіді клієнта", "доступності бустерів"], policyLine3: "Ми зробимо все можливе, щоб виконати замовлення швидко.", solo: "Solo", duo: "Duo", specificBooster: "Конкретний бустер", specificBoosterDesc: "Ваше замовлення буде передано обраному вами бустеру.", applyPromo: "Застосувати промокод", enterCoupon: "Введіть купон", apply: "Застосувати", trustHeading: "Чому гравці довіряють ProBoost", faqLabel: "FAQ", infoHeadings: ["Підіймайтесь вище та вигравайте більше!", "Обирайте свого бустера!", "Найпростіший спосіб збільшити RP", "Менше поразок з R6 Boosting", "Швидкі та прості послуги бустингу", "Найбезпечніший R6 бустинг", "Переваги Rainbow Six Siege Boosting", "Ваше задоволення важливе"] },
-    ru: { onlineBoosters: "Бустеры онлайн", login: "Войти", affiliateProgram: "Партнерская программа", membership: "Подписка", answersHub: "Центр ответов", workWithUs: "Работа с нами", contact: "Контакт", overview: "Обзор", boosting: "Бустинг", eLearning: "E-learning", boosters: "Бустеры", heroTitle: "Буст ранга Rainbow Six Siege", heroDesc: "Поднимите свой уровень игры с нашими опытными бустерами и быстрее повышайте ранг.", badges: ["SSL Защита", "VPN", "Безопасный сервис", "Поддержка 24/7", "Возвраты", "Кэшбэк"], seasonName: "Год 11 Сезон 1 — Operation Silent Hunt", daysLeft: "ДНЕЙ ОСТАЛОСЬ", serviceButtons: ["Буст ранга", "Буст Champion", "Рейтинговые победы", "Нерейтинговые матчи"], rated: "Рейтинг 4.9+", discountTitle: "Ограниченная скидка на тот же премиум-сервис", discountSubtitle: "Нас выбирают топ-игроки за качественный сервис.", discountEnds: "Скидка закончится через", currentRank: "Текущий ранг", desiredRank: "Желаемый ранг", selectPlatform: "Выберите платформу", summary: "Сводка", policyTitle: "Политика ориентировочного времени старта", policyLine1: "Показанное время — это", policyHighlight1: "оценка на основе среднего времени выполнения", policyLine2: "Фактическое время может зависеть от", policyHighlight2: ["объема заказов", "времени ответа клиента", "доступности бустеров"], policyLine3: "Мы сделаем все возможное, чтобы выполнить заказ как можно быстрее.", solo: "Solo", duo: "Duo", specificBooster: "Конкретный бустер", specificBoosterDesc: "Ваш заказ будет назначен выбранному вами бустеру.", applyPromo: "Применить промокод", enterCoupon: "Введите купон", apply: "Применить", trustHeading: "Почему игроки доверяют ProBoost", faqLabel: "FAQ", infoHeadings: ["Поднимайтесь выше и выигрывайте больше!", "Выберите своего бустера!", "Самый простой способ повысить RP", "Снизьте число поражений с R6 Boosting", "Быстрые и простые услуги бустинга", "Самый безопасный R6 бустинг", "Преимущества Rainbow Six Siege Boosting", "Ваше удовлетворение важно"] },
-  } as const;
-  const localizedAnnotations = {
-    en: {
-      languageMenuTitle: "Select Language",
-      free: "FREE",
-      details: "Details",
-      day: "day",
-      days: "days",
-      customize: "Customize",
-      competitorIntro: "This Boost would cost you around",
-      couponAppliedTitle: "Coupon Applied",
-      couponMissingTitle: "Coupon Not Found",
-      seasonTooltip: "It is advisable not to wait until the very last moment of the season to order a Boosting service, as the last 2-5 days tend to be more crowded with orders.",
-      extraBooster: "Extra Booster",
-      increaseBoosters: "Increase the number to add more Boosters",
-      extraBoosterTooltip: "With this option you can increase the amount of Boosters that will join your order in DUO. Each additional Booster costs 75% extra on top of the base price.",
-      playWithBooster: "Play with Booster",
-      oneBooster: "1 Booster",
-      extraBoosterSuffix: "Extra Booster",
-      extraBoosterPlural: "Extra Boosters",
-      addOns: englishAddOns,
-      trustFeatures: englishTrustFeatures,
-    },
-    it: { languageMenuTitle: "Seleziona lingua", free: "GRATIS", details: "Dettagli", day: "giorno", days: "giorni", customize: "Personalizza", competitorIntro: "Questo boost ti costerebbe circa", couponAppliedTitle: "Coupon applicato", couponMissingTitle: "Coupon non trovato", seasonTooltip: "Ti consigliamo di non aspettare l'ultimo momento della stagione per ordinare un boosting, perché gli ultimi 2-5 giorni sono più affollati.", extraBooster: "Booster Extra", increaseBoosters: "Aumenta il numero per aggiungere più Booster", extraBoosterTooltip: "Con questa opzione puoi aumentare il numero di Booster che entreranno nel tuo ordine in DUO. Ogni Booster aggiuntivo costa il 75% in più.", playWithBooster: "Gioca con il Booster", oneBooster: "1 Booster", extraBoosterSuffix: "Booster Extra", extraBoosterPlural: "Booster Extra", addOns: { playOffline: { title: "Gioca Offline", desc: englishAddOns.playOffline.desc }, express: { title: "Consegna Express", desc: englishAddOns.express.desc }, rankInsurance: { title: "Assicurazione Rank", desc: englishAddOns.rankInsurance.desc }, eliteTier: { title: "Tier Elite 0.01%", desc: englishAddOns.eliteTier.desc }, specificOperators: { title: "Operatori Specifici", desc: englishAddOns.specificOperators.desc }, highKillCount: { title: "Alto Numero di Kill", desc: englishAddOns.highKillCount.desc }, vipPriority: { title: "Priorità VIP", desc: englishAddOns.vipPriority.desc }, streaming: { title: "Streaming", desc: englishAddOns.streaming.desc }, oneTrickPony: { title: "One Trick Pony", desc: englishAddOns.oneTrickPony.desc }, insaneClipDrop: { title: "Clip Epiche", desc: englishAddOns.insaneClipDrop.desc } }, trustFeatures: [{ title: "Garanzia Rimborso", desc: englishTrustFeatures[0].desc }, { title: "Protezione Zero Ban", desc: englishTrustFeatures[1].desc }, { title: "Prezzi Trasparenti", desc: englishTrustFeatures[2].desc }, { title: "I Giocatori Più Forti", desc: englishTrustFeatures[3].desc }, { title: "Supporto Live 24/7", desc: englishTrustFeatures[4].desc }] },
-    fr: { languageMenuTitle: "Choisir la langue", free: "GRATUIT", details: "Détails", day: "jour", days: "jours", customize: "Personnaliser", competitorIntro: "Ce boost vous coûterait environ", couponAppliedTitle: "Coupon appliqué", couponMissingTitle: "Coupon introuvable", seasonTooltip: "Il est conseillé de ne pas attendre la toute fin de saison pour commander, car les 2 à 5 derniers jours sont plus chargés.", extraBooster: "Booster supplémentaire", increaseBoosters: "Augmentez le nombre pour ajouter des boosters", extraBoosterTooltip: "Cette option augmente le nombre de boosters qui rejoindront votre commande en DUO. Chaque booster supplémentaire coûte 75% de plus.", playWithBooster: "Jouer avec le booster", oneBooster: "1 Booster", extraBoosterSuffix: "Booster supplémentaire", extraBoosterPlural: "Boosters supplémentaires", addOns: { playOffline: { title: "Jouer Hors Ligne", desc: englishAddOns.playOffline.desc }, express: { title: "Livraison Express", desc: englishAddOns.express.desc }, rankInsurance: { title: "Assurance Rang", desc: englishAddOns.rankInsurance.desc }, eliteTier: { title: "Tier Élite 0.01%", desc: englishAddOns.eliteTier.desc }, specificOperators: { title: "Opérateurs Spécifiques", desc: englishAddOns.specificOperators.desc }, highKillCount: { title: "Beaucoup de Kills", desc: englishAddOns.highKillCount.desc }, vipPriority: { title: "Priorité VIP", desc: englishAddOns.vipPriority.desc }, streaming: { title: "Streaming", desc: englishAddOns.streaming.desc }, oneTrickPony: { title: "One Trick Pony", desc: englishAddOns.oneTrickPony.desc }, insaneClipDrop: { title: "Clips Fous", desc: englishAddOns.insaneClipDrop.desc } }, trustFeatures: [{ title: "Garantie de remboursement", desc: englishTrustFeatures[0].desc }, { title: "Protection anti-ban", desc: englishTrustFeatures[1].desc }, { title: "Tarification transparente", desc: englishTrustFeatures[2].desc }, { title: "Les joueurs les plus forts", desc: englishTrustFeatures[3].desc }, { title: "Support live 24/7", desc: englishTrustFeatures[4].desc }] },
-    es: { languageMenuTitle: "Seleccionar idioma", free: "GRATIS", details: "Detalles", day: "día", days: "días", customize: "Personalizar", competitorIntro: "Este boost te costaría alrededor de", couponAppliedTitle: "Cupón aplicado", couponMissingTitle: "Cupón no encontrado", seasonTooltip: "Se recomienda no esperar al último momento de la temporada para pedir boosting, ya que los últimos 2-5 días suelen estar más saturados.", extraBooster: "Booster extra", increaseBoosters: "Aumenta el número para añadir más boosters", extraBoosterTooltip: "Con esta opción puedes aumentar la cantidad de boosters que se unirán a tu pedido en DUO. Cada booster adicional cuesta un 75% más.", playWithBooster: "Jugar con booster", oneBooster: "1 Booster", extraBoosterSuffix: "Booster extra", extraBoosterPlural: "Boosters extra", addOns: { playOffline: { title: "Jugar Offline", desc: englishAddOns.playOffline.desc }, express: { title: "Entrega Express", desc: englishAddOns.express.desc }, rankInsurance: { title: "Seguro de Rango", desc: englishAddOns.rankInsurance.desc }, eliteTier: { title: "Tier Elite 0.01%", desc: englishAddOns.eliteTier.desc }, specificOperators: { title: "Operadores Específicos", desc: englishAddOns.specificOperators.desc }, highKillCount: { title: "Muchas Kills", desc: englishAddOns.highKillCount.desc }, vipPriority: { title: "Prioridad VIP", desc: englishAddOns.vipPriority.desc }, streaming: { title: "Streaming", desc: englishAddOns.streaming.desc }, oneTrickPony: { title: "One Trick Pony", desc: englishAddOns.oneTrickPony.desc }, insaneClipDrop: { title: "Clips Épicos", desc: englishAddOns.insaneClipDrop.desc } }, trustFeatures: [{ title: "Garantía de reembolso", desc: englishTrustFeatures[0].desc }, { title: "Protección anti-ban", desc: englishTrustFeatures[1].desc }, { title: "Precios transparentes", desc: englishTrustFeatures[2].desc }, { title: "Los mejores jugadores", desc: englishTrustFeatures[3].desc }, { title: "Soporte 24/7", desc: englishTrustFeatures[4].desc }] },
-    de: { languageMenuTitle: "Sprache wählen", free: "KOSTENLOS", details: "Details", day: "Tag", days: "Tage", customize: "Anpassen", competitorIntro: "Dieser Boost würde dich etwa", couponAppliedTitle: "Coupon angewendet", couponMissingTitle: "Coupon nicht gefunden", seasonTooltip: "Es ist ratsam, nicht bis zum letzten Moment der Saison zu warten, da die letzten 2-5 Tage stärker ausgelastet sind.", extraBooster: "Extra-Booster", increaseBoosters: "Erhöhe die Zahl für mehr Booster", extraBoosterTooltip: "Mit dieser Option kannst du die Anzahl der Booster erhöhen, die deinem DUO-Auftrag beitreten. Jeder zusätzliche Booster kostet 75% extra.", playWithBooster: "Mit Booster spielen", oneBooster: "1 Booster", extraBoosterSuffix: "Extra-Booster", extraBoosterPlural: "Extra-Booster", addOns: { playOffline: { title: "Offline Spielen", desc: englishAddOns.playOffline.desc }, express: { title: "Express-Lieferung", desc: englishAddOns.express.desc }, rankInsurance: { title: "Rangversicherung", desc: englishAddOns.rankInsurance.desc }, eliteTier: { title: "Elite-Tier 0.01%", desc: englishAddOns.eliteTier.desc }, specificOperators: { title: "Spezifische Operatoren", desc: englishAddOns.specificOperators.desc }, highKillCount: { title: "Hohe Killzahl", desc: englishAddOns.highKillCount.desc }, vipPriority: { title: "VIP-Priorität", desc: englishAddOns.vipPriority.desc }, streaming: { title: "Streaming", desc: englishAddOns.streaming.desc }, oneTrickPony: { title: "One Trick Pony", desc: englishAddOns.oneTrickPony.desc }, insaneClipDrop: { title: "Clip-Highlights", desc: englishAddOns.insaneClipDrop.desc } }, trustFeatures: [{ title: "Geld-zurück-Garantie", desc: englishTrustFeatures[0].desc }, { title: "Zero-Ban-Schutz", desc: englishTrustFeatures[1].desc }, { title: "Faire Preise", desc: englishTrustFeatures[2].desc }, { title: "Die stärksten Spieler", desc: englishTrustFeatures[3].desc }, { title: "24/7 Live-Support", desc: englishTrustFeatures[4].desc }] },
-    nl: { languageMenuTitle: "Taal kiezen", free: "GRATIS", details: "Details", day: "dag", days: "dagen", customize: "Aanpassen", competitorIntro: "Deze boost zou je ongeveer", couponAppliedTitle: "Coupon toegepast", couponMissingTitle: "Coupon niet gevonden", seasonTooltip: "Het is verstandig om niet tot het laatste moment van het seizoen te wachten, omdat de laatste 2-5 dagen drukker zijn.", extraBooster: "Extra Booster", increaseBoosters: "Verhoog het aantal om meer boosters toe te voegen", extraBoosterTooltip: "Met deze optie kun je het aantal boosters verhogen dat zich bij je DUO-bestelling aansluit. Elke extra booster kost 75% extra.", playWithBooster: "Speel met booster", oneBooster: "1 Booster", extraBoosterSuffix: "Extra Booster", extraBoosterPlural: "Extra Boosters", addOns: { playOffline: { title: "Offline Spelen", desc: englishAddOns.playOffline.desc }, express: { title: "Snelle Levering", desc: englishAddOns.express.desc }, rankInsurance: { title: "Rankverzekering", desc: englishAddOns.rankInsurance.desc }, eliteTier: { title: "Elite 0.01% Tier", desc: englishAddOns.eliteTier.desc }, specificOperators: { title: "Specifieke Operators", desc: englishAddOns.specificOperators.desc }, highKillCount: { title: "Hoge Kill Count", desc: englishAddOns.highKillCount.desc }, vipPriority: { title: "VIP Prioriteit", desc: englishAddOns.vipPriority.desc }, streaming: { title: "Streaming", desc: englishAddOns.streaming.desc }, oneTrickPony: { title: "One Trick Pony", desc: englishAddOns.oneTrickPony.desc }, insaneClipDrop: { title: "Clip Highlights", desc: englishAddOns.insaneClipDrop.desc } }, trustFeatures: [{ title: "Geld-terug-garantie", desc: englishTrustFeatures[0].desc }, { title: "Zero-ban-bescherming", desc: englishTrustFeatures[1].desc }, { title: "Eerlijke prijzen", desc: englishTrustFeatures[2].desc }, { title: "De sterkste spelers", desc: englishTrustFeatures[3].desc }, { title: "24/7 live support", desc: englishTrustFeatures[4].desc }] },
-    pt: { languageMenuTitle: "Selecionar idioma", free: "GRÁTIS", details: "Detalhes", day: "dia", days: "dias", customize: "Personalizar", competitorIntro: "Este boost custaria cerca de", couponAppliedTitle: "Cupom aplicado", couponMissingTitle: "Cupom não encontrado", seasonTooltip: "É recomendável não esperar até o último momento da temporada para pedir boosting, porque os últimos 2-5 dias ficam mais cheios.", extraBooster: "Booster extra", increaseBoosters: "Aumente o número para adicionar mais boosters", extraBoosterTooltip: "Com esta opção você pode aumentar a quantidade de boosters que entrarão no seu pedido em DUO. Cada booster adicional custa 75% a mais.", playWithBooster: "Jogar com booster", oneBooster: "1 Booster", extraBoosterSuffix: "Booster extra", extraBoosterPlural: "Boosters extras", addOns: { playOffline: { title: "Jogar Offline", desc: englishAddOns.playOffline.desc }, express: { title: "Entrega Expressa", desc: englishAddOns.express.desc }, rankInsurance: { title: "Seguro de Rank", desc: englishAddOns.rankInsurance.desc }, eliteTier: { title: "Tier Elite 0.01%", desc: englishAddOns.eliteTier.desc }, specificOperators: { title: "Operadores Específicos", desc: englishAddOns.specificOperators.desc }, highKillCount: { title: "Muitas Kills", desc: englishAddOns.highKillCount.desc }, vipPriority: { title: "Prioridade VIP", desc: englishAddOns.vipPriority.desc }, streaming: { title: "Streaming", desc: englishAddOns.streaming.desc }, oneTrickPony: { title: "One Trick Pony", desc: englishAddOns.oneTrickPony.desc }, insaneClipDrop: { title: "Clipes Épicos", desc: englishAddOns.insaneClipDrop.desc } }, trustFeatures: [{ title: "Garantia de reembolso", desc: englishTrustFeatures[0].desc }, { title: "Proteção anti-ban", desc: englishTrustFeatures[1].desc }, { title: "Preços transparentes", desc: englishTrustFeatures[2].desc }, { title: "Os jogadores mais fortes", desc: englishTrustFeatures[3].desc }, { title: "Suporte 24/7", desc: englishTrustFeatures[4].desc }] },
-    uk: { languageMenuTitle: "Оберіть мову", free: "БЕЗКОШТОВНО", details: "Деталі", day: "день", days: "дні", customize: "Налаштування", competitorIntro: "Цей буст коштував би приблизно", couponAppliedTitle: "Купон застосовано", couponMissingTitle: "Купон не знайдено", seasonTooltip: "Рекомендуємо не чекати до останнього моменту сезону, адже останні 2-5 днів зазвичай більш завантажені.", extraBooster: "Додатковий бустер", increaseBoosters: "Збільшіть число, щоб додати більше бустерів", extraBoosterTooltip: "Ця опція дозволяє збільшити кількість бустерів, які приєднаються до вашого замовлення в DUO. Кожен додатковий бустер коштує на 75% більше.", playWithBooster: "Грати з бустером", oneBooster: "1 Бустер", extraBoosterSuffix: "Додатковий бустер", extraBoosterPlural: "Додаткові бустери", addOns: { playOffline: { title: "Грати офлайн", desc: englishAddOns.playOffline.desc }, express: { title: "Експрес-доставка", desc: englishAddOns.express.desc }, rankInsurance: { title: "Страхування рангу", desc: englishAddOns.rankInsurance.desc }, eliteTier: { title: "Елітний Tier 0.01%", desc: englishAddOns.eliteTier.desc }, specificOperators: { title: "Конкретні оператори", desc: englishAddOns.specificOperators.desc }, highKillCount: { title: "Багато вбивств", desc: englishAddOns.highKillCount.desc }, vipPriority: { title: "VIP-пріоритет", desc: englishAddOns.vipPriority.desc }, streaming: { title: "Стрім", desc: englishAddOns.streaming.desc }, oneTrickPony: { title: "One Trick Pony", desc: englishAddOns.oneTrickPony.desc }, insaneClipDrop: { title: "Епічні кліпи", desc: englishAddOns.insaneClipDrop.desc } }, trustFeatures: [{ title: "Гарантія повернення", desc: englishTrustFeatures[0].desc }, { title: "Захист від бану", desc: englishTrustFeatures[1].desc }, { title: "Прозорі ціни", desc: englishTrustFeatures[2].desc }, { title: "Найсильніші гравці", desc: englishTrustFeatures[3].desc }, { title: "Підтримка 24/7", desc: englishTrustFeatures[4].desc }] },
-    ru: { languageMenuTitle: "Выберите язык", free: "БЕСПЛАТНО", details: "Подробнее", day: "день", days: "дней", customize: "Настроить", competitorIntro: "Этот буст обошелся бы примерно на", couponAppliedTitle: "Купон применен", couponMissingTitle: "Купон не найден", seasonTooltip: "Рекомендуем не ждать до самого конца сезона, потому что последние 2-5 дней обычно более загружены.", extraBooster: "Доп. бустер", increaseBoosters: "Увеличьте число, чтобы добавить больше бустеров", extraBoosterTooltip: "С этой опцией вы можете увеличить количество бустеров, которые присоединятся к вашему заказу в DUO. Каждый дополнительный бустер стоит на 75% дороже.", playWithBooster: "Играть с бустером", oneBooster: "1 Бустер", extraBoosterSuffix: "Доп. бустер", extraBoosterPlural: "Доп. бустеры", addOns: { playOffline: { title: "Играть офлайн", desc: englishAddOns.playOffline.desc }, express: { title: "Экспресс-доставка", desc: englishAddOns.express.desc }, rankInsurance: { title: "Страховка ранга", desc: englishAddOns.rankInsurance.desc }, eliteTier: { title: "Элитный Tier 0.01%", desc: englishAddOns.eliteTier.desc }, specificOperators: { title: "Конкретные операторы", desc: englishAddOns.specificOperators.desc }, highKillCount: { title: "Высокий K/D", desc: englishAddOns.highKillCount.desc }, vipPriority: { title: "VIP-приоритет", desc: englishAddOns.vipPriority.desc }, streaming: { title: "Стрим", desc: englishAddOns.streaming.desc }, oneTrickPony: { title: "One Trick Pony", desc: englishAddOns.oneTrickPony.desc }, insaneClipDrop: { title: "Эпичные клипы", desc: englishAddOns.insaneClipDrop.desc } }, trustFeatures: [{ title: "Гарантия возврата", desc: englishTrustFeatures[0].desc }, { title: "Защита от бана", desc: englishTrustFeatures[1].desc }, { title: "Прозрачные цены", desc: englishTrustFeatures[2].desc }, { title: "Сильнейшие игроки", desc: englishTrustFeatures[3].desc }, { title: "Поддержка 24/7", desc: englishTrustFeatures[4].desc }] },
-  } as const;
-  const ui = { ...localizedUi.en, ...(localizedUi[selectedLang as keyof typeof localizedUi] ?? {}) };
-  const annotations = { ...localizedAnnotations.en, ...(localizedAnnotations[selectedLang as keyof typeof localizedAnnotations] ?? {}) };
-  const trustCopy = {
-    heading: ui.trustHeading,
-    features: [...(annotations.trustFeatures ?? localizedAnnotations.en.trustFeatures)],
-  };
-  const faqCopy = {
-    label: ui.faqLabel,
-    items: [
-      {
-        q: selectedLang === "en" ? "What is Rainbow Six Siege Boosting?" : ui.heroTitle,
-        a: "In Rainbow Six Siege, Boosting is the process by which a player can increase their Rank thanks to the help of professional players called Boosters. These Boosters can play with the player's account or team up with them via the DuoQ option.",
-      },
-      {
-        q: selectedLang === "en" ? "Do I need to share my account for a Rainbow Six Siege Rank Boost?" : ui.specificBooster,
-        a: "For Solo boosting, you will share your account credentials with your booster. For Duo boosting, you play alongside your booster so no account sharing is required.",
-      },
-      {
-        q: selectedLang === "en" ? "Will you speak to my friends/use voice chat?" : ui.contact,
-        a: "Our boosters are professional and discreet. They will not engage in voice chat or communicate with your friends list beyond what is necessary.",
-      },
-      {
-        q: selectedLang === "en" ? "How much time it takes to deliver my Rank Boost?" : ui.policyTitle,
-        a: "Delivery time depends on your current and target rank. On average, each rank step takes approximately 2–3 hours.",
-      },
-      {
-        q: selectedLang === "en" ? "Is Rainbow Six Siege Boosting safe?" : ui.badges[2],
-        a: "Yes. ProBoost uses only real, verified players - no bots, no scripts. All boosters connect via VPN to match your region and reduce detection risk.",
-      },
-    ],
-  };
-  const infoCopy = {
-    sections: [
-      {
-        heading: ui.infoHeadings[0],
-        paragraphs: [
-          "In Tom Clancy's Rainbow Six Siege, many factors come into play. Knowing the maps, operators, weapons, gadgets, and different play styles can be very complicated. The game puts heavy emphasis on environmental destruction and cooperation between players. But our boosters are professionals. Their game knowledge will lead to a high win rate on your account.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[1],
-        paragraphs: [
-          "Are you curious who is going to play with you? Our R6 boosters are professional players that have been playing since 2015 when the game was released. So things like new patches, updates, or map changes do not affect our boosting process; adapting is part of our job.",
-          "We do not differentiate our customers based on their requirements. We do not have a problem with boosting a player's RP on a PC or a console. Our boosters are here to help you achieve your desired rank.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[2],
-        paragraphs: [
-          "Anyone can get hardstuck, and the best way to overcome this is to purchase our R6 Boosting. For our professional Rainbow Six Siege players, boosting is just a walk in the park.",
-          "We boost from Copper V to Champion. If you are struggling to get to Diamond, we have you covered.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[3],
-        paragraphs: [
-          "Our Rainbow Six Siege Boosting is provided by top boosters with an average win rate above 90%. We guarantee strong results in the shortest time possible.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[4],
-        paragraphs: [
-          "Starting your Rainbow Six Siege boost is simple. Fill out the order details, choose a payment method, and provide the credentials inside our Members Area. Then one of our boosters will take control of the account until your request is complete.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[5],
-        paragraphs: [
-          "When it comes to safety, we take great care of your personal information. We do not use cheats or external programs to achieve results, and our boost remains completely safe.",
-        ],
-        bullets: [
-          "We use VPN protection to keep you safe.",
-          "Your account details are used only by our boosters.",
-          "Your privacy is our number one priority.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[6],
-        paragraphs: ["We have several options to customise your order and enjoy the Siege boosting service even more."],
-        benefits: [
-          { title: "Live Streaming", desc: "Watch your booster reach the desired rank live." },
-          { title: "DuoQ", desc: "Play with your booster while they use an alternate account." },
-          { title: "High Kill Count", desc: "Improve how your account looks in every lobby." },
-          { title: "Specific Operators", desc: "Choose operators to improve KD on selected picks." },
-          { title: "Booster VIP", desc: "VIP boosters deliver the fastest and most reliable service." },
-        ],
-      },
-      {
-        heading: ui.infoHeadings[7],
-        paragraphs: [
-          "After purchasing our service, you become part of the ProBoost community. Rank up quickly, save time, learn new tactics, and enjoy stronger teammates.",
-        ],
-      },
-    ],
-  };
+  const [boosterCount, setBoosterCount] = React.useState(() => getBoosterCount());
 
   React.useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
-        setLangOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    const interval = window.setInterval(() => {
+      setBoosterCount(getBoosterCount());
+    }, 60000);
 
-  const competitorSavings = total * 0.35;
-  const competitorPrice = total + competitorSavings;
-
-  const handleCheckout = async () => {
-    setCheckoutLoading(true);
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-        total,
-        currentRank,
-        currentDivision,
-        desiredRank,
-        desiredDivision,
-        server,
-        platform,
-        rpGain,
-      }),
-      });
-
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert("Stripe session failed: " + (data.error || "Unknown error"));
-        setCheckoutLoading(false);
-      }
-    } catch (err) {
-      alert("Checkout error: " + (err instanceof Error ? err.message : "Unknown error"));
-      setCheckoutLoading(false);
-    }
-  };
+    return () => window.clearInterval(interval);
+  }, [getBoosterCount]);
 
   return (
-    <div className="relative text-white font-sans">
-      {/* Toast notification */}
-      {toastMessage && (
-        <div className="fixed top-4 right-4 z-[100] flex items-start gap-3 rounded-xl bg-[#1a1a1a] border border-white/10 px-4 py-3 shadow-2xl max-w-sm">
-          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${toastType === "success" ? "bg-emerald-500/20" : "bg-pink-500/20"}`}>
-            {toastType === "success" ? (
-              <svg className="h-4 w-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    <main className="min-h-screen bg-[#050607] text-white">
+
+      {/* Tab strip — slim row directly below the fixed header */}
+      <div className="fixed inset-x-0 top-[72px] z-40 flex items-center justify-center border-b border-white/6 bg-[#050607]/90 backdrop-blur-md">
+        <div className="inline-flex items-center gap-1 px-2 py-2.5">
+          {SECTION_TABS.map((tab) => {
+            const cls = `rounded-full px-5 py-1.5 text-sm font-medium transition ${
+              tab.id === "overview"
+                ? "bg-white/[0.1] text-white"
+                : "text-[#a8afb8] hover:bg-white/[0.06] hover:text-white"
+            }`;
+            return tab.href ? (
+              <Link key={tab.id} href={tab.href} className={cls}>
+                {tab.label}
+              </Link>
             ) : (
-              <span className="text-pink-400 font-bold text-sm">$</span>
-            )}
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-white text-sm">{toastType === "success" ? annotations.couponAppliedTitle : annotations.couponMissingTitle}</p>
-            <p className="text-xs text-zinc-400">{toastMessage}</p>
-          </div>
-          <button onClick={() => setToastMessage(null)} className="text-zinc-400 hover:text-white transition cursor-pointer">
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              <a key={tab.id} href={`#${tab.id}`} className={cls}>
+                {tab.label}
+              </a>
+            );
+          })}
+        </div>
+
+        {/* Language picker */}
+        <div className="absolute right-4" ref={langRef}>
+          <button
+            onClick={() => setLangOpen((o) => !o)}
+            className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-300 hover:bg-white/[0.08] hover:text-white transition"
+          >
+            <img src={`https://flagcdn.com/20x15/${currentFlag}.png`} width={20} height={15} alt="" className="rounded-[2px]" />
+            <span className="uppercase font-medium">{selectedLang}</span>
+            <svg className="h-3.5 w-3.5 text-zinc-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3.5 6.5 8 11l4.5-4.5" /></svg>
           </button>
-        </div>
-      )}
-      {/* gradient overlays */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute inset-y-0 right-[-10vw] top-0 w-[70vw] min-w-[900px] bg-[url('/r6-background.png')] bg-right-top bg-no-repeat opacity-25 [background-size:auto_100%]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/78 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050505]" />
-      </div>
-
-      <div className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#050505]/58 backdrop-blur-xl">
-        <div className="mx-auto max-w-[1550px] px-7">
-          {/* Main nav row */}
-          <div className="flex h-[72px] items-center justify-between gap-6">
-            {/* Left: logo + game chip + boosters */}
-            <div className="flex items-center gap-3 xl:gap-5">
-              <Link href="/" aria-label="Go to homepage" className="shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="ProBoost"
-                  width={160}
-                  height={48}
-                  priority
-                  unoptimized
-                  className="h-[52px] w-auto object-contain xl:h-16"
-                />
-              </Link>
-
-              {/* Game selector chip */}
-              <button className="hidden sm:flex h-[56px] items-center gap-3 rounded-[30px] border border-cyan-400/30 bg-[radial-gradient(circle_at_84%_50%,rgba(249,115,22,0.22),transparent_18%),linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] px-4 pr-5 text-[15px] font-semibold text-white shadow-[0_0_0_1px_rgba(8,145,178,0.06),0_12px_30px_rgba(0,0,0,0.28)] transition hover:border-cyan-300/45 hover:bg-[radial-gradient(circle_at_84%_50%,rgba(249,115,22,0.28),transparent_18%),linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.025))]">
-                <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-cyan-300/70 bg-cyan-400/10 shadow-[0_0_0_2px_rgba(8,145,178,0.18)_inset,0_0_20px_rgba(34,211,238,0.18)]">
-                  <Image src="/icons/r6-icon.webp" alt="" width={44} height={44} unoptimized className="h-full w-full scale-[1.18] object-cover" />
-                </span>
-                <span className="whitespace-nowrap tracking-[-0.01em]">Rainbow Six Siege X</span>
-                <svg className="h-4 w-4 text-zinc-400" viewBox="0 0 16 16" fill="none">
-                  <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-
-              {/* Online boosters */}
-              <div className="hidden md:flex items-center gap-3 rounded-full pl-1 pr-2 text-zinc-400">
-                <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400/6">
-                  <span className="absolute inline-flex h-8 w-8 rounded-full bg-cyan-400/8 animate-ping" style={{ animationDuration: '2s' }} />
-                  <svg className="relative h-4.5 w-4.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M8.5 8.5a5 5 0 0 0 0 7" />
-                    <path d="M5 5a9.5 9.5 0 0 0 0 14" />
-                    <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-                    <path d="M19 5a9.5 9.5 0 0 1 0 14" />
-                    <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />
-                  </svg>
-                </span>
-                <div className="leading-none">
-                  <span className="block text-[14px] font-bold text-white">{boosterCount}</span>
-                  <span className="mt-1 block text-[11px] text-zinc-500">{ui.onlineBoosters}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: nav links + flag + login */}
-            <div className="flex items-center gap-2">
-              <div className="hidden lg:flex items-center gap-1 text-[13px] text-zinc-400 mr-2 xl:gap-2">
-                {[
-                  { label: ui.affiliateProgram, icon: <AffiliateIcon /> },
-                  {
-                    label: ui.membership,
-                    icon: (
-                      <Image
-                        src="/icons/membership-icon-filled2.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                        className="h-3.5 w-3.5 object-contain"
-                      />
-                    ),
-                  },
-                  {
-                    label: ui.answersHub,
-                    icon: (
-                      <Image
-                        src="/icons/book-icon.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                        className="h-3.5 w-3.5 object-contain"
-                      />
-                    ),
-                  },
-                  {
-                    label: ui.workWithUs,
-                    icon: (
-                      <Image
-                        src="/icons/hooded-icon.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                        className="h-3.5 w-3.5 object-contain"
-                      />
-                    ),
-                  },
-                  {
-                    label: ui.contact,
-                    icon: (
-                      <Image
-                        src="/icons/contact-icon.svg"
-                        alt=""
-                        width={14}
-                        height={14}
-                        className="h-3.5 w-3.5 object-contain"
-                      />
-                    ),
-                  },
-                ].map((item) => (
-                  <button key={item.label} className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-white/[0.05] hover:text-white transition whitespace-nowrap">
-                    <span className="text-cyan-300/90">{item.icon}</span>
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Language flag */}
-              <div ref={langRef} className="relative">
+          {langOpen && (
+            <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-white/10 bg-[#111315] py-1.5 shadow-2xl z-50">
+              {LANGUAGES.map((l) => (
                 <button
-                  onClick={() => setLangOpen(!langOpen)}
-                  className="flex h-11 min-w-[70px] items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/[0.04] px-2.5 hover:bg-white/8 transition overflow-hidden"
+                  key={l.code}
+                  onClick={() => { setSelectedLang(l.code); localStorage.setItem("proboost_lang", l.code); setLangOpen(false); }}
+                  className={`flex w-full items-center gap-2.5 px-3.5 py-2 text-sm transition ${selectedLang === l.code ? "text-cyan-300 bg-cyan-500/10" : "text-zinc-300 hover:bg-white/[0.05] hover:text-white"}`}
                 >
-                  <img
-                    src={`https://flagcdn.com/w40/${languages.find(l => l.code === selectedLang)?.flag}.png`}
-                    alt=""
-                    className="h-5 w-7 rounded-[4px] object-cover"
-                  />
-                  <svg className="h-3.5 w-3.5 text-zinc-400" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  <img src={`https://flagcdn.com/20x15/${l.flag}.png`} width={20} height={15} alt="" className="rounded-[2px]" />
+                  {l.name}
+                  {selectedLang === l.code && (
+                    <svg className="ml-auto h-3.5 w-3.5 text-cyan-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M3 8l3.5 3.5L13 5" /></svg>
+                  )}
                 </button>
-                {langOpen && (
-                  <div className="absolute right-0 top-11 z-50 w-56 rounded-xl border border-white/15 bg-zinc-900 p-2 shadow-2xl shadow-black/50">
-                    <p className="px-3 py-2 text-sm font-bold text-white">{annotations.languageMenuTitle}</p>
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() => { setSelectedLang(lang.code); setLangOpen(false); }}
-                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
-                          selectedLang === lang.code
-                            ? "border border-cyan-500/40 bg-cyan-500/10 text-white"
-                            : "text-zinc-300 hover:bg-white/5"
-                        }`}
-                      >
-                        <img src={`https://flagcdn.com/w40/${lang.flag}.png`} alt={lang.name} className="h-5 w-7 rounded-sm object-cover" />
-                        {lang.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <Link href="/login" className="ml-2 inline-flex h-11 items-center rounded-full bg-gradient-to-r from-cyan-500 to-cyan-400 px-7 text-[15px] font-bold text-black hover:from-cyan-400 hover:to-cyan-300 transition shadow-lg shadow-cyan-500/20">
-                {ui.login}
-              </Link>
+              ))}
             </div>
-          </div>
-
-          {/* Sub-nav row */}
-          <div className="flex items-center justify-center gap-2 border-t border-white/[0.07] py-2">
-            <button className="rounded-full px-4 py-1 text-sm text-zinc-400 hover:text-white transition">{ui.overview}</button>
-            <button className="rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">{ui.boosting}</button>
-            <button className="rounded-full px-4 py-1 text-sm text-zinc-400 hover:text-white transition">{ui.eLearning}</button>
-            <button className="rounded-full px-4 py-1 text-sm text-zinc-400 hover:text-white transition">{ui.boosters}</button>
-          </div>
+          )}
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-[1550px] px-6 py-8 pt-36">
-        <header className="mb-6">
+      <section id="overview" className="relative overflow-hidden pt-[115px] sm:pt-[124px]">
+        {/* Page background */}
+        <div className="absolute inset-0 bg-[#050607]" />
 
-          {/* Title + description */}
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-            {ui.heroTitle}
+        {/* R6 art — full right-half bleed, no container */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[54%] lg:block">
+          <Image
+            src="/r6-background.png"
+            alt=""
+            fill
+            priority
+            className="object-cover object-center opacity-70"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#050607_0%,rgba(5,6,7,0.78)_22%,rgba(5,6,7,0.18)_58%,#050607_100%)]" />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-[1420px] px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
+          {/* Boosters online pill */}
+          <div className="mt-10 inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.04] px-3.5 py-1.5 text-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+            </span>
+            <span className="font-semibold text-cyan-400">{boosterCount}</span>
+            <span className="text-[#9ba3ac]">{t.boostersOnline}</span>
+          </div>
+
+          {/* Hero heading */}
+          <h1 className="mt-4 max-w-[14ch] text-[2.8rem] font-black leading-[0.95] tracking-[-0.045em] text-white sm:text-[3.8rem] xl:text-[4.8rem]">
+            Rainbow Six Siege Boost
           </h1>
-          <p className="mt-3 text-sm leading-6 text-zinc-400 sm:text-base">
-            {ui.heroDesc}
+
+          <p className="mt-5 max-w-[58ch] text-sm leading-6 text-[#8d949d] sm:text-base sm:leading-7">
+            {t.heroSub}
           </p>
 
-          {/* Trust badges */}
-          <div className="mt-5 mb-5 flex flex-wrap gap-2 text-xs sm:text-sm">
-            {[
-              { text: ui.badges[0], icon: "/icons/ssl.png", color: "text-cyan-300 border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[1], icon: "/icons/vpn.png", color: "text-cyan-300 border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[2], icon: "/icons/safe-service.png", color: "text-cyan-300 border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[3], icon: "/icons/24-7-support.png", color: "text-cyan-300 border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[4], icon: "/icons/money-refunds.png", color: "text-cyan-300 border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[5], icon: "/icons/cashback.png", color: "text-cyan-300 border-cyan-500/30 bg-cyan-500/10" }
-            ].map((item) => (
-              <span
-                key={item.text}
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 ${item.color}`}
+          {/* Boosting heading + nav arrows */}
+          <div id="boosting" className="mt-12 flex items-center justify-between gap-4">
+            <h2 className="text-[1.85rem] font-bold tracking-[-0.03em] text-white sm:text-[2.2rem]">{t.boostingLabel}</h2>
+            <div className="flex items-center gap-2.5">
+              <button type="button" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#0e1013] text-white transition hover:border-white/20 hover:bg-[#171a1d]">
+                <ArrowLeftIcon />
+              </button>
+              <button type="button" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#0e1013] text-white transition hover:border-white/20 hover:bg-[#171a1d]">
+                <ArrowRightIcon />
+              </button>
+              <button type="button" className="ml-1 rounded-xl bg-[#f0a629] px-5 py-2.5 text-sm font-semibold text-[#0b0d0f] transition hover:bg-[#ffb649]">
+                {t.viewAll}
+              </button>
+            </div>
+          </div>
+
+          {/* Service cards */}
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {SERVICE_CARDS.map((service, index) => (
+              <Link
+                key={service.id}
+                href={service.href}
+                className="group relative flex min-h-[340px] flex-col overflow-hidden rounded-[18px] border border-white/[0.06] bg-[#0c0e10] p-5 text-left transition hover:border-white/[0.18] hover:bg-[#0f1113]"
               >
-                <Image src={item.icon} alt={item.text} width={22} height={22} unoptimized className="h-5 w-5 object-contain" />
-                {item.text}
-              </span>
+                {/* Tag + number */}
+                <div className="flex items-start justify-between gap-3">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-[#ffcf1d] px-2.5 py-1 text-[0.78rem] font-bold leading-none text-[#0a0a0a]">
+                    <svg className="h-2.5 w-2.5" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0 6.2 3.8H10L7 6.2 8.1 10 5 7.6 1.9 10 3 6.2 0 3.8h3.8Z"/></svg>
+                    {service.tag}
+                  </span>
+                  <span className="rounded border border-white/[0.06] bg-[#13161a] px-2 py-1 text-xs font-medium text-white/60">
+                    {String(index + 1).padStart(2, "0")}.
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h3 className="mt-4 max-w-[12ch] text-[1.55rem] font-black leading-[1.05] tracking-[-0.035em] text-white">
+                  {service.title}
+                </h3>
+
+                {/* Bullets */}
+                <div className="mt-3.5 flex flex-col gap-2">
+                  {service.bullets.map((bullet) => (
+                    <div key={bullet} className="flex items-start gap-2">
+                      <span className="mt-[3px] shrink-0 font-bold text-[#d4a020] text-[0.7rem]">✦</span>
+                      <span className="text-[0.8rem] leading-[1.4] text-[#9da4ad]">{bullet}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Arrow — absolute bottom-left */}
+                <span className="absolute bottom-5 left-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/8 bg-[#16191d] text-white transition group-hover:border-white/20 group-hover:bg-[#1c2024]">
+                  <ArrowRightIcon className="h-4 w-4" />
+                </span>
+
+                {/* Artwork — absolute bottom-right */}
+                {service.image && (
+                  <div className="pointer-events-none absolute bottom-0 right-0 h-[148px] w-[148px]">
+                    <Image
+                      src={service.image}
+                      alt=""
+                      fill
+                      className="object-contain object-bottom drop-shadow-[0_8px_28px_rgba(0,0,0,0.7)]"
+                    />
+                  </div>
+                )}
+              </Link>
             ))}
           </div>
-        </header>
-
-        <div className="grid gap-6 xl:grid-cols-[280px_1fr_320px]">
-          <aside className="space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              {/* Bottom: ring + name + days left */}
-              <div className="group flex items-center gap-4">
-                <svg width="48" height="48" viewBox="0 0 48 48" className="shrink-0 -rotate-90">
-                  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(34,211,238,0.15)" strokeWidth="4" />
-                  <circle
-                    cx="24" cy="24" r="20" fill="none"
-                    stroke="rgb(34,211,238)"
-                    strokeWidth="4"
-                    strokeDasharray={2 * Math.PI * 20}
-                    strokeDashoffset={2 * Math.PI * 20 * (1 - seasonProgress)}
-                    strokeLinecap="round"
-                    className="transition-[stroke-dashoffset] duration-1000 ease-linear"
-                  />
-                </svg>
-                <div>
-                  <p className="text-sm font-semibold text-white leading-tight">
-                    {ui.seasonName}
-                  </p>
-                  <p className="text-sm font-bold text-cyan-400 mt-0.5">
-                    {seasonDaysLeft} {ui.daysLeft}
-                  </p>
-                </div>
-                {/* Info button — hover reveals tooltip with progress card */}
-                <div className="relative ml-auto">
-                  <button className="text-zinc-500 hover:text-zinc-300 transition peer">
-                    <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  {/* Tooltip card — visible on peer hover */}
-                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-72 rounded-2xl border border-white/10 bg-zinc-900 p-4 shadow-xl opacity-0 transition-opacity duration-200 peer-hover:opacity-100">
-                    <p className="font-bold text-white text-sm leading-tight mb-3">
-                      {ui.seasonName}
-                    </p>
-                    <div className="flex gap-[3px] mb-2">
-                      {Array.from({ length: 20 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`h-2 flex-1 rounded-sm ${i / 20 < seasonProgress ? "bg-cyan-400" : "bg-white/10"}`}
-                        />
-                      ))}
-                    </div>
-                    <div className="flex justify-between text-[11px] text-zinc-500 mb-3">
-                      <span>March 3, 2026</span>
-                      <span>June 1, 2026</span>
-                    </div>
-                    <p className="text-xs leading-6 text-zinc-400">
-                      {annotations.seasonTooltip}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {ui.serviceButtons.map(
-                (item, index) => (
-                  <button
-                    key={item}
-                    className={`w-full rounded-xl border px-4 py-3 text-sm font-medium transition ${
-                      index === 0
-                        ? "border-cyan-500/40 bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-300 shadow-lg shadow-cyan-500/20"
-                        : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.05] hover:border-white/20"
-                    }`}
-                  >
-                    {item}
-                  </button>
-                )
-              )}
-            </div>
-
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-center text-sm font-bold text-emerald-300 shadow-lg shadow-emerald-500/20">
-              ⭐ {ui.rated}
-            </div>
-          </aside>
-
-          <main className="space-y-8">
-            <div className="flex items-center justify-between rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-500/12 to-cyan-600/8 px-5 py-4 shadow-lg shadow-cyan-500/10">
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/coin.png"
-                  alt="Savings coin"
-                  width={144}
-                  height={144}
-                  unoptimized
-                  className="h-32 w-32 shrink-0 object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.3)]"
-                />
-                <div>
-                  <p className="font-bold text-white">{ui.discountTitle}</p>
-                  <p className="text-sm text-zinc-300 mt-1">
-                    {ui.discountSubtitle}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-zinc-500">{ui.discountEnds}</p>
-                <p className="text-2xl font-bold text-yellow-300 tabular-nums font-mono">
-                  {formatTime(discountTime.hours)}:{formatTime(discountTime.minutes)}:{formatTime(discountTime.seconds)}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-6 xl:grid-cols-2">
-              <section
-                className="relative rounded-3xl border border-white/10 bg-black/40 p-6 overflow-hidden"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${currentRankData?.color} transition-all duration-500 ease-in-out`} />
-                <div className="relative z-10">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="w-full flex flex-col items-start">
-                    {currentRankData && (
-                      <Image
-                        src={currentRankData.icon}
-                        alt={currentRankData.name}
-                        width={56}
-                        height={56}
-                        unoptimized
-                        className="mb-2 mx-0 drop-shadow-[0_0_16px_rgba(109,40,217,0.25)]"
-                      />
-                    )}
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight">{ui.currentRank}</h2>
-                    <p className={`${rankTextColorMap[currentRank]} text-base font-medium mt-1`}>
-                      {currentRank} {currentDivision}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-4 gap-3">
-                  {ranks.filter((rank) => rank.name !== "Champion").map((rank) => (
-                    <button
-                      key={rank.name}
-                      onClick={() => setCurrentRank(rank.name)}
-                      className={`${rankCard(currentRank === rank.name, false)} bg-gradient-to-br ${rank.color} aspect-square flex items-center justify-center`}
-                    >
-                      <div className="flex flex-col items-center justify-center">
-                        <Image
-                          src={rank.icon}
-                          alt={rank.name}
-                          width={38}
-                          height={38}
-                          unoptimized
-                          className="h-[38px] w-[38px] object-contain mx-auto drop-shadow-[0_0_8px_rgba(255,255,255,0.12)]"
-                        />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mt-4 grid grid-cols-5 gap-3">
-                  {divisions.map((division) => (
-                    <button
-                      key={division}
-                      onClick={() => setCurrentDivision(division)}
-                      className={pillButton(currentDivision === division)}
-                    >
-                      {division}
-                    </button>
-                  ))}
-                </div>
-                </div>
-              </section>
-
-              <section
-                className="relative rounded-3xl border border-white/10 bg-black/40 p-6 overflow-hidden"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${desiredRankData?.color} transition-all duration-500 ease-in-out`} />
-                <div className="relative z-10">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="w-full flex flex-col items-start">
-                    {desiredRankData && (
-                      <Image
-                        src={desiredRankData.icon}
-                        alt={desiredRankData.name}
-                        width={56}
-                        height={56}
-                        unoptimized
-                        className="mb-2 mx-0 drop-shadow-[0_0_16px_rgba(109,40,217,0.25)]"
-                      />
-                    )}
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight">{ui.desiredRank}</h2>
-                    <p className={`${rankTextColorMap[desiredRank]} text-base font-medium mt-1`}>
-                      {desiredRank === "Champion" ? desiredRank : `${desiredRank} ${desiredDivision}`}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-4 gap-3">
-                  {ranks.map((rank) => {
-                    const disabled = isDesiredRankDisabled(rank.name);
-                    return (
-                      <button
-                        key={rank.name}
-                        onClick={() => !disabled && setDesiredRank(rank.name)}
-                        disabled={disabled}
-                        className={`${rankCard(desiredRank === rank.name, disabled)} ${disabled ? "" : `bg-gradient-to-br ${rank.color}`} aspect-square flex items-center justify-center`}
-                      >
-                        <div className="flex flex-col items-center justify-center">
-                          <Image
-                            src={rank.icon}
-                            alt={rank.name}
-                            width={38}
-                            height={38}
-                            unoptimized
-                            className="h-[38px] w-[38px] object-contain mx-auto drop-shadow-[0_0_8px_rgba(255,255,255,0.12)]"
-                          />
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {desiredRank !== "Champion" && (
-                  <div className="mt-4 grid grid-cols-5 gap-3">
-                    {divisions.map((division) => {
-                      const disabled = isDesiredDivisionDisabled(division);
-                      return (
-                        <button
-                          key={division}
-                          onClick={() => !disabled && setDesiredDivision(division)}
-                          disabled={disabled}
-                          className={pillButton(desiredDivision === division, disabled)}
-                        >
-                          {division}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                </div>
-              </section>
-            </div>
-
-            <section>
-              <h3 className="mb-4 text-4xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">{ui.selectPlatform}</h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                {platforms.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => setPlatform(item)}
-                    className={`${pillButton(platform === item)} flex items-center justify-center gap-2 py-4`}
-                  >
-                    <span className="text-xl">
-                      <Image
-                        src={item === "PC" ? "/windows.png" : item === "Xbox" ? "/xbox.png" : "/playstation.png"}
-                        alt={item}
-                        width={24}
-                        height={24}
-                        unoptimized
-                        className="h-6 w-6 object-contain"
-                      />
-                    </span>
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <section className="grid gap-4 lg:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-white">
-                  RP Gain Per Win
-                </label>
-                <div className="relative">
-                  <select
-                    value={rpGain}
-                    onChange={(e) => setRpGain(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3.5 pr-12 text-white outline-none transition hover:border-white/20 focus:border-white/20 cursor-pointer appearance-none"
-                  >
-                    {rpOptions.map((option) => (
-                      <option key={option} value={option} className="bg-[#0a0a0a] text-white py-2">
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-400">
-                    ›
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-white">
-                  Server
-                </label>
-                <div className="relative">
-                  <select
-                    value={server}
-                    onChange={(e) => setServer(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3.5 pr-12 text-white outline-none transition hover:border-white/20 focus:border-white/20 cursor-pointer appearance-none"
-                  >
-                    {servers.map((option) => (
-                      <option key={option} value={option} className="bg-[#0a0a0a] text-white py-2">
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-400">
-                    ›
-                  </span>
-                </div>
-              </div>
-            </section>
-
-            <section className="pt-4">
-              <div className="mb-6 flex items-center gap-4">
-                <h3 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">{annotations.customize}</h3>
-                <div className="flex-1 h-px bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
-              </div>
-              <div className="grid gap-4 lg:grid-cols-3">
-                <div className="space-y-4">
-                  {addOnCard(annotations.addOns?.playOffline?.title ?? localizedAnnotations.en.addOns.playOffline.title, annotations.free, playOffline, setPlayOffline, annotations.addOns?.playOffline?.desc ?? localizedAnnotations.en.addOns.playOffline.desc)}
-                  {addOnCard(annotations.addOns?.express?.title ?? localizedAnnotations.en.addOns.express.title, "+20%", express, setExpress, annotations.addOns?.express?.desc ?? localizedAnnotations.en.addOns.express.desc)}
-                  {addOnCard(annotations.addOns?.rankInsurance?.title ?? localizedAnnotations.en.addOns.rankInsurance.title, "+50%", rankInsurance, setRankInsurance, annotations.addOns?.rankInsurance?.desc ?? localizedAnnotations.en.addOns.rankInsurance.desc)}
-                  {addOnCard(annotations.addOns?.eliteTier?.title ?? localizedAnnotations.en.addOns.eliteTier.title, "+50%", eliteTier, setEliteTier, annotations.addOns?.eliteTier?.desc ?? localizedAnnotations.en.addOns.eliteTier.desc)}
-                </div>
-
-                <div className="space-y-4">
-                  {addOnCard(annotations.addOns?.specificOperators?.title ?? localizedAnnotations.en.addOns.specificOperators.title, annotations.free, specificOperators, setSpecificOperators, annotations.addOns?.specificOperators?.desc ?? localizedAnnotations.en.addOns.specificOperators.desc)}
-                  {addOnCard(annotations.addOns?.highKillCount?.title ?? localizedAnnotations.en.addOns.highKillCount.title, "+40%", highKillCount, setHighKillCount, annotations.addOns?.highKillCount?.desc ?? localizedAnnotations.en.addOns.highKillCount.desc)}
-                  {addOnCard(annotations.addOns?.vipPriority?.title ?? localizedAnnotations.en.addOns.vipPriority.title, "+50%", vipPriority, setVipPriority, annotations.addOns?.vipPriority?.desc ?? localizedAnnotations.en.addOns.vipPriority.desc)}
-                </div>
-
-                <div className="space-y-4">
-                  {addOnCard(annotations.addOns?.streaming?.title ?? localizedAnnotations.en.addOns.streaming.title, "+£10.00", streaming, setStreaming, annotations.addOns?.streaming?.desc ?? localizedAnnotations.en.addOns.streaming.desc)}
-                  {addOnCard(annotations.addOns?.oneTrickPony?.title ?? localizedAnnotations.en.addOns.oneTrickPony.title, "+30%", oneTrickPony, setOneTrickPony, annotations.addOns?.oneTrickPony?.desc ?? localizedAnnotations.en.addOns.oneTrickPony.desc)}
-                  {addOnCard(annotations.addOns?.insaneClipDrop?.title ?? localizedAnnotations.en.addOns.insaneClipDrop.title, "+15%", insaneClipDrop, setInsaneClipDrop, annotations.addOns?.insaneClipDrop?.desc ?? localizedAnnotations.en.addOns.insaneClipDrop.desc)}
-                </div>
-              </div>
-            </section>
-          </main>
-
-          <aside className="h-fit rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur-sm xl:sticky xl:top-6 shadow-lg shadow-cyan-500/10">
-            <div className="mb-4 rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-4 text-sm text-zinc-300">
-              <div className="flex items-center gap-3">
-                <div className="min-w-0 flex-1">
-                  <p>{annotations.competitorIntro}</p>
-                  <p className="font-bold text-cyan-300">£{competitorSavings.toFixed(2)} more on a competitor website.</p>
-                  <button
-                    onClick={() => setShowDetails(true)}
-                    className="mt-2 text-xs text-cyan-400 underline underline-offset-2 hover:text-cyan-300 transition cursor-pointer"
-                  >
-                    {annotations.details}
-                  </button>
-                </div>
-                <Image
-                  src="/coin.png"
-                  alt="Savings coin"
-                  width={128}
-                  height={128}
-                  unoptimized
-                  className="h-28 w-28 shrink-0 object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.3)]"
-                />
-              </div>
-            </div>
-
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="pr-1 text-2xl font-bold italic bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">{ui.summary}</h3>
-              <div className="flex items-center gap-2 text-sm text-zinc-400">
-                <span>~ {(() => { const hrs = Math.max(1, Math.round(steps * 2.33)); const d = Math.floor(hrs / 24); const h = hrs % 24; return d > 0 ? `${d} ${d > 1 ? annotations.days : annotations.day}, ${h}h` : `${h}h`; })()}</span>
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                <div className="group/time relative">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400 text-black text-xs font-bold cursor-help">?</div>
-                  <div className="invisible group-hover/time:visible absolute right-0 top-8 z-50 w-72 rounded-xl border border-white/10 bg-[#111] p-4 shadow-2xl text-sm">
-                    <p className="font-bold text-white mb-2">{ui.policyTitle}</p>
-                    <p className="text-zinc-400 mb-2">{ui.policyLine1} <span className="text-cyan-400">{ui.policyHighlight1}</span>.</p>
-                    <p className="text-zinc-400 mb-2">{ui.policyLine2} <span className="text-cyan-400">{ui.policyHighlight2[0]}</span>, <span className="text-cyan-400">{ui.policyHighlight2[1]}</span>, and <span className="text-cyan-400">{ui.policyHighlight2[2]}</span>.</p>
-                    <p className="text-zinc-400">{ui.policyLine3}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
-              <div className="relative grid grid-cols-2 gap-1">
-                <div
-                  className={`absolute inset-y-0 w-[calc(50%-2px)] rounded-xl bg-gradient-to-r from-cyan-400 to-cyan-600 transition-transform duration-300 ease-out ${
-                    queueType === "Duo" ? "translate-x-[calc(100%+4px)]" : "translate-x-0"
-                  }`}
-                />
-                <button
-                  onClick={() => setQueueType("Solo")}
-                  className={`relative z-10 flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition-colors duration-300 ${
-                    queueType === "Solo" ? "text-black" : "text-zinc-400"
-                  }`}
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-                  {ui.solo}
-                </button>
-                <button
-                  onClick={() => setQueueType("Duo")}
-                  className={`relative z-10 flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition-colors duration-300 ${
-                    queueType === "Duo" ? "text-black" : "text-zinc-400"
-                  }`}
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                  {ui.duo}
-                </button>
-              </div>
-            </div>
-
-            {queueType === "Duo" && (
-              <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <Image src="/booster.png" alt="Booster" width={80} height={80} unoptimized className="h-20 w-20 object-contain" />
-                  <div className="flex-1">
-                    <span className="font-semibold text-white text-sm">{annotations.extraBooster}</span>
-                    <p className="text-xs text-zinc-400">{annotations.increaseBoosters}</p>
-                  </div>
-                  <div className="group/boost relative">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400 text-black text-xs font-bold cursor-help">?</div>
-                    <div className="invisible group-hover/boost:visible absolute right-0 top-8 z-50 w-64 rounded-xl border border-white/10 bg-[#111] p-4 shadow-2xl text-sm text-zinc-400">
-                      {annotations.extraBoosterTooltip}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setDuoBoosterCount(Math.max(1, duoBoosterCount - 1))}
-                    className="flex h-10 w-16 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xl hover:bg-cyan-500/30 active:scale-95 transition cursor-pointer"
-                  >
-                    −
-                  </button>
-                  <div className="flex-1 flex items-center justify-center rounded-lg border border-white/10 bg-white/5 h-10">
-                    <input
-                      type="number"
-                      min={1}
-                      max={4}
-                      value={duoBoosterCount}
-                      onChange={(e) => {
-                        const v = parseInt(e.target.value);
-                        if (!isNaN(v)) setDuoBoosterCount(Math.min(4, Math.max(1, v)));
-                      }}
-                      className="w-full h-full bg-transparent text-center text-white font-semibold text-lg outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                  </div>
-                  <button
-                    onClick={() => setDuoBoosterCount(Math.min(4, duoBoosterCount + 1))}
-                    className="flex h-10 w-16 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xl hover:bg-cyan-500/30 active:scale-95 transition cursor-pointer"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-3 border-b border-white/10 pb-5 text-sm text-zinc-300">
-              <div className="flex justify-between">
-                <span>{currentRank} {currentDivision} &gt; {desiredRank === "Champion" ? "Champion" : `${desiredRank} ${desiredDivision}`}</span>
-              </div>
-              {queueType === "Duo" && (
-                <>
-                  <div className="flex justify-between">
-                    <span>{annotations.playWithBooster}</span>
-                    <span className="font-semibold">+80%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{annotations.oneBooster}</span>
-                    <span className="font-semibold">{annotations.free}</span>
-                  </div>
-                  {duoBoosterCount > 1 && (
-                    <div className="flex justify-between">
-                      <span>+{duoBoosterCount - 1} {duoBoosterCount > 2 ? annotations.extraBoosterPlural : annotations.extraBoosterSuffix}</span>
-                      <span className="font-semibold text-cyan-400">+{(duoBoosterCount - 1) * 75}%</span>
-                    </div>
-                  )}
-                </>
-              )}
-              <div className="flex justify-between">
-                <span>{rpGain}</span>
-                <span className="font-semibold">{annotations.free}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>{server}</span>
-                <span className="font-semibold">{annotations.free}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="flex items-center gap-2">
-                  <Image
-                    src={platform === "PC" ? "/windows.png" : platform === "Xbox" ? "/xbox.png" : "/playstation.png"}
-                    alt={platform}
-                    width={18}
-                    height={18}
-                    unoptimized
-                    className="h-4.5 w-4.5 object-contain"
-                  />
-                  {platform.toUpperCase()}
-                </span>
-                <span className="font-semibold">{platform === "PC" ? annotations.free : "20%"}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3 border-b border-white/10 py-5">
-              <button
-                onClick={() => setSpecificBooster(!specificBooster)}
-                className="flex w-full items-center justify-between rounded-xl bg-[#111] px-4 py-3 cursor-pointer hover:bg-[#161616] transition"
-              >
-                <span className="flex items-center gap-3 font-semibold text-white">
-                  <Image src="/booster.png" alt="Booster" width={36} height={36} unoptimized className="h-9 w-9 object-contain" />
-                  {ui.specificBooster}
-                </span>
-                <svg className={`h-5 w-5 text-zinc-400 transition-transform duration-200 ${specificBooster ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-              </button>
-              {specificBooster && (
-                <div className="rounded-xl bg-[#111] px-4 py-3 text-sm text-zinc-400 leading-relaxed">
-                  {ui.specificBoosterDesc}
-                </div>
-              )}
-
-              <div>
-                <button
-                  onClick={() => setPromoExpanded(!promoExpanded)}
-                  className="flex w-full items-center justify-between rounded-xl bg-[#111] px-4 py-3 cursor-pointer hover:bg-[#161616] transition"
-                >
-                  <div className="flex items-center gap-3">
-                    <img src="/coupon.png" alt="" className="h-10 w-10 object-contain opacity-90" />
-                    <span className="font-semibold text-white">{ui.applyPromo}</span>
-                  </div>
-                  <span className="text-zinc-400 text-lg">{promoExpanded ? "−" : "+"}</span>
-                </button>
-                {promoExpanded && (
-                  <div className="mt-2 rounded-xl bg-[#111] px-4 py-3">
-                    <div className="flex gap-2 overflow-hidden">
-                      <input
-                        value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value)}
-                        placeholder={ui.enterCoupon}
-                        className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white outline-none placeholder:text-zinc-500 focus:border-cyan-400 transition"
-                      />
-                      <button onClick={handleApplyPromo} className="shrink-0 rounded-lg bg-cyan-500/15 px-4 py-2.5 font-semibold text-cyan-400 hover:bg-cyan-500/25 transition cursor-pointer">
-                        {ui.apply}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-3 py-5 border-b border-white/10">
-              <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 flex items-center gap-3 text-sm">
-                <img src="/coupon.png" alt="" className="h-[60px] w-[60px] object-contain opacity-95" />
-                <span className="text-cyan-300">
-                  {hasExtraDiscount
-                    ? "Extra 3% discount unlocked on your order"
-                    : `Add £${amountToExtraDiscount.toFixed(2)} more to save an extra 3% on your order`}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm text-zinc-400">
-                <span>Extra Discount</span>
-                <span className="font-semibold text-cyan-400">{extraDiscountPercent > 0 ? `-${extraDiscountPercent}%` : "0%"}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="font-semibold text-white">Total Amount</span>
-                <span className="flex items-center gap-2">
-                  {discount > 0 && <span className="text-zinc-500 line-through text-xs">£{subtotal.toFixed(2)}</span>}
-                  <span className="text-lg font-bold text-white">£{total.toFixed(2)}</span>
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-400">Cashback</span>
-                <span className="flex items-center gap-1 text-zinc-300">
-                  <span className="text-yellow-400">🪙</span> £ 0.00
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="relative z-10 w-full rounded-2xl bg-cyan-500 px-5 py-4 text-lg font-bold text-black cursor-pointer hover:bg-cyan-400 transition-colors duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-wait"
-            >
-              {checkoutLoading ? "Redirecting..." : `Checkout (£${total.toFixed(2)})`}
-            </button>
-
-            <div className="mt-6">
-              <div className="rounded-xl bg-[#111] p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Image src="/icons/ssl.png" alt="Secure" width={24} height={24} unoptimized className="h-6 w-6 object-contain" />
-                  <div>
-                    <p className="font-bold text-white text-xs">Safe & Secure Payments</p>
-                    <p className="text-[10px] text-zinc-400">100% secure checkout powered by Stripe & PayPal</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {paymentMethods.map((method) => (
-                    <Image
-                      key={method.name}
-                      src={method.icon}
-                      alt={method.name}
-                      width={28}
-                      height={28}
-                      unoptimized
-                      className="h-6 w-auto object-contain"
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
+      </section>
 
-        <div className="mt-8 xl:ml-[304px] xl:pr-[344px]">
-          <TrustSection copy={trustCopy} />
-        </div>
-        <div className="xl:ml-[304px] xl:pr-[344px]">
-          <FaqSection copy={faqCopy} />
-          <InfoSection copy={infoCopy} />
-        </div>
-      </div>
-      {showDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDetails(false)}>
-          <div className="relative mx-4 w-full max-w-4xl rounded-3xl border border-white/10 bg-[#0a0a0a] p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setShowDetails(false)}
-              className="absolute right-5 top-5 text-zinc-400 hover:text-white transition text-xl cursor-pointer"
-            >
-              ✕
-            </button>
-
-            <h2 className="mb-8 text-center text-3xl font-extrabold text-white">
-              Why we are cheaper than others?
-            </h2>
-
-            <div className="grid gap-8 md:grid-cols-3">
-              {/* 1 — Commission pie chart */}
-              <div className="flex flex-col items-center">
-                <div className="relative mb-6 h-48 w-48">
-                  <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(34,211,238,0.15)" strokeWidth="8" />
-                    <circle
-                      cx="50" cy="50" r="40"
-                      fill="none"
-                      stroke="rgb(34,211,238)"
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 40 * 0.9} ${2 * Math.PI * 40 * 0.1}`}
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="50" cy="50" r="40"
-                      fill="none"
-                      stroke="rgb(249,115,22)"
-                      strokeWidth="8"
-                      strokeDasharray={`${2 * Math.PI * 40 * 0.1} ${2 * Math.PI * 40 * 0.9}`}
-                      strokeDashoffset={`-${2 * Math.PI * 40 * 0.9}`}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold text-cyan-400">90%</span>
-                    <span className="text-xs text-zinc-400">Booster</span>
-                  </div>
-                  <div className="absolute left-2 top-4 rounded-lg bg-orange-500/20 px-2 py-1 text-xs font-bold text-orange-400">
-                    10%
-                  </div>
-                </div>
-                <div className="mb-4 flex items-center gap-4 text-xs">
-                  <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-full bg-orange-500" /> Website Cut</span>
-                  <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-full bg-cyan-400" /> Booster&apos;s Cut</span>
-                </div>
-                <p className="text-xs text-zinc-500">01</p>
-                <p className="mt-1 text-center font-bold text-white">Lower commissions rate.</p>
-                <p className="mt-2 text-center text-xs leading-relaxed text-zinc-400">
-                  We take a significantly lower commission from boosters compared to other platforms, ensuring they retain a larger portion of their earnings and stay motivated to deliver excellent service.
-                </p>
+      <section className="mx-auto max-w-[1420px] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {t.trust.map((item, i) => (
+            <div key={i} className="flex items-start gap-4 rounded-[22px] border border-white/[0.07] bg-[#0a0c0f] p-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/8 bg-[#111418]">
+                <Image src={TRUST_ITEMS[i].iconSrc} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
               </div>
-
-              {/* 2 — Paying what is right */}
-              <div className="flex flex-col items-center">
-                <div className="relative mb-6 flex h-48 w-48 items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border border-cyan-500/20" />
-                  <div className="absolute inset-4 rounded-full border border-cyan-500/10" />
-                  <svg viewBox="0 0 80 80" className="h-24 w-24 text-cyan-400">
-                    <path d="M40 10 C25 10 15 25 15 35 C15 55 40 70 40 70 C40 70 65 55 65 35 C65 25 55 10 40 10Z" fill="none" stroke="currentColor" strokeWidth="2" />
-                    <circle cx="40" cy="35" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
-                    <path d="M30 60 Q40 65 50 60" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
-                  {[45, 135, 225, 315].map((deg) => (
-                    <div
-                      key={deg}
-                      className="absolute h-5 w-5 text-orange-400"
-                      style={{
-                        transform: `rotate(${deg}deg) translateY(-70px)`,
-                      }}
-                    >
-                      <svg viewBox="0 0 20 20" className="h-full w-full">
-                        <ellipse cx="10" cy="10" rx="8" ry="5" fill="currentColor" opacity="0.6" />
-                      </svg>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-zinc-500">02</p>
-                <p className="mt-1 text-center font-bold text-white">Paying what is right.</p>
-                <p className="mt-2 text-center text-xs leading-relaxed text-zinc-400">
-                  We care deeply about ensuring that our boosters are paid competitively, which encourages them to consistently deliver exceptional and high-quality service for our clients.
-                </p>
-              </div>
-
-              {/* 3 — Price comparison */}
-              <div className="flex flex-col items-center">
-                <div className="mb-6 flex h-48 items-end justify-center gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="flex h-32 w-28 flex-col items-center justify-center rounded-2xl border border-orange-500/40 bg-orange-500/10">
-                      <Image
-                        src="/coin.png"
-                        alt="ProBoost coin"
-                        width={80}
-                        height={80}
-                        unoptimized
-                        className="mb-1 h-20 w-20 object-contain drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]"
-                      />
-                      <span className="text-lg font-bold text-orange-400">£{total.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="flex h-40 w-28 flex-col items-center justify-center rounded-2xl border border-red-500/40 bg-red-500/10 bg-[repeating-linear-gradient(135deg,transparent,transparent_4px,rgba(239,68,68,0.08)_4px,rgba(239,68,68,0.08)_8px)]">
-                      <span className="mb-1 text-2xl">💀</span>
-                      <span className="text-lg font-bold text-red-400">£{competitorPrice.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="mb-4 flex items-center gap-4 text-xs">
-                  <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-full bg-orange-500" /> ProBoost</span>
-                  <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-full bg-red-500" /> Other websites</span>
-                </div>
-                <p className="text-xs text-zinc-500">03</p>
-                <p className="mt-1 text-center font-bold text-white">
-                  You are saving about <span className="text-emerald-400">£{competitorSavings.toFixed(2)}</span> on this boost
-                </p>
-                <p className="mt-2 text-center text-xs leading-relaxed text-zinc-400">
-                  This boost service would cost you considerably more on competing websites, making our platform the best choice for both quality and affordability, offering you unmatched value for money.
-                </p>
+              <div>
+                <h3 className="text-[0.95rem] font-bold text-white">{item.title}</h3>
+                <p className="mt-1.5 text-[0.8rem] leading-[1.5] text-[#7e8693]">{item.desc}</p>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <button
-              onClick={() => setShowDetails(false)}
-              className="mt-8 mx-auto block w-full max-w-xs rounded-2xl border border-white/10 bg-white/[0.05] px-6 py-3 font-semibold text-white hover:bg-white/[0.08] transition cursor-pointer"
-            >
-              Close
-            </button>
+      <section className="mx-auto max-w-[1420px] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div className="relative overflow-hidden rounded-[32px] border border-white/8 bg-[#0a0c0f] p-7 sm:p-9 lg:p-12">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(240,166,79,0.08),transparent_40%)]" />
+          <div className="relative z-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#f0a629]/70">{t.howLabel}</p>
+              <h2 className="mt-2.5 text-3xl font-black tracking-[-0.04em] text-white sm:text-4xl">{t.howTitle}</h2>
+            </div>
+            <p className="max-w-[44ch] text-sm leading-6 text-[#7e8693]">
+              {t.howSub}
+            </p>
+          </div>
+
+          <div className="relative z-10 mt-8 grid gap-4 lg:grid-cols-3">
+            {t.steps.map((item) => (
+              <div key={item.step} className="rounded-[24px] border border-white/8 bg-[#0d1014] p-6">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#d8b554]/25 bg-[#18130a] text-sm font-black text-[#f0c84a]">
+                  {item.step}
+                </div>
+                <h3 className="mt-5 text-xl font-bold text-white">{item.title}</h3>
+                <p className="mt-2.5 text-sm leading-6 text-[#7e8693]">{item.description}</p>
+              </div>
+            ))}
           </div>
         </div>
-      )}
-    </div>
+      </section>
+
+      <section className="mx-auto max-w-[1420px] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div className="mb-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#f0a629]/70">{t.faqLabel}</p>
+          <h2 className="mt-2.5 text-3xl font-black tracking-[-0.04em] text-white sm:text-4xl">{t.faqTitle}</h2>
+        </div>
+        <FaqSection copy={{ label: t.faqLabel, items: t.faq }} />
+      </section>
+
+    </main>
   );
 }
