@@ -4,7 +4,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useClerk, useAuth } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import type { OAuthStrategy } from "@clerk/shared/types";
 
@@ -52,9 +52,18 @@ type AuthScreenProps = {
 };
 
 export default function AuthScreen({ mode }: AuthScreenProps) {
-      const router = useRouter();
-    const clerk = useClerk();
-  const { isLoaded } = useAuth();
+        const router = useRouter();
+  const clerk = useClerk();
+  const [clerkReady, setClerkReady] = React.useState(false);
+
+  React.useEffect(() => {
+    // Poll until clerk.client is available
+    if (clerk.client) { setClerkReady(true); return; }
+    const id = setInterval(() => {
+      if (clerk.client) { setClerkReady(true); clearInterval(id); }
+    }, 50);
+    return () => clearInterval(id);
+  }, [clerk]);
 
   const [selectedLang, setSelectedLang] = React.useState<LangCode>("en");
   const [langOpen, setLangOpen] = React.useState(false);
@@ -66,9 +75,9 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 
-        const handleSubmit = async (e: React.FormEvent) => {
+          const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded || !clerk.client) return;
+    if (!clerkReady || !clerk.client) return;
     setError("");
     if (mode === "signup" && password !== confirm) {
       setError("Passwords do not match.");
@@ -77,7 +86,13 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
     setLoading(true);
     try {
       if (mode === "login") {
-        const res = await clerk.client!.signIn.create({ identifier: email, password });
+        // Step 1: identify the user
+        await clerk.client.signIn.create({ identifier: email });
+        // Step 2: attempt password
+        const res = await clerk.client.signIn.attemptFirstFactor({
+          strategy: "password",
+          password,
+        });
         if (res.status === "complete") {
           await clerk.setActive({ session: res.createdSessionId });
           router.push("/");
@@ -100,8 +115,8 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
     }
   };
 
-        const handleOAuth = (strategy: OAuthStrategy) => {
-    if (!isLoaded || !clerk.client) return;
+          const handleOAuth = (strategy: OAuthStrategy) => {
+    if (!clerkReady || !clerk.client) return;
     const origin = window.location.origin;
     const params = {
       strategy,
@@ -252,12 +267,12 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
 
           {/* Primary CTA */}
                     <button
-            type="submit"
-            disabled={loading || !isLoaded}
-            className="mt-1 w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-cyan-600 py-3.5 font-bold text-black transition hover:from-cyan-300 hover:to-cyan-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {!isLoaded ? "Loading…" : loading ? "Please wait…" : content.primary}
-          </button>
+                      type="submit"
+                      disabled={loading || !clerkReady}
+                      className="mt-1 w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-cyan-600 py-3.5 font-bold text-black transition hover:from-cyan-300 hover:to-cyan-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {!clerkReady ? "Loading…" : loading ? "Please wait…" : content.primary}
+                    </button>
 
           {/* Trouble logging in */}
           {mode === "login" && (
