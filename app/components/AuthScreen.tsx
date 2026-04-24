@@ -1,8 +1,12 @@
 ﻿"use client";
 
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useClerk, useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import type { OAuthStrategy } from "@clerk/shared/types";
 
 type LangCode = "en" | "it" | "fr" | "es" | "de" | "nl" | "pt" | "uk" | "ru";
 
@@ -32,15 +36,15 @@ const i18n: Record<LangCode, {
   historyTitle: string; historyDesc: string;
   liveTitle: string; liveDesc: string;
 }> = {
-  en: { login: { eyebrow: "Member Access", title: "Log in to ProBoost", subtitle: "Track orders, manage boosters, and return to checkout without rebuilding your setup.", primary: "Log In", altLabel: "Need an account?", altText: "Sign up" }, signup: { eyebrow: "Create Account", title: "Sign up for ProBoost", subtitle: "Create an account to save your orders, manage account details, and move through checkout faster.", primary: "Create Account", altLabel: "Already have an account?", altText: "Log in" }, emailLabel: "Email", emailPlaceholder: "you@example.com", passwordLabel: "Password", passwordPlaceholder: "Enter your password", confirmLabel: "Confirm Password", confirmPlaceholder: "Confirm your password", orDivider: "or", discordBtn: "Continue with Discord", googleBtn: "Continue with Google", fastTitle: "Fast Checkout", fastDesc: "Keep your setup saved and jump back into your order instantly.", historyTitle: "Secure History", historyDesc: "View previous purchases and active boosts in one place.", liveTitle: "Live Updates", liveDesc: "Follow progress and account notices without chasing support." },
-  it: { login: { eyebrow: "Accesso Membro", title: "Accedi a ProBoost", subtitle: "Tieni traccia degli ordini, gestisci i booster e torna al checkout senza riconfigurare.", primary: "Accedi", altLabel: "Non hai un account?", altText: "Registrati" }, signup: { eyebrow: "Crea Account", title: "Registrati su ProBoost", subtitle: "Crea un account per salvare gli ordini, gestire i tuoi dati e velocizzare il checkout.", primary: "Crea Account", altLabel: "Hai già un account?", altText: "Accedi" }, emailLabel: "Email", emailPlaceholder: "tu@esempio.com", passwordLabel: "Password", passwordPlaceholder: "Inserisci la password", confirmLabel: "Conferma Password", confirmPlaceholder: "Conferma la password", orDivider: "o", discordBtn: "Continua con Discord", googleBtn: "Continua con Google", fastTitle: "Checkout Veloce", fastDesc: "Mantieni la configurazione salvata e torna al tuo ordine istantaneamente.", historyTitle: "Storico Sicuro", historyDesc: "Visualizza acquisti precedenti e boost attivi in un unico posto.", liveTitle: "Aggiornamenti Live", liveDesc: "Segui il progresso senza dover contattare il supporto." },
-  fr: { login: { eyebrow: "Accès Membre", title: "Se connecter à ProBoost", subtitle: "Suivez vos commandes, gérez vos boosters et revenez au paiement sans reconfigurer.", primary: "Se connecter", altLabel: "Pas encore de compte ?", altText: "S'inscrire" }, signup: { eyebrow: "Créer un compte", title: "S'inscrire sur ProBoost", subtitle: "Créez un compte pour sauvegarder vos commandes, gérer vos infos et payer plus vite.", primary: "Créer un compte", altLabel: "Déjà un compte ?", altText: "Se connecter" }, emailLabel: "E-mail", emailPlaceholder: "vous@exemple.com", passwordLabel: "Mot de passe", passwordPlaceholder: "Entrez votre mot de passe", confirmLabel: "Confirmer le mot de passe", confirmPlaceholder: "Confirmez le mot de passe", orDivider: "ou", discordBtn: "Continuer avec Discord", googleBtn: "Continuer avec Google", fastTitle: "Paiement Rapide", fastDesc: "Gardez votre configuration et revenez à votre commande instantanément.", historyTitle: "Historique Sécurisé", historyDesc: "Consultez vos achats et boosts actifs en un seul endroit.", liveTitle: "Mises à Jour en Direct", liveDesc: "Suivez l'avancement sans avoir à contacter le support." },
-  es: { login: { eyebrow: "Acceso de Miembro", title: "Iniciar sesión en ProBoost", subtitle: "Rastrea pedidos, gestiona boosters y vuelve al pago sin reconfigurar.", primary: "Iniciar sesión", altLabel: "¿No tienes cuenta?", altText: "Regístrate" }, signup: { eyebrow: "Crear Cuenta", title: "Regístrate en ProBoost", subtitle: "Crea una cuenta para guardar pedidos, gestionar datos y agilizar el pago.", primary: "Crear Cuenta", altLabel: "¿Ya tienes cuenta?", altText: "Iniciar sesión" }, emailLabel: "Correo electrónico", emailPlaceholder: "tú@ejemplo.com", passwordLabel: "Contraseña", passwordPlaceholder: "Ingresa tu contraseña", confirmLabel: "Confirmar contraseña", confirmPlaceholder: "Confirma tu contraseña", orDivider: "o", discordBtn: "Continuar con Discord", googleBtn: "Continuar con Google", fastTitle: "Pago Rápido", fastDesc: "Mantén tu configuración y vuelve a tu pedido al instante.", historyTitle: "Historial Seguro", historyDesc: "Ve compras anteriores y boosts activos en un solo lugar.", liveTitle: "Actualizaciones en Vivo", liveDesc: "Sigue el progreso sin tener que contactar soporte." },
-  de: { login: { eyebrow: "Mitgliederzugang", title: "Bei ProBoost anmelden", subtitle: "Bestellungen verfolgen, Booster verwalten und ohne Neukonfiguration zur Kasse zurückkehren.", primary: "Anmelden", altLabel: "Noch kein Konto?", altText: "Registrieren" }, signup: { eyebrow: "Konto erstellen", title: "Bei ProBoost registrieren", subtitle: "Erstelle ein Konto, um Bestellungen zu speichern, Daten zu verwalten und schneller zu bezahlen.", primary: "Konto erstellen", altLabel: "Bereits ein Konto?", altText: "Anmelden" }, emailLabel: "E-Mail", emailPlaceholder: "du@beispiel.com", passwordLabel: "Passwort", passwordPlaceholder: "Passwort eingeben", confirmLabel: "Passwort bestätigen", confirmPlaceholder: "Passwort bestätigen", orDivider: "oder", discordBtn: "Mit Discord fortfahren", googleBtn: "Mit Google fortfahren", fastTitle: "Schneller Checkout", fastDesc: "Einstellungen gespeichert – sofort zur Bestellung zurück.", historyTitle: "Sicherer Verlauf", historyDesc: "Frühere Käufe und aktive Boosts an einem Ort.", liveTitle: "Live-Updates", liveDesc: "Fortschritt verfolgen ohne den Support zu kontaktieren." },
-  nl: { login: { eyebrow: "Ledentoegang", title: "Inloggen bij ProBoost", subtitle: "Volg bestellingen, beheer boosters en keer terug naar de checkout zonder opnieuw te configureren.", primary: "Inloggen", altLabel: "Nog geen account?", altText: "Aanmelden" }, signup: { eyebrow: "Account aanmaken", title: "Aanmelden bij ProBoost", subtitle: "Maak een account om bestellingen op te slaan, gegevens te beheren en sneller af te rekenen.", primary: "Account aanmaken", altLabel: "Al een account?", altText: "Inloggen" }, emailLabel: "E-mail", emailPlaceholder: "jij@voorbeeld.com", passwordLabel: "Wachtwoord", passwordPlaceholder: "Voer je wachtwoord in", confirmLabel: "Wachtwoord bevestigen", confirmPlaceholder: "Bevestig je wachtwoord", orDivider: "of", discordBtn: "Doorgaan met Discord", googleBtn: "Doorgaan met Google", fastTitle: "Snelle Checkout", fastDesc: "Instellingen opgeslagen – direct terug naar je bestelling.", historyTitle: "Veilige Geschiedenis", historyDesc: "Bekijk eerdere aankopen en actieve boosts op één plek.", liveTitle: "Live Updates", liveDesc: "Volg de voortgang zonder support te benaderen." },
-  pt: { login: { eyebrow: "Acesso de Membro", title: "Entrar no ProBoost", subtitle: "Acompanhe pedidos, gerencie boosters e volte ao checkout sem reconfigurar.", primary: "Entrar", altLabel: "Não tem conta?", altText: "Cadastre-se" }, signup: { eyebrow: "Criar Conta", title: "Cadastrar no ProBoost", subtitle: "Crie uma conta para salvar pedidos, gerenciar dados e agilizar o pagamento.", primary: "Criar Conta", altLabel: "Já tem conta?", altText: "Entrar" }, emailLabel: "E-mail", emailPlaceholder: "voce@exemplo.com", passwordLabel: "Senha", passwordPlaceholder: "Digite sua senha", confirmLabel: "Confirmar Senha", confirmPlaceholder: "Confirme sua senha", orDivider: "ou", discordBtn: "Continuar com Discord", googleBtn: "Continuar com Google", fastTitle: "Checkout Rápido", fastDesc: "Configurações salvas – volte ao pedido instantaneamente.", historyTitle: "Histórico Seguro", historyDesc: "Veja compras anteriores e boosts ativos em um só lugar.", liveTitle: "Atualizações ao Vivo", liveDesc: "Acompanhe o progresso sem precisar contatar o suporte." },
-  uk: { login: { eyebrow: "Доступ для учасників", title: "Увійти до ProBoost", subtitle: "Відстежуйте замовлення, керуйте бустерами та повертайтесь до оформлення без налаштувань.", primary: "Увійти", altLabel: "Немає облікового запису?", altText: "Зареєструватись" }, signup: { eyebrow: "Створити обліковий запис", title: "Зареєструватись у ProBoost", subtitle: "Створіть обліковий запис, щоб зберігати замовлення, керувати даними та швидше оформлювати покупки.", primary: "Створити обліковий запис", altLabel: "Вже є обліковий запис?", altText: "Увійти" }, emailLabel: "Електронна пошта", emailPlaceholder: "ви@приклад.com", passwordLabel: "Пароль", passwordPlaceholder: "Введіть пароль", confirmLabel: "Підтвердіть пароль", confirmPlaceholder: "Підтвердіть пароль", orDivider: "або", discordBtn: "Продовжити з Discord", googleBtn: "Продовжити з Google", fastTitle: "Швидке оформлення", fastDesc: "Налаштування збережені — миттєво повертайтесь до замовлення.", historyTitle: "Захищена історія", historyDesc: "Переглядайте попередні покупки та активні бусти в одному місці.", liveTitle: "Оновлення в режимі реального часу", liveDesc: "Стежте за прогресом без звернення до підтримки." },
-  ru: { login: { eyebrow: "Доступ для участников", title: "Войти в ProBoost", subtitle: "Отслеживайте заказы, управляйте бустерами и возвращайтесь к оформлению без перенастройки.", primary: "Войти", altLabel: "Нет аккаунта?", altText: "Зарегистрироваться" }, signup: { eyebrow: "Создать аккаунт", title: "Зарегистрироваться в ProBoost", subtitle: "Создайте аккаунт для сохранения заказов, управления данными и быстрого оформления.", primary: "Создать аккаунт", altLabel: "Уже есть аккаунт?", altText: "Войти" }, emailLabel: "Электронная почта", emailPlaceholder: "вы@пример.com", passwordLabel: "Пароль", passwordPlaceholder: "Введите пароль", confirmLabel: "Подтвердите пароль", confirmPlaceholder: "Подтвердите пароль", orDivider: "или", discordBtn: "Продолжить с Discord", googleBtn: "Продолжить с Google", fastTitle: "Быстрая оплата", fastDesc: "Настройки сохранены — вернитесь к заказу мгновенно.", historyTitle: "Защищённая история", historyDesc: "Просматривайте покупки и активные бусты в одном месте.", liveTitle: "Обновления в реальном времени", liveDesc: "Следите за прогрессом без обращений в поддержку." },
+  en: { login: { eyebrow: "Member Access", title: "Log in to ProBoost", subtitle: "Track orders, manage boosters, and return to checkout without rebuilding your setup.", primary: "Log In", altLabel: "Need an account?", altText: "Sign up" }, signup: { eyebrow: "Create Account", title: "Sign up for ProBoost", subtitle: "Create an account to save your orders, manage account details, and move through checkout faster.", primary: "Create Account", altLabel: "Already have an account?", altText: "Log in" }, emailLabel: "Email", emailPlaceholder: "Email address", passwordLabel: "Password", passwordPlaceholder: "Enter your password", confirmLabel: "Confirm Password", confirmPlaceholder: "Confirm your password", orDivider: "or", discordBtn: "Continue with Discord", googleBtn: "Continue with Google", fastTitle: "Fast Checkout", fastDesc: "Keep your setup saved and jump back into your order instantly.", historyTitle: "Secure History", historyDesc: "View previous purchases and active boosts in one place.", liveTitle: "Live Updates", liveDesc: "Follow progress and account notices without chasing support." },
+  it: { login: { eyebrow: "Accesso Membro", title: "Accedi a ProBoost", subtitle: "Tieni traccia degli ordini, gestisci i booster e torna al checkout senza riconfigurare.", primary: "Accedi", altLabel: "Non hai un account?", altText: "Registrati" }, signup: { eyebrow: "Crea Account", title: "Registrati su ProBoost", subtitle: "Crea un account per salvare gli ordini, gestire i tuoi dati e velocizzare il checkout.", primary: "Crea Account", altLabel: "Hai già un account?", altText: "Accedi" }, emailLabel: "Email", emailPlaceholder: "Email address", passwordLabel: "Password", passwordPlaceholder: "Inserisci la password", confirmLabel: "Conferma Password", confirmPlaceholder: "Conferma la password", orDivider: "o", discordBtn: "Continua con Discord", googleBtn: "Continua con Google", fastTitle: "Checkout Veloce", fastDesc: "Mantieni la configurazione salvata e torna al tuo ordine istantaneamente.", historyTitle: "Storico Sicuro", historyDesc: "Visualizza acquisti precedenti e boost attivi in un unico posto.", liveTitle: "Aggiornamenti Live", liveDesc: "Segui il progresso senza dover contattare il supporto." },
+  fr: { login: { eyebrow: "Accès Membre", title: "Se connecter à ProBoost", subtitle: "Suivez vos commandes, gérez vos boosters et revenez au paiement sans reconfigurer.", primary: "Se connecter", altLabel: "Pas encore de compte ?", altText: "S'inscrire" }, signup: { eyebrow: "Créer un compte", title: "S'inscrire sur ProBoost", subtitle: "Créez un compte pour sauvegarder vos commandes, gérer vos infos et payer plus vite.", primary: "Créer un compte", altLabel: "Déjà un compte ?", altText: "Se connecter" }, emailLabel: "E-mail", emailPlaceholder: "Email address", passwordLabel: "Mot de passe", passwordPlaceholder: "Entrez votre mot de passe", confirmLabel: "Confirmer le mot de passe", confirmPlaceholder: "Confirmez le mot de passe", orDivider: "ou", discordBtn: "Continuer avec Discord", googleBtn: "Continuer avec Google", fastTitle: "Paiement Rapide", fastDesc: "Gardez votre configuration et revenez à votre commande instantanément.", historyTitle: "Historique Sécurisé", historyDesc: "Consultez vos achats et boosts actifs en un seul endroit.", liveTitle: "Mises à Jour en Direct", liveDesc: "Suivez l'avancement sans avoir à contacter le support." },
+  es: { login: { eyebrow: "Acceso de Miembro", title: "Iniciar sesión en ProBoost", subtitle: "Rastrea pedidos, gestiona boosters y vuelve al pago sin reconfigurar.", primary: "Iniciar sesión", altLabel: "¿No tienes cuenta?", altText: "Regístrate" }, signup: { eyebrow: "Crear Cuenta", title: "Regístrate en ProBoost", subtitle: "Crea una cuenta para guardar pedidos, gestionar datos y agilizar el pago.", primary: "Crear Cuenta", altLabel: "¿Ya tienes cuenta?", altText: "Iniciar sesión" }, emailLabel: "Correo electrónico", emailPlaceholder: "Email address", passwordLabel: "Contraseña", passwordPlaceholder: "Ingresa tu contraseña", confirmLabel: "Confirmar contraseña", confirmPlaceholder: "Confirma tu contraseña", orDivider: "o", discordBtn: "Continuar con Discord", googleBtn: "Continuar con Google", fastTitle: "Pago Rápido", fastDesc: "Mantén tu configuración y vuelve a tu pedido al instante.", historyTitle: "Historial Seguro", historyDesc: "Ve compras anteriores y boosts activos en un solo lugar.", liveTitle: "Actualizaciones en Vivo", liveDesc: "Sigue el progreso sin tener que contactar soporte." },
+  de: { login: { eyebrow: "Mitgliederzugang", title: "Bei ProBoost anmelden", subtitle: "Bestellungen verfolgen, Booster verwalten und ohne Neukonfiguration zur Kasse zurückkehren.", primary: "Anmelden", altLabel: "Noch kein Konto?", altText: "Registrieren" }, signup: { eyebrow: "Konto erstellen", title: "Bei ProBoost registrieren", subtitle: "Erstelle ein Konto, um Bestellungen zu speichern, Daten zu verwalten und schneller zu bezahlen.", primary: "Konto erstellen", altLabel: "Bereits ein Konto?", altText: "Anmelden" }, emailLabel: "E-Mail", emailPlaceholder: "Email address", passwordLabel: "Passwort", passwordPlaceholder: "Passwort eingeben", confirmLabel: "Passwort bestätigen", confirmPlaceholder: "Passwort bestätigen", orDivider: "oder", discordBtn: "Mit Discord fortfahren", googleBtn: "Mit Google fortfahren", fastTitle: "Schneller Checkout", fastDesc: "Einstellungen gespeichert – sofort zur Bestellung zurück.", historyTitle: "Sicherer Verlauf", historyDesc: "Frühere Käufe und aktive Boosts an einem Ort.", liveTitle: "Live-Updates", liveDesc: "Fortschritt verfolgen ohne den Support zu kontaktieren." },
+  nl: { login: { eyebrow: "Ledentoegang", title: "Inloggen bij ProBoost", subtitle: "Volg bestellingen, beheer boosters en keer terug naar de checkout zonder opnieuw te configureren.", primary: "Inloggen", altLabel: "Nog geen account?", altText: "Aanmelden" }, signup: { eyebrow: "Account aanmaken", title: "Aanmelden bij ProBoost", subtitle: "Maak een account om bestellingen op te slaan, gegevens te beheren en sneller af te rekenen.", primary: "Account aanmaken", altLabel: "Al een account?", altText: "Inloggen" }, emailLabel: "E-mail", emailPlaceholder: "Email address", passwordLabel: "Wachtwoord", passwordPlaceholder: "Voer je wachtwoord in", confirmLabel: "Wachtwoord bevestigen", confirmPlaceholder: "Bevestig je wachtwoord", orDivider: "of", discordBtn: "Doorgaan met Discord", googleBtn: "Doorgaan met Google", fastTitle: "Snelle Checkout", fastDesc: "Instellingen opgeslagen – direct terug naar je bestelling.", historyTitle: "Veilige Geschiedenis", historyDesc: "Bekijk eerdere aankopen en actieve boosts op één plek.", liveTitle: "Live Updates", liveDesc: "Volg de voortgang zonder support te benaderen." },
+  pt: { login: { eyebrow: "Acesso de Membro", title: "Entrar no ProBoost", subtitle: "Acompanhe pedidos, gerencie boosters e volte ao checkout sem reconfigurar.", primary: "Entrar", altLabel: "Não tem conta?", altText: "Cadastre-se" }, signup: { eyebrow: "Criar Conta", title: "Cadastrar no ProBoost", subtitle: "Crie uma conta para salvar pedidos, gerenciar dados e agilizar o pagamento.", primary: "Criar Conta", altLabel: "Já tem conta?", altText: "Entrar" }, emailLabel: "E-mail", emailPlaceholder: "Email address", passwordLabel: "Senha", passwordPlaceholder: "Digite sua senha", confirmLabel: "Confirmar Senha", confirmPlaceholder: "Confirme sua senha", orDivider: "ou", discordBtn: "Continuar com Discord", googleBtn: "Continuar com Google", fastTitle: "Checkout Rápido", fastDesc: "Configurações salvas – volte ao pedido instantaneamente.", historyTitle: "Histórico Seguro", historyDesc: "Veja compras anteriores e boosts ativos em um só lugar.", liveTitle: "Atualizações ao Vivo", liveDesc: "Acompanhe o progresso sem precisar contatar o suporte." },
+  uk: { login: { eyebrow: "Доступ для учасників", title: "Увійти до ProBoost", subtitle: "Відстежуйте замовлення, керуйте бустерами та повертайтесь до оформлення без налаштувань.", primary: "Увійти", altLabel: "Немає облікового запису?", altText: "Зареєструватись" }, signup: { eyebrow: "Створити обліковий запис", title: "Зареєструватись у ProBoost", subtitle: "Створіть обліковий запис, щоб зберігати замовлення, керувати даними та швидше оформлювати покупки.", primary: "Створити обліковий запис", altLabel: "Вже є обліковий запис?", altText: "Увійти" }, emailLabel: "Електронна пошта", emailPlaceholder: "Email address", passwordLabel: "Пароль", passwordPlaceholder: "Введіть пароль", confirmLabel: "Підтвердіть пароль", confirmPlaceholder: "Підтвердіть пароль", orDivider: "або", discordBtn: "Продовжити з Discord", googleBtn: "Продовжити з Google", fastTitle: "Швидке оформлення", fastDesc: "Налаштування збережені — миттєво повертайтесь до замовлення.", historyTitle: "Захищена історія", historyDesc: "Переглядайте попередні покупки та активні бусти в одному місці.", liveTitle: "Оновлення в режимі реального часу", liveDesc: "Стежте за прогресом без звернення до підтримки." },
+  ru: { login: { eyebrow: "Доступ для участников", title: "Войти в ProBoost", subtitle: "Отслеживайте заказы, управляйте бустерами и возвращайтесь к оформлению без перенастройки.", primary: "Войти", altLabel: "Нет аккаунта?", altText: "Зарегистрироваться" }, signup: { eyebrow: "Создать аккаунт", title: "Зарегистрироваться в ProBoost", subtitle: "Создайте аккаунт для сохранения заказов, управления данными и быстрого оформления.", primary: "Создать аккаунт", altLabel: "Уже есть аккаунт?", altText: "Войти" }, emailLabel: "Электронная почта", emailPlaceholder: "Email address", passwordLabel: "Пароль", passwordPlaceholder: "Введите пароль", confirmLabel: "Подтвердите пароль", confirmPlaceholder: "Подтвердите пароль", orDivider: "или", discordBtn: "Продолжить с Discord", googleBtn: "Продолжить с Google", fastTitle: "Быстрая оплата", fastDesc: "Настройки сохранены — вернитесь к заказу мгновенно.", historyTitle: "Защищённая история", historyDesc: "Просматривайте покупки и активные бусты в одном месте.", liveTitle: "Обновления в реальном времени", liveDesc: "Следите за прогрессом без обращений в поддержку." },
 };
 
 type AuthScreenProps = {
@@ -48,28 +52,67 @@ type AuthScreenProps = {
 };
 
 export default function AuthScreen({ mode }: AuthScreenProps) {
+      const router = useRouter();
+    const clerk = useClerk();
+  const { isLoaded } = useAuth();
+
   const [selectedLang, setSelectedLang] = React.useState<LangCode>("en");
   const [langOpen, setLangOpen] = React.useState(false);
   const langRef = React.useRef<HTMLDivElement>(null);
-  const [email, setEmail] = React.useState("");
+    const [email, setEmail] = React.useState("");
+  const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirm, setConfirm] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+        const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoaded || !clerk.client) return;
+    setError("");
+    if (mode === "signup" && password !== confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
     setLoading(true);
-    // TODO: wire up auth provider
-    await new Promise((r) => setTimeout(r, 800));
-    setLoading(false);
+    try {
+      if (mode === "login") {
+        const res = await clerk.client!.signIn.create({ identifier: email, password });
+        if (res.status === "complete") {
+          await clerk.setActive({ session: res.createdSessionId });
+          router.push("/");
+        }
+      } else {
+        const res = await clerk.client!.signUp.create({ emailAddress: email, password, username });
+        if (res.status === "complete") {
+          await clerk.setActive({ session: res.createdSessionId });
+          router.push("/");
+        } else if (res.status === "missing_requirements") {
+          await res.prepareEmailAddressVerification({ strategy: "email_code" });
+          router.push("/signup/verify");
+        }
+      }
+    } catch (err: unknown) {
+      const clerkErr = err as { errors?: { message: string }[] };
+      setError(clerkErr?.errors?.[0]?.message ?? "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogle = () => {
-    // TODO: signInWithGoogle()
-  };
-
-  const handleDiscord = () => {
-    // TODO: signInWithDiscord()
+        const handleOAuth = (strategy: OAuthStrategy) => {
+    if (!isLoaded || !clerk.client) return;
+    const origin = window.location.origin;
+    const params = {
+      strategy,
+      redirectUrl: `${origin}/sso-callback`,
+      redirectUrlComplete: `${origin}/`,
+    };
+    if (mode === "login") {
+      clerk.client.signIn.authenticateWithRedirect(params);
+    } else {
+      clerk.client.signUp.authenticateWithRedirect(params);
+    }
   };
 
   React.useEffect(() => {
@@ -90,8 +133,10 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  return (
+    return (
     <div className="relative min-h-screen bg-black flex flex-col items-center justify-center px-4 py-12">
+      {/* Required by Clerk for Smart CAPTCHA on custom sign-up flows */}
+      <div id="clerk-captcha" />
       {/* Language picker — top right */}
       <div className="absolute right-6 top-6 z-50" ref={langRef}>
         <button
@@ -140,6 +185,24 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
         <p className="mb-7 text-center text-sm text-zinc-400">{content.subtitle}</p>
 
         <form onSubmit={handleSubmit}>
+                    {/* Username — signup only */}
+          {mode === "signup" && (
+            <div className="relative mb-3">
+              <input
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                autoComplete="username"
+                className="w-full rounded-2xl border border-white/10 bg-[#111315] px-4 py-3.5 pr-11 text-white outline-none transition placeholder:text-zinc-500 focus:border-cyan-400/60 focus:bg-[#13181f]"
+              />
+              <svg className="pointer-events-none absolute right-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+              </svg>
+            </div>
+          )}
+
           {/* Email */}
           <div className="relative mb-3">
             <input
@@ -180,13 +243,20 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
             </div>
           )}
 
+                    {/* Error message */}
+          {error && (
+            <p className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-400">
+              {error}
+            </p>
+          )}
+
           {/* Primary CTA */}
-          <button
+                    <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isLoaded}
             className="mt-1 w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-cyan-600 py-3.5 font-bold text-black transition hover:from-cyan-300 hover:to-cyan-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Please wait…" : content.primary}
+            {!isLoaded ? "Loading…" : loading ? "Please wait…" : content.primary}
           </button>
 
           {/* Trouble logging in */}
@@ -212,7 +282,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           {/* Google */}
           <button
             type="button"
-            onClick={handleGoogle}
+            onClick={() => handleOAuth("oauth_google")}
             className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white py-3 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 active:scale-[0.98] cursor-pointer"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -226,7 +296,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           {/* Discord */}
           <button
             type="button"
-            onClick={handleDiscord}
+            onClick={() => handleOAuth("oauth_discord")}
             className="flex items-center justify-center gap-2 rounded-2xl bg-[#5865F2] py-3 text-sm font-semibold text-white transition hover:bg-[#4752c4] active:scale-[0.98] cursor-pointer"
           >
             <svg className="h-5 w-5" viewBox="0 0 127.14 96.36" fill="currentColor">

@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth, UserButton } from "@clerk/nextjs";
 import GameSelectorChip from "./GameSelectorChip";
 
 function getBoosterCount() {
@@ -23,6 +24,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { isSignedIn } = useAuth();
   const [boosterCount, setBoosterCount] = React.useState(getBoosterCount);
 
   React.useEffect(() => {
@@ -89,18 +91,30 @@ export default function Navbar() {
               ))}
             </div>
 
-            <Link
-              href="/signup"
-              className="hidden sm:inline-flex rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
-            >
-              Sign up
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex h-10 items-center rounded-full bg-gradient-to-r from-cyan-500 to-cyan-400 px-5 text-sm font-bold text-black transition hover:from-cyan-400 hover:to-cyan-300 shadow-lg shadow-cyan-500/20"
-            >
-              Log In
-            </Link>
+                        {isSignedIn ? (
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "h-9 w-9",
+                  },
+                }}
+              />
+            ) : (
+              <>
+                <Link
+                  href="/signup"
+                  className="hidden sm:inline-flex rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
+                >
+                  Sign up
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex h-10 items-center rounded-full bg-gradient-to-r from-cyan-500 to-cyan-400 px-5 text-sm font-bold text-black transition hover:from-cyan-400 hover:to-cyan-300 shadow-lg shadow-cyan-500/20"
+                >
+                  Log In
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
