@@ -4,6 +4,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Privacy Policy — ProBoost.gg",
   description: "Learn how ProBoost.gg collects, uses, and protects your personal data.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 const sections = [
@@ -14,7 +17,7 @@ const sections = [
     content: (
       <>
         <p>
-          Welcome to <strong className="text-white">ProBoost.gg</strong> ("we", "us", or "our"). We are
+          Welcome to <strong className="text-[var(--foreground)]">ProBoost.gg</strong> (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). We are
           committed to protecting your personal information and your right to privacy.
         </p>
         <p>
@@ -36,19 +39,19 @@ const sections = [
         <p>We collect information you provide directly to us, including:</p>
         <ul>
           <li>
-            <strong className="text-zinc-200">Account data</strong> — name, email address, and password
+            <strong className="text-[var(--foreground-soft)]">Account data</strong> — name, email address, and password
             when you register
           </li>
           <li>
-            <strong className="text-zinc-200">Order data</strong> — game account details, rank, platform,
+            <strong className="text-[var(--foreground-soft)]">Order data</strong> — game account details, rank, platform,
             and service preferences needed to fulfil your order
           </li>
           <li>
-            <strong className="text-zinc-200">Payment data</strong> — billing information processed
+            <strong className="text-[var(--foreground-soft)]">Payment data</strong> — billing information processed
             securely via third-party providers (e.g. Stripe). We never store full card details.
           </li>
           <li>
-            <strong className="text-zinc-200">Communications</strong> — messages you send us via email or
+            <strong className="text-[var(--foreground-soft)]">Communications</strong> — messages you send us via email or
             support chat
           </li>
         </ul>
@@ -91,23 +94,23 @@ const sections = [
     content: (
       <>
         <p>
-          We do <strong className="text-white">not</strong> sell, rent, or trade your personal data.
+          We do <strong className="text-[var(--foreground)]">not</strong> sell, rent, or trade your personal data.
         </p>
         <p>We may share data with trusted third parties only where necessary:</p>
         <ul>
           <li>
-            <strong className="text-zinc-200">Payment processors</strong> (e.g. Stripe) to handle
+            <strong className="text-[var(--foreground-soft)]">Payment processors</strong> (e.g. Stripe) to handle
             transactions securely
           </li>
           <li>
-            <strong className="text-zinc-200">Analytics providers</strong> (e.g. Google Analytics,
+            <strong className="text-[var(--foreground-soft)]">Analytics providers</strong> (e.g. Google Analytics,
             Mixpanel) to understand site usage — data is anonymised where possible
           </li>
           <li>
-            <strong className="text-zinc-200">Customer support tools</strong> to manage communications
+            <strong className="text-[var(--foreground-soft)]">Customer support tools</strong> to manage communications
           </li>
           <li>
-            <strong className="text-zinc-200">Law enforcement or regulators</strong> when required by law
+            <strong className="text-[var(--foreground-soft)]">Law enforcement or regulators</strong> when required by law
             or to protect our legal rights
           </li>
         </ul>
@@ -127,15 +130,15 @@ const sections = [
         </p>
         <ul>
           <li>
-            <strong className="text-zinc-200">Essential cookies</strong> — required for the site to
+            <strong className="text-[var(--foreground-soft)]">Essential cookies</strong> — required for the site to
             function (e.g. session authentication)
           </li>
           <li>
-            <strong className="text-zinc-200">Analytics cookies</strong> — help us understand how visitors
+            <strong className="text-[var(--foreground-soft)]">Analytics cookies</strong> — help us understand how visitors
             interact with our site
           </li>
           <li>
-            <strong className="text-zinc-200">Marketing cookies</strong> — used to show relevant
+            <strong className="text-[var(--foreground-soft)]">Marketing cookies</strong> — used to show relevant
             advertising (only with consent)
           </li>
         </ul>
@@ -163,7 +166,7 @@ const sections = [
         </ul>
         <p>
           You may request deletion of your account and associated data at any time by contacting us at{" "}
-          <a href="mailto:support@proboost.gg" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+          <a href="mailto:support@proboost.gg" className="theme-link transition-colors">
             support@proboost.gg
           </a>
           .
@@ -182,31 +185,31 @@ const sections = [
         </p>
         <ul>
           <li>
-            <strong className="text-zinc-200">Access</strong> — request a copy of the data we hold about
+            <strong className="text-[var(--foreground-soft)]">Access</strong> — request a copy of the data we hold about
             you
           </li>
           <li>
-            <strong className="text-zinc-200">Rectification</strong> — ask us to correct inaccurate data
+            <strong className="text-[var(--foreground-soft)]">Rectification</strong> — ask us to correct inaccurate data
           </li>
           <li>
-            <strong className="text-zinc-200">Erasure</strong> — request deletion of your personal data
+            <strong className="text-[var(--foreground-soft)]">Erasure</strong> — request deletion of your personal data
           </li>
           <li>
-            <strong className="text-zinc-200">Restriction</strong> — ask us to limit how we process your
+            <strong className="text-[var(--foreground-soft)]">Restriction</strong> — ask us to limit how we process your
             data
           </li>
           <li>
-            <strong className="text-zinc-200">Portability</strong> — receive your data in a structured,
+            <strong className="text-[var(--foreground-soft)]">Portability</strong> — receive your data in a structured,
             machine-readable format
           </li>
           <li>
-            <strong className="text-zinc-200">Objection</strong> — object to processing based on
+            <strong className="text-[var(--foreground-soft)]">Objection</strong> — object to processing based on
             legitimate interests or for marketing purposes
           </li>
         </ul>
         <p>
           To exercise any of these rights, contact us at{" "}
-          <a href="mailto:support@proboost.gg" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+          <a href="mailto:support@proboost.gg" className="theme-link transition-colors">
             support@proboost.gg
           </a>
           . We will respond within 30 days.
@@ -288,8 +291,8 @@ const sections = [
     content: (
       <>
         <p>
-          We may update this Privacy Policy from time to time. When we do, we will revise the "Last
-          updated" date at the top of this page.
+          We may update this Privacy Policy from time to time. When we do, we will revise the &quot;Last
+          updated&quot; date at the top of this page.
         </p>
         <p>
           We encourage you to review this policy periodically. Continued use of our service after changes
@@ -308,11 +311,11 @@ const sections = [
           If you have questions, concerns, or requests relating to this Privacy Policy, please contact us:
         </p>
         <p>
-          <a href="mailto:support@proboost.gg" className="text-cyan-400 hover:text-cyan-300 transition-colors font-semibold">
+          <a href="mailto:support@proboost.gg" className="theme-link font-semibold transition-colors">
             support@proboost.gg
           </a>
         </p>
-        <p className="text-zinc-500">ProBoost.gg — United Kingdom</p>
+        <p className="text-[var(--muted)]">ProBoost.gg — United Kingdom</p>
       </>
     ),
   },
@@ -320,25 +323,18 @@ const sections = [
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#050607] text-zinc-400">
+    <main className="min-h-screen bg-[var(--background)] pt-16 text-[var(--muted)]">
       {/* Hero */}
-      <div className="relative overflow-hidden border-b border-white/[0.06]">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(6,182,212,0.12), transparent)",
-          }}
-        />
+      <div className="relative overflow-hidden border-b border-[var(--line)]">
         <div className="relative mx-auto max-w-4xl px-6 py-20 text-center">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-400">
+          <p className="mb-4 inline-flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[var(--muted)]">
             Legal
           </p>
-          <h1 className="mb-4 text-4xl font-black tracking-tight text-white md:text-5xl">
+          <h1 className="mb-4 text-4xl font-black tracking-tight text-[var(--foreground)] md:text-5xl">
             Privacy Policy
           </h1>
-          <p className="text-sm text-zinc-500">
-            Last updated: <span className="text-zinc-300">April 23, 2026</span>
+          <p className="text-sm text-[var(--muted)]">
+            Last updated: <span className="text-[var(--foreground-soft)]">April 23, 2026</span>
           </p>
         </div>
       </div>
@@ -346,16 +342,16 @@ export default function PrivacyPage() {
       {/* Body */}
       <div className="mx-auto max-w-4xl px-6 py-16">
         {/* Quick-nav */}
-        <nav className="mb-14 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-500">Contents</p>
+        <nav aria-label="Privacy policy contents" className="theme-surface mb-14 rounded-lg border p-6">
+          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Contents</p>
           <ol className="grid gap-1 sm:grid-cols-2">
             {sections.map((s) => (
               <li key={s.id}>
                 <a
                   href={`#${s.id}`}
-                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-zinc-400 transition hover:bg-white/[0.04] hover:text-white"
+                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-[var(--muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
                 >
-                  <span className="font-mono text-xs text-zinc-600">{s.number}</span>
+                  <span className="font-mono text-xs text-[var(--muted-soft)]">{s.number}</span>
                   {s.title}
                 </a>
               </li>
@@ -369,11 +365,11 @@ export default function PrivacyPage() {
             <section
               key={s.id}
               id={s.id}
-              className="scroll-mt-24 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-7"
+              className="theme-surface scroll-mt-24 rounded-lg border p-7"
             >
               <div className="mb-4 flex items-center gap-3">
-                <span className="font-mono text-xs font-bold text-zinc-600">{s.number}</span>
-                <h2 className="text-lg font-extrabold text-white">{s.title}</h2>
+                <span className="font-mono text-xs font-bold text-[var(--muted-soft)]">{s.number}</span>
+                <h2 className="text-lg font-extrabold text-[var(--foreground)]">{s.title}</h2>
               </div>
               <div className="prose-terms">{s.content}</div>
             </section>
@@ -382,11 +378,11 @@ export default function PrivacyPage() {
 
         {/* Bottom CTA */}
         <div className="mt-16 flex flex-col items-center gap-4 text-center">
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-[var(--muted)]">
             Questions about your data?{" "}
             <a
               href="mailto:support@proboost.gg"
-              className="text-cyan-400 hover:text-cyan-300 transition-colors font-semibold"
+              className="theme-link font-semibold transition-colors"
             >
               Contact us
             </a>
@@ -394,13 +390,13 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/terms"
-              className="inline-flex items-center gap-2 rounded-xl bg-white/[0.05] px-5 py-2.5 text-sm font-semibold text-zinc-300 transition hover:bg-white/[0.09] hover:text-white border border-white/[0.08]"
+              className="theme-button-secondary inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold transition"
             >
               Terms &amp; Conditions
             </Link>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-xl bg-white/[0.05] px-5 py-2.5 text-sm font-semibold text-zinc-300 transition hover:bg-white/[0.09] hover:text-white border border-white/[0.08]"
+              className="theme-button-secondary inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold transition"
             >
               ← Back to Home
             </Link>

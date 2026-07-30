@@ -1,6 +1,45 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  images: {
+    minimumCacheTTL: 86_400,
+  },
+  async headers() {
+    const assetCache = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=86400, stale-while-revalidate=604800",
+      },
+    ];
+
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+      { source: "/brand/:path*", headers: assetCache },
+      { source: "/homepage/:path*", headers: assetCache },
+      { source: "/payments/:path*", headers: assetCache },
+      { source: "/platforms/:path*", headers: assetCache },
+      { source: "/ranks/:path*", headers: assetCache },
+      { source: "/service-icons/:path*", headers: assetCache },
+      { source: "/game-icons/:path*", headers: assetCache },
+      { source: "/icons/:path*", headers: assetCache },
+      { source: "/r6-background.png", headers: assetCache },
+    ];
+  },
   async redirects() {
     return [
       {

@@ -2,22 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
+import type { LanguageCode } from "../components/Dropdown";
 
-type LangCode = "en" | "it" | "fr" | "es" | "de" | "nl" | "pt" | "uk" | "ru";
-
-const LANGUAGES: { code: LangCode; name: string; flag: string }[] = [
-  { code: "en", name: "English",    flag: "us" },
-  { code: "it", name: "Italiano",   flag: "it" },
-  { code: "fr", name: "Français",   flag: "fr" },
-  { code: "es", name: "Español",    flag: "es" },
-  { code: "de", name: "Deutsch",    flag: "de" },
-  { code: "nl", name: "Nederlands", flag: "nl" },
-  { code: "pt", name: "Português",  flag: "pt" },
-  { code: "uk", name: "Українська", flag: "ua" },
-  { code: "ru", name: "Русский",    flag: "ru" },
-];
-
-const i18n: Record<LangCode, {
+const i18n: Record<LanguageCode, {
   title: string; sub: string; nextLabel: string;
   steps: [string, string, string]; cta: string;
 }> = {
@@ -33,76 +20,48 @@ const i18n: Record<LangCode, {
 };
 
 export default function SuccessPage() {
-  const [selectedLang, setSelectedLang] = React.useState<LangCode>("en");
-  const [langOpen, setLangOpen] = React.useState(false);
-  const langRef = React.useRef<HTMLDivElement>(null);
+  const [selectedLang, setSelectedLang] = React.useState<LanguageCode>("en");
 
   React.useEffect(() => {
     const saved = localStorage.getItem("proboost_lang");
-    if (saved) setSelectedLang(saved as never);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const id = window.setTimeout(() => {
+      if (saved && saved in i18n) {
+        setSelectedLang(saved as LanguageCode);
+      }
+    }, 0);
+    const handleLanguageChange = (event: Event) => {
+      const language = (event as CustomEvent<LanguageCode>).detail;
+      if (language && language in i18n) setSelectedLang(language);
+    };
+    window.addEventListener("proboost:language-change", handleLanguageChange);
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener("proboost:language-change", handleLanguageChange);
+    };
   }, []);
   const t = i18n[selectedLang];
-  const currentFlag = LANGUAGES.find((l) => l.code === selectedLang)!.flag;
-
-  React.useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#050607] text-white px-6">
-      {/* Language picker */}
-      <div className="fixed top-[82px] right-5 z-50" ref={langRef}>
-        <button
-          onClick={() => setLangOpen((o) => !o)}
-          className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-300 hover:bg-white/[0.08] hover:text-white transition"
-        >
-          <img src={`https://flagcdn.com/20x15/${currentFlag}.png`} width={20} height={15} alt="" className="rounded-[2px]" />
-          <span className="uppercase font-medium">{selectedLang}</span>
-          <svg className="h-3.5 w-3.5 text-zinc-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3.5 6.5 8 11l4.5-4.5" /></svg>
-        </button>
-        {langOpen && (
-          <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-white/10 bg-[#111315] py-1.5 shadow-2xl">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => { setSelectedLang(l.code); localStorage.setItem("proboost_lang", l.code); setLangOpen(false); }}
-                className={`flex w-full items-center gap-2.5 px-3.5 py-2 text-sm transition ${selectedLang === l.code ? "text-cyan-300 bg-cyan-500/10" : "text-zinc-300 hover:bg-white/[0.05] hover:text-white"}`}
-              >
-                <img src={`https://flagcdn.com/20x15/${l.flag}.png`} width={20} height={15} alt="" className="rounded-[2px]" />
-                {l.name}
-                {selectedLang === l.code && (
-                  <svg className="ml-auto h-3.5 w-3.5 text-cyan-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M3 8l3.5 3.5L13 5" /></svg>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
+    <main className="auth-shell flex min-h-screen flex-col items-center justify-center px-6 pb-16 pt-28">
       <div className="max-w-md w-full text-center space-y-6">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/40">
-          <svg className="h-9 w-9 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg border border-[var(--line-strong)] bg-[var(--surface-raised)]">
+          <svg className="h-9 w-9 text-[var(--foreground)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
 
-        <h1 className="text-4xl font-black tracking-tight bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-semibold tracking-tight text-[var(--foreground)]">
           {t.title}
         </h1>
 
-        <p className="text-zinc-400 leading-relaxed">
+        <p className="leading-relaxed text-[var(--muted)]">
           {t.sub}
         </p>
 
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 text-sm text-zinc-300 space-y-2">
-          <p className="font-semibold text-white">{t.nextLabel}</p>
-          <ul className="text-left space-y-2 text-zinc-400 mt-3">
+        <div className="space-y-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5 text-sm text-[var(--foreground-soft)]">
+          <p className="font-semibold text-[var(--foreground)]">{t.nextLabel}</p>
+          <ul className="mt-3 space-y-2 text-left text-[var(--muted)]">
             {t.steps.map((step, i) => (
               <li key={i} className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-500/20 text-[10px] font-bold text-cyan-400">{i + 1}</span>
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[var(--surface-subtle)] text-[10px] font-bold text-[var(--foreground)]">{i + 1}</span>
                 {step}
               </li>
             ))}
@@ -111,11 +70,11 @@ export default function SuccessPage() {
 
         <Link
           href="/"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-5 py-4 text-lg font-bold text-black hover:bg-cyan-400 transition-colors duration-200"
+          className="theme-button-primary inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 text-lg font-semibold transition"
         >
           {t.cta}
         </Link>
       </div>
-    </div>
+    </main>
   );
 }

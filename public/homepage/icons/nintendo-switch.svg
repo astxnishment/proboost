@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Nintendo Switch</title>
+  <path fill="#fff" d="M27.5 7H19C12.4 7 7 12.4 7 19v26c0 6.6 5.4 12 12 12h8.5V7Zm-4 45H19c-3.9 0-7-3.1-7-7V19c0-3.9 3.1-7 7-7h4.5v40Z"/>
+  <circle cx="18.2" cy="24.5" r="4.2" fill="#fff"/>
+  <path fill="#fff" d="M36.5 7v50H45c6.6 0 12-5.4 12-12V19c0-6.6-5.4-12-12-12h-8.5Z"/>
+  <circle cx="45.8" cy="39.5" r="4.2" fill="#050505"/>
+</svg>

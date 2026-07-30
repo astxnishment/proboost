@@ -4,6 +4,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms and Conditions — ProBoost.gg",
   description: "Read the Terms and Conditions governing your use of ProBoost.gg.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 const sections = [
@@ -15,7 +18,7 @@ const sections = [
       <>
         <p>
           These Terms and Conditions govern your use of the website{" "}
-          <strong className="text-white">ProBoost.gg</strong> ("Website", "Service", "we", "us", or "our").
+          <strong className="text-[var(--foreground)]">ProBoost.gg</strong> (&quot;Website&quot;, &quot;Service&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
         </p>
         <p>
           By accessing or using our Website, you agree to be bound by these Terms. If you do not agree,
@@ -32,7 +35,7 @@ const sections = [
       <>
         <p>
           ProBoost.gg provides{" "}
-          <strong className="text-white">in-game boosting, coaching, and related gaming services</strong>.
+          <strong className="text-[var(--foreground)]">in-game boosting, coaching, and related gaming services</strong>.
         </p>
         <p>By using our Service, you acknowledge that:</p>
         <ul>
@@ -94,7 +97,7 @@ const sections = [
         <ul>
           <li>
             Services are delivered within estimated timeframes but are{" "}
-            <strong className="text-white">not guaranteed</strong>
+            <strong className="text-[var(--foreground)]">not guaranteed</strong>
           </li>
           <li>Delays may occur due to external factors (game servers, availability, etc.)</li>
           <li>You agree to cooperate if required (e.g., account access, communication)</li>
@@ -114,7 +117,7 @@ const sections = [
           <li>The service cannot be completed</li>
         </ul>
         <p>
-          Refunds are <strong className="text-white">not guaranteed</strong> if:
+          Refunds are <strong className="text-[var(--foreground)]">not guaranteed</strong> if:
         </p>
         <ul>
           <li>The service has already begun or been completed</li>
@@ -122,7 +125,7 @@ const sections = [
         </ul>
         <p>
           All refund requests must be submitted to:{" "}
-          <a href="mailto:support@proboost.gg" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+          <a href="mailto:support@proboost.gg" className="theme-link transition-colors">
             support@proboost.gg
           </a>
         </p>
@@ -240,7 +243,7 @@ const sections = [
       <>
         <p>For any questions or support requests:</p>
         <p>
-          <a href="mailto:support@proboost.gg" className="text-cyan-400 hover:text-cyan-300 transition-colors font-semibold">
+          <a href="mailto:support@proboost.gg" className="theme-link font-semibold transition-colors">
             support@proboost.gg
           </a>
         </p>
@@ -263,25 +266,18 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-[#050607] text-zinc-400">
+    <main className="min-h-screen bg-[var(--background)] pt-16 text-[var(--muted)]">
       {/* Hero */}
-      <div className="relative overflow-hidden border-b border-white/[0.06]">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(6,182,212,0.12), transparent)",
-          }}
-        />
+      <div className="relative overflow-hidden border-b border-[var(--line)]">
         <div className="relative mx-auto max-w-4xl px-6 py-20 text-center">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-400">
+          <p className="mb-4 inline-flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[var(--muted)]">
             Legal
           </p>
-          <h1 className="mb-4 text-4xl font-black tracking-tight text-white md:text-5xl">
+          <h1 className="mb-4 text-4xl font-black tracking-tight text-[var(--foreground)] md:text-5xl">
             Terms &amp; Conditions
           </h1>
-          <p className="text-sm text-zinc-500">
-            Last updated: <span className="text-zinc-300">April 23, 2026</span>
+          <p className="text-sm text-[var(--muted)]">
+            Last updated: <span className="text-[var(--foreground-soft)]">April 23, 2026</span>
           </p>
         </div>
       </div>
@@ -289,16 +285,16 @@ export default function TermsPage() {
       {/* Body */}
       <div className="mx-auto max-w-4xl px-6 py-16">
         {/* Quick-nav */}
-        <nav className="mb-14 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-500">Contents</p>
+        <nav aria-label="Terms and conditions contents" className="theme-surface mb-14 rounded-lg border p-6">
+          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Contents</p>
           <ol className="grid gap-1 sm:grid-cols-2">
             {sections.map((s) => (
               <li key={s.id}>
                 <a
                   href={`#${s.id}`}
-                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-zinc-400 transition hover:bg-white/[0.04] hover:text-white"
+                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-[var(--muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
                 >
-                  <span className="font-mono text-xs text-zinc-600">{s.number}</span>
+                  <span className="font-mono text-xs text-[var(--muted-soft)]">{s.number}</span>
                   {s.title}
                 </a>
               </li>
@@ -312,11 +308,11 @@ export default function TermsPage() {
             <section
               key={s.id}
               id={s.id}
-              className="scroll-mt-24 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-7"
+              className="theme-surface scroll-mt-24 rounded-lg border p-7"
             >
               <div className="mb-4 flex items-center gap-3">
-                <span className="font-mono text-xs font-bold text-zinc-600">{s.number}</span>
-                <h2 className="text-lg font-extrabold text-white">{s.title}</h2>
+                <span className="font-mono text-xs font-bold text-[var(--muted-soft)]">{s.number}</span>
+                <h2 className="text-lg font-extrabold text-[var(--foreground)]">{s.title}</h2>
               </div>
               <div className="prose-terms">{s.content}</div>
             </section>
@@ -325,18 +321,18 @@ export default function TermsPage() {
 
         {/* Bottom CTA */}
         <div className="mt-16 flex flex-col items-center gap-4 text-center">
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-[var(--muted)]">
             Questions about these Terms?{" "}
             <a
               href="mailto:support@proboost.gg"
-              className="text-cyan-400 hover:text-cyan-300 transition-colors font-semibold"
+              className="theme-link font-semibold transition-colors"
             >
               Contact us
             </a>
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-xl bg-white/[0.05] px-5 py-2.5 text-sm font-semibold text-zinc-300 transition hover:bg-white/[0.09] hover:text-white border border-white/[0.08]"
+            className="theme-button-secondary inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold transition"
           >
             ← Back to Home
           </Link>

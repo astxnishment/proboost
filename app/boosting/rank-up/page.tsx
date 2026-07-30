@@ -5,8 +5,21 @@ import Image from "next/image";
 import Link from "next/link";
 import TrustSection from "../../components/TrustSection";
 import FaqSection from "../../components/FaqSection";
-import InfoSection from "../../components/InfoSection";
-import GameSelectorChip from "../../components/GameSelectorChip";
+import PlatformLogo from "../../components/PlatformLogo";
+import PlatformSelector from "../../components/PlatformSelector";
+import RankDivisionSelector from "../../components/RankDivisionSelector";
+import { computeOrderPrice, type RankUpOrder } from "@/app/lib/pricing";
+import {
+  createCheckoutSession,
+  getCheckoutErrorMessage,
+} from "@/app/lib/checkout";
+import {
+  ORDER_PAYMENT_METHODS,
+  ORDER_PLATFORMS,
+  ORDER_SERVERS,
+  RP_OPTIONS,
+} from "@/app/lib/order-options";
+import { Clock3, Headphones, LockKeyhole, ShieldCheck } from "lucide-react";
 
 type Rank = {
   name: string;
@@ -24,28 +37,20 @@ function Toggle({
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={enabled}
+      aria-label={enabled ? "Disable option" : "Enable option"}
       onClick={() => setEnabled(!enabled)}
-      className={`flex h-7 w-14 items-center rounded-full p-1 transition-colors duration-200 ${
-        enabled ? "bg-gradient-to-r from-cyan-400 to-cyan-600" : "bg-zinc-700"
+      className={`keep-pill flex h-6 w-11 items-center rounded-full border p-0.5 transition-colors duration-200 ${
+        enabled ? "border-[var(--foreground)] bg-[var(--foreground)]" : "border-[var(--line-strong)] bg-[var(--surface-muted)]"
       }`}
     >
       <div
-        className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ease-out ${
-          enabled ? "translate-x-7" : ""
+        className={`h-4.5 w-4.5 rounded-full transition-transform duration-200 ease-out ${
+          enabled ? "translate-x-5 bg-[var(--background)]" : "bg-[var(--muted)]"
         }`}
       />
     </button>
-  );
-}
-
-function AffiliateIcon() {
-  return (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="4" cy="4" r="1.4" />
-      <circle cx="12" cy="4" r="1.4" />
-      <circle cx="8" cy="12" r="1.4" />
-      <path d="M5.2 5.1l1.8 5.4M10.8 5.1L9 10.5M5.4 4h5.2" />
-    </svg>
   );
 }
 
@@ -128,62 +133,6 @@ const addOnDescsByLang: Record<string, { playOffline: string; express: string; r
 };
 
 export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang?: string }) {
-  const seasonStart = Date.parse("2026-03-03T14:00:00Z");
-  const seasonEnd = Date.parse("2026-06-03T14:00:00Z");
-
-  const [discountEnd] = React.useState(() => {
-    const end = new Date();
-    end.setHours(end.getHours() + 10, end.getMinutes() + 5, end.getSeconds() + 40);
-    return end.getTime();
-  });
-
-  const computeTimeLeft = (target: number) => {
-    const diff = Math.max(0, target - Date.now());
-    return {
-      days: Math.floor(diff / 86400000),
-      hours: Math.floor((diff % 86400000) / 3600000),
-      minutes: Math.floor((diff % 3600000) / 60000),
-      seconds: Math.floor((diff % 60000) / 1000),
-    };
-  };
-
-  const [discountTime, setDiscountTime] = React.useState(() => computeTimeLeft(discountEnd));
-  const [seasonTime, setSeasonTime] = React.useState(() => computeTimeLeft(seasonEnd));
-
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setDiscountTime(computeTimeLeft(discountEnd));
-      setSeasonTime(computeTimeLeft(seasonEnd));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [discountEnd, seasonEnd]);
-
-  const seasonDaysLeft = seasonTime.days + (seasonTime.hours > 0 || seasonTime.minutes > 0 || seasonTime.seconds > 0 ? 1 : 0);
-  const seasonDuration = Math.max(seasonEnd - seasonStart, 1);
-  const seasonProgress = Math.min(
-    Math.max((Date.now() - seasonStart) / seasonDuration, 0),
-    1,
-  );
-  const circumference = 2 * Math.PI * 18;
-  const seasonDashoffset = circumference * (1 - seasonProgress);
-
-  const formatTime = (num: number) => String(num).padStart(2, "0");
-
-  const getBoosterCount = () => {
-    const now = new Date();
-    const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
-    const slot = Math.floor((now.getHours() * 60 + now.getMinutes()) / 144);
-    const hash = ((seed * 9301 + slot * 49297) % 233280) / 233280;
-    return Math.floor(hash * 41) + 80;
-  };
-
-  const [boosterCount, setBoosterCount] = React.useState(getBoosterCount);
-
-  React.useEffect(() => {
-    const interval = setInterval(() => setBoosterCount(getBoosterCount()), 60000);
-    return () => clearInterval(interval);
-  }, []);
-
   const ranks: Rank[] = [
     {
       name: "Copper",
@@ -228,40 +177,20 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
   ];
 
   const divisions = ["V", "IV", "III", "II", "I"] as const;
-  const platforms = ["PC", "Xbox", "PlayStation"] as const;
-  const servers = [
-    "Europe",
-    "North America",
-    "Latin America",
-    "Asia",
-    "Oceania",
-    "Brazil",
-    "Middle East",
-    "Japan",
-    "South Korea",
-  ] as const;
-  const paymentMethods = [
-    { name: "PayPal", icon: "/payments/paypal.webp" },
-    { name: "Mastercard", icon: "/payments/mastercard.webp" },
-    { name: "Visa", icon: "/payments/visa.webp" },
-    { name: "Google Pay", icon: "/payments/gpay.webp" },
-    { name: "Apple Pay", icon: "/payments/apay.webp" },
-    { name: "American Express", icon: "/payments/americanexpress.webp" },
-    { name: "UnionPay", icon: "/payments/unionpay.webp" },
-    { name: "JCB", icon: "/payments/jcb.webp" },
-  ];
-  const rpOptions = [
-    "1/10 RP",
-    "11/20 RP",
-    "21/30 RP",
-    "31/40 RP",
-    "41/50 RP",
-    "51/60 RP",
-    "61/70 RP",
-    "71/80 RP",
-    "81/90 RP",
-    "90+ RP",
-  ] as const;
+  const rankTextColors: Record<string, string> = {
+    Copper: "var(--rank-copper)",
+    Bronze: "var(--rank-bronze)",
+    Silver: "var(--rank-silver)",
+    Gold: "var(--rank-gold)",
+    Platinum: "var(--rank-platinum)",
+    Emerald: "var(--rank-emerald)",
+    Diamond: "var(--rank-diamond)",
+    Champion: "var(--rank-champion)",
+  };
+  const platforms = ORDER_PLATFORMS;
+  const servers = ORDER_SERVERS;
+  const paymentMethods = ORDER_PAYMENT_METHODS;
+  const rpOptions = RP_OPTIONS;
 
   const flattenRank = (rankName: string, division: string) => {
     const rankIndex = ranks.findIndex((r) => r.name === rankName);
@@ -310,52 +239,79 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
 
   const currentValue = flattenRank(currentRank, currentDivision);
   const desiredValue = flattenRank(desiredRank, desiredDivision);
-  const safeDesiredValue = Math.max(desiredValue, currentValue + 1);
-  const steps = safeDesiredValue - currentValue;
+  const maxRankValue = ranks.length * divisions.length - 1;
+  const hasValidRankPath = desiredValue > currentValue;
+  const steps = Math.max(0, desiredValue - currentValue);
 
-  const rpMultiplierMap: Record<string, number> = {
-    "1/10 RP": 1.35,
-    "11/20 RP": 1.25,
-    "21/30 RP": 1.15,
-    "31/40 RP": 1.1,
-    "41/50 RP": 1.05,
-    "51/60 RP": 1,
-    "61/70 RP": 0.95,
-    "71/80 RP": 0.9,
-    "81/90 RP": 0.85,
-    "90+ RP": 0.8,
+  const setDesiredFromValue = (value: number) => {
+    const boundedValue = Math.min(Math.max(value, 0), maxRankValue);
+    const rank = ranks[Math.floor(boundedValue / divisions.length)];
+    const division = divisions[boundedValue % divisions.length];
+    setDesiredRank(rank.name);
+    setDesiredDivision(division);
   };
 
-  const basePerStep = queueType === "Solo" ? 4.35 : 5.65 * (1 + (duoBoosterCount - 1) * 0.25);
-  const platformMultiplier = platform === "PC" ? 1 : 1.2;
-  const rpMultiplier = rpMultiplierMap[rpGain] ?? 1;
-  const boosterFee = specificBooster ? 7.5 : 0;
+  const keepDesiredAbove = (nextCurrentValue: number) => {
+    if (desiredValue <= nextCurrentValue) {
+      setDesiredFromValue(Math.min(nextCurrentValue + 1, maxRankValue));
+    }
+  };
 
-  let subtotal = steps * basePerStep * platformMultiplier * rpMultiplier + boosterFee;
+  const handleCurrentRankChange = (rankName: string) => {
+    const nextCurrentValue = flattenRank(rankName, currentDivision);
+    setCurrentRank(rankName);
+    keepDesiredAbove(nextCurrentValue);
+  };
 
-  if (streaming) subtotal += 9;
+  const handleCurrentDivisionChange = (division: string) => {
+    const nextCurrentValue = flattenRank(currentRank, division);
+    setCurrentDivision(division);
+    keepDesiredAbove(nextCurrentValue);
+  };
 
-  let multiplier = 1;
-  if (express) multiplier += 0.2;
-  if (highKillCount) multiplier += 0.4;
-  if (oneTrickPony) multiplier += 0.3;
-  if (rankInsurance) multiplier += 0.5;
-  if (vipPriority) multiplier += 0.5;
-  if (insaneClipDrop) multiplier += 0.15;
-  if (eliteTier) multiplier += 0.5;
+  const handleDesiredRankChange = (rankName: string) => {
+    const firstValidDivision = divisions.find(
+      (division) => flattenRank(rankName, division) > currentValue,
+    );
+    if (!firstValidDivision) return;
 
-  subtotal *= multiplier;
+    setDesiredRank(rankName);
+    if (flattenRank(rankName, desiredDivision) <= currentValue) {
+      setDesiredDivision(firstValidDivision);
+    }
+  };
 
-  const promoDiscount =
-    promoCode.trim().toUpperCase() === "WELCOME6" ? subtotal * 0.06 : 0;
-  const extraDiscountThreshold = 50;
-  const hasExtraDiscount = subtotal >= extraDiscountThreshold;
-  const extraDiscount = hasExtraDiscount ? subtotal * 0.03 : 0;
-  const discount = promoDiscount + extraDiscount;
-  const extraDiscountPercent = (promoDiscount > 0 ? 6 : 0) + (hasExtraDiscount ? 3 : 0);
-  const amountToExtraDiscount = Math.max(0, extraDiscountThreshold - subtotal);
+  const order: RankUpOrder = {
+    serviceType: "rank-up",
+    currentRank,
+    currentDivision,
+    desiredRank,
+    desiredDivision,
+    rpGain,
+    queueType,
+    duoBoosterCount,
+    platform,
+    server,
+    promoCode,
+    specificBooster,
+    streaming,
+    express,
+    highKillCount,
+    oneTrickPony,
+    rankInsurance,
+    vipPriority,
+    insaneClipDrop,
+    eliteTier,
+  };
 
-  const total = Math.max(0, subtotal - discount);
+  const {
+    subtotal,
+    discount,
+    extraDiscountPercent,
+    hasExtraDiscount,
+    amountToExtraDiscount,
+    total,
+  } = computeOrderPrice(order);
 
   const isDesiredRankDisabled = (rankName: string) =>
     flattenRank(rankName, "I") <= currentValue;
@@ -364,21 +320,12 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
     flattenRank(desiredRank, division) <= currentValue;
 
   const rankCard = (selected: boolean, disabled: boolean) =>
-    `group rounded-2xl border p-3 transition-all duration-200 ease-out cursor-pointer ${
+    `group rounded-lg border p-2.5 transition-colors duration-150 cursor-pointer ${
       disabled
-        ? "border-white/10 bg-white/[0.02] text-zinc-500 opacity-60 cursor-not-allowed"
+        ? "border-[var(--line)] bg-[var(--surface-muted)] opacity-35 cursor-not-allowed"
         : selected
-        ? "border-cyan-400/60 bg-gradient-to-br from-cyan-400/20 to-cyan-600/10 shadow-lg shadow-cyan-500/30 scale-[1.02]"
-        : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05] hover:shadow-md hover:shadow-white/5 hover:scale-[1.01]"
-    }`;
-
-  const pillButton = (selected: boolean, disabled = false) =>
-    `rounded-xl border px-4 py-3 text-sm font-semibold transition-all duration-200 ease-out cursor-pointer ${
-      disabled
-        ? "border-white/10 bg-white/[0.02] text-zinc-500 opacity-60 cursor-not-allowed"
-        : selected
-        ? "border-cyan-400/60 bg-gradient-to-r from-cyan-400/20 to-cyan-600/20 text-white shadow-lg shadow-cyan-500/25"
-        : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.05] hover:border-white/20"
+        ? "border-[var(--foreground)] bg-[var(--surface-strong)]"
+        : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)]"
     }`;
 
   const addOnCard = (
@@ -388,31 +335,25 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
     setEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     description?: string
   ) => (
-    <div className={`relative rounded-2xl border p-4 transition-all duration-200 ease-out ${
+    <div className={`relative rounded-lg border p-4 transition-colors duration-150 ${
       enabled
-        ? "border-cyan-400/40 bg-cyan-400/10 shadow-lg shadow-cyan-500/20"
-        : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
+        ? "border-[var(--foreground)] bg-[var(--surface-strong)]"
+        : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"
     }`}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <p className="font-semibold text-white">{title}</p>
+            <p className="font-semibold text-[var(--foreground)]">{title}</p>
             {description && (
               <span className="group/tip relative cursor-help">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500/20 text-[10px] font-bold text-cyan-400">?</span>
-                <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-56 -translate-x-1/2 rounded-xl border border-white/10 bg-zinc-900 px-3 py-2 text-xs text-zinc-300 opacity-0 shadow-xl transition-opacity duration-200 group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full border border-[var(--line)] text-[10px] font-bold text-[var(--muted)]">?</span>
+                <span className="theme-popover pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-56 -translate-x-1/2 rounded-lg border px-3 py-2 text-xs opacity-0 shadow-lg transition-opacity duration-200 group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
                   {description}
                 </span>
               </span>
             )}
           </div>
-          <span className={`mt-2 inline-block rounded-md border px-2.5 py-1 text-xs font-bold ${
-            enabled
-              ? "border-emerald-400 bg-emerald-400/20 text-emerald-300"
-              : tag === annotations.free || tag === localizedAnnotations.en.free
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-              : "border-orange-500/30 bg-orange-500/10 text-orange-400"
-          }`}>
+          <span className="mt-2 inline-block text-xs font-medium text-[var(--muted)]">
             {tag}
           </span>
         </div>
@@ -424,40 +365,18 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
   const currentRankData = ranks.find((r) => r.name === currentRank);
   const desiredRankData = ranks.find((r) => r.name === desiredRank);
 
-  const rankTextColorMap: Record<string, string> = {
-    "Copper": "text-orange-400",
-    "Bronze": "text-amber-400",
-    "Silver": "text-zinc-300",
-    "Gold": "text-yellow-400",
-    "Platinum": "text-cyan-400",
-    "Emerald": "text-emerald-400",
-    "Diamond": "text-violet-400",
-    "Champion": "text-pink-400",
-  };
-
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
   const [showDetails, setShowDetails] = React.useState(false);
 
-  const languages = [
-    { code: "en", name: "English", flag: "us" },
-    { code: "it", name: "Italiano", flag: "it" },
-    { code: "fr", name: "Fran\u00e7ais", flag: "fr" },
-    { code: "es", name: "Espa\u00f1ol", flag: "es" },
-    { code: "de", name: "Deutsch", flag: "de" },
-    { code: "nl", name: "Nederlands", flag: "nl" },
-    { code: "pt", name: "Portugu\u00eas", flag: "pt" },
-    { code: "uk", name: "\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430", flag: "ua" },
-    { code: "ru", name: "\u0420\u0443\u0441\u0441\u043a\u0438\u0439", flag: "ru" },
-  ];
   const [selectedLang, setSelectedLang] = React.useState(defaultLang);
-  const [langOpen, setLangOpen] = React.useState(false);
-  const langRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const saved = localStorage.getItem("proboost_lang");
-    if (saved && saved !== defaultLang) setSelectedLang(saved);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const id = window.setTimeout(() => {
+      if (saved && saved !== defaultLang) setSelectedLang(saved);
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [defaultLang]);
 
   const englishAddOns = {
     playOffline: { title: "Play Offline", desc: addOnDescsByLang.en.playOffline },
@@ -628,350 +547,83 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
       },
     ],
   };
-  const infoCopy = {
-    sections: [
-      {
-        heading: ui.infoHeadings[0],
-        paragraphs: [
-          "In Tom Clancy's Rainbow Six Siege, many factors come into play. Knowing the maps, operators, weapons, gadgets, and different play styles can be very complicated. The game puts heavy emphasis on environmental destruction and cooperation between players. But our boosters are professionals. Their game knowledge will lead to a high win rate on your account.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[1],
-        paragraphs: [
-          "Are you curious who is going to play with you? Our R6 boosters are professional players that have been playing since 2015 when the game was released. So things like new patches, updates, or map changes do not affect our boosting process; adapting is part of our job.",
-          "We do not differentiate our customers based on their requirements. We do not have a problem with boosting a player's RP on a PC or a console. Our boosters are here to help you achieve your desired rank.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[2],
-        paragraphs: [
-          "Anyone can get hardstuck, and the best way to overcome this is to purchase our R6 Boosting. For our professional Rainbow Six Siege players, boosting is just a walk in the park.",
-          "We boost from Copper V to Champion. If you are struggling to get to Diamond, we have you covered.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[3],
-        paragraphs: [
-          "Our Rainbow Six Siege Boosting is provided by top boosters with an average win rate above 90%. We guarantee strong results in the shortest time possible.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[4],
-        paragraphs: [
-          "Starting your Rainbow Six Siege boost is simple. Fill out the order details, choose a payment method, and provide the credentials inside our Members Area. Then one of our boosters will take control of the account until your request is complete.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[5],
-        paragraphs: [
-          "When it comes to safety, we take great care of your personal information. We do not use cheats or external programs to achieve results, and our boost remains completely safe.",
-        ],
-        bullets: [
-          "We use VPN protection to keep you safe.",
-          "Your account details are used only by our boosters.",
-          "Your privacy is our number one priority.",
-        ],
-      },
-      {
-        heading: ui.infoHeadings[6],
-        paragraphs: ["We have several options to customise your order and enjoy the Siege boosting service even more."],
-        benefits: [
-          { title: "Live Streaming", desc: "Watch your booster reach the desired rank live." },
-          { title: "DuoQ", desc: "Play with your booster while they use an alternate account." },
-          { title: "High Kill Count", desc: "Improve how your account looks in every lobby." },
-          { title: "Specific Operators", desc: "Choose operators to improve KD on selected picks." },
-          { title: "Booster VIP", desc: "VIP boosters deliver the fastest and most reliable service." },
-        ],
-      },
-      {
-        heading: ui.infoHeadings[7],
-        paragraphs: [
-          "After purchasing our service, you become part of the ProBoost community. Rank up quickly, save time, learn new tactics, and enjoy stronger teammates.",
-        ],
-      },
-    ],
-  };
-
-  React.useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
-        setLangOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const competitorSavings = total * 0.35;
-  const competitorPrice = total + competitorSavings;
 
   const handleCheckout = async () => {
+    if (!hasValidRankPath) {
+      setToastType("error");
+      setToastMessage("Select a desired rank above your current rank.");
+      return;
+    }
+
     setCheckoutLoading(true);
     try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-        total,
-        currentRank,
-        currentDivision,
-        desiredRank,
-        desiredDivision,
-        server,
-        platform,
-        rpGain,
-      }),
-      });
-
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert("Stripe session failed: " + (data.error || "Unknown error"));
-        setCheckoutLoading(false);
-      }
-    } catch (err) {
-      alert("Checkout error: " + (err instanceof Error ? err.message : "Unknown error"));
+      const checkoutUrl = await createCheckoutSession(order);
+      window.location.assign(checkoutUrl);
+    } catch (error) {
+      setToastType("error");
+      setToastMessage(getCheckoutErrorMessage(error));
       setCheckoutLoading(false);
+      window.setTimeout(() => setToastMessage(null), 5000);
     }
   };
 
   return (
-    <div className="relative text-white font-sans">
+    <div className="relative bg-[var(--background)] text-[var(--foreground)] font-sans">
       {/* Toast notification */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-[100] flex items-start gap-3 rounded-xl bg-[#1a1a1a] border border-white/10 px-4 py-3 shadow-2xl max-w-sm">
+        <div
+          role={toastType === "error" ? "alert" : "status"}
+          aria-live="polite"
+          className="fixed top-4 right-4 z-[100] flex items-start gap-3 rounded-xl bg-[#1a1a1a] border border-white/10 px-4 py-3 shadow-2xl max-w-sm"
+        >
           <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${toastType === "success" ? "bg-emerald-500/20" : "bg-pink-500/20"}`}>
             {toastType === "success" ? (
               <svg className="h-4 w-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
             ) : (
-              <span className="text-pink-400 font-bold text-sm">$</span>
+              <span className="text-pink-400 font-bold text-sm">!</span>
             )}
           </div>
           <div className="flex-1">
             <p className="font-semibold text-white text-sm">{toastType === "success" ? annotations.couponAppliedTitle : annotations.couponMissingTitle}</p>
             <p className="text-xs text-zinc-400">{toastMessage}</p>
           </div>
-          <button onClick={() => setToastMessage(null)} className="text-zinc-400 hover:text-white transition cursor-pointer">
+          <button type="button" aria-label="Dismiss notification" onClick={() => setToastMessage(null)} className="text-zinc-400 hover:text-white transition cursor-pointer">
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
       )}
-      {/* gradient overlays */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute inset-y-0 right-[-10vw] top-0 w-[70vw] min-w-[900px] bg-[url('/r6-background.png')] bg-right-top bg-no-repeat opacity-25 [background-size:auto_100%]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/78 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050505]" />
-      </div>
-
-      {/* Sub-nav row */}
-      <div className="fixed top-[72px] left-0 right-0 z-40 border-b border-white/[0.07] bg-[#050505]/58 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1550px] items-center px-7 py-2">
-          {/* Nav links — centred */}
-          <div className="flex flex-1 items-center justify-center gap-2">
-            <Link href="/boosting" className="rounded-full px-4 py-1 text-sm text-zinc-400 hover:text-white transition cursor-pointer">{ui.overview}</Link>
-            <button className="rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] cursor-pointer">{ui.boosting}</button>
-            <Link href="/boosting/elearning" className="rounded-full px-4 py-1 text-sm text-zinc-400 hover:text-white transition cursor-pointer">{ui.eLearning}</Link>
-            <button className="rounded-full px-4 py-1 text-sm text-zinc-400 hover:text-white transition cursor-pointer">{ui.boosters}</button>
-          </div>
-          {/* Language picker — right-aligned */}
-          <div className="relative shrink-0" ref={langRef}>
-            <button
-              onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-300 hover:bg-white/[0.08] hover:text-white transition cursor-pointer"
-            >
-              <img
-                src={`https://flagcdn.com/20x15/${languages.find(l => l.code === selectedLang)?.flag ?? "us"}.png`}
-                alt=""
-                className="h-3.5 w-5 object-cover rounded-[2px]"
-              />
-              <span className="uppercase font-medium">{selectedLang}</span>
-              <svg className={`h-3.5 w-3.5 text-zinc-500 transition-transform duration-200 ${langOpen ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            {langOpen && (
-              <div className="absolute right-0 top-full mt-2 w-44 rounded-2xl border border-white/10 bg-zinc-950 py-1 shadow-xl z-50">
-                <p className="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">{annotations.languageMenuTitle}</p>
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => { setSelectedLang(lang.code); localStorage.setItem("proboost_lang", lang.code); setLangOpen(false); }}
-                    className={`flex w-full items-center gap-3 px-3 py-2 text-sm transition cursor-pointer ${
-                      selectedLang === lang.code ? "text-cyan-300 bg-cyan-500/10" : "text-zinc-300 hover:bg-white/[0.05] hover:text-white"
-                    }`}
-                  >
-                    <img
-                      src={`https://flagcdn.com/20x15/${lang.flag}.png`}
-                      alt=""
-                      className="h-3.5 w-5 shrink-0 object-cover rounded-[2px]"
-                    />
-                    {lang.name}
-                    {selectedLang === lang.code && (
-                      <svg className="ml-auto h-3.5 w-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="relative mx-auto max-w-[1550px] px-6 py-8 pt-44">
-        <header className="mb-6">
-
-          {/* Title + description */}
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+      <div className="relative mx-auto max-w-[1440px] px-4 py-10 sm:px-6 lg:px-8">
+        <header className="mb-8 max-w-4xl">
+          <p className="mb-3 text-xs font-semibold uppercase text-[var(--muted)]">Rainbow Six Siege</p>
+          <h1 className="text-3xl font-semibold sm:text-4xl">
             {ui.heroTitle}
           </h1>
-          <p className="mt-3 text-sm leading-6 text-zinc-400 sm:text-base">
-            {ui.heroDesc}
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base">
+            Choose your current rank and target. Your price and delivery estimate update instantly.
           </p>
-
-          {/* Trust badges */}
-          <div className="mt-5 mb-5 flex flex-wrap gap-2 text-xs sm:text-sm">
+          <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-[var(--muted)]">
             {[
-              { text: ui.badges[0], icon: "/icons/ssl.png", color: "text-white border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[1], icon: "/icons/vpn.png", color: "text-white border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[2], icon: "/icons/safe-service.png", color: "text-white border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[3], icon: "/icons/24-7-support.png", color: "text-white border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[4], icon: "/icons/money-refunds.png", color: "text-white border-cyan-500/30 bg-cyan-500/10" },
-              { text: ui.badges[5], icon: "/icons/cashback.png", color: "text-white border-cyan-500/30 bg-cyan-500/10" }
-            ].map((item) => (
-              <span
-                key={item.text}
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 ${item.color}`}
-              >
-                <Image src={item.icon} alt={item.text} width={22} height={22} unoptimized className="h-5 w-5 object-contain" />
-                {item.text}
+              { text: ui.badges[2], Icon: ShieldCheck },
+              { text: ui.badges[1], Icon: LockKeyhole },
+              { text: ui.badges[3], Icon: Headphones },
+              { text: "Fast delivery", Icon: Clock3 },
+            ].map(({ text, Icon }) => (
+              <span key={text} className="flex items-center gap-2">
+                <Icon aria-hidden="true" className="h-4 w-4" />
+                {text}
               </span>
             ))}
           </div>
         </header>
 
-        <div className="grid gap-6 xl:grid-cols-[280px_1fr_320px]">
-          <aside className="space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              {/* Bottom: ring + name + days left */}
-              <div className="group flex items-center gap-4">
-                <svg width="48" height="48" viewBox="0 0 48 48" className="shrink-0 -rotate-90">
-                  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(34,211,238,0.15)" strokeWidth="4" />
-                  <circle
-                    cx="24" cy="24" r="20" fill="none"
-                    stroke="rgb(34,211,238)"
-                    strokeWidth="4"
-                    strokeDasharray={2 * Math.PI * 20}
-                    strokeDashoffset={2 * Math.PI * 20 * (1 - seasonProgress)}
-                    strokeLinecap="round"
-                    className="transition-[stroke-dashoffset] duration-1000 ease-linear"
-                  />
-                </svg>
-                <div>
-                  <p className="text-sm font-semibold text-white leading-tight">
-                    {ui.seasonName}
-                  </p>
-                  <p className="text-sm font-bold text-cyan-400 mt-0.5">
-                    {seasonDaysLeft} {ui.daysLeft}
-                  </p>
-                </div>
-                {/* Info button ÔÇö hover reveals tooltip with progress card */}
-                <div className="relative ml-auto">
-                  <button className="text-zinc-500 hover:text-zinc-300 transition peer">
-                    <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  {/* Tooltip card ÔÇö visible on peer hover */}
-                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-72 rounded-2xl border border-white/10 bg-zinc-900 p-4 shadow-xl opacity-0 transition-opacity duration-200 peer-hover:opacity-100">
-                    <p className="font-bold text-white text-sm leading-tight mb-3">
-                      {ui.seasonName}
-                    </p>
-                    <div className="flex gap-[3px] mb-2">
-                      {Array.from({ length: 20 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`h-2 flex-1 rounded-sm ${i / 20 < seasonProgress ? "bg-cyan-400" : "bg-white/10"}`}
-                        />
-                      ))}
-                    </div>
-                    <div className="flex justify-between text-[11px] text-zinc-500 mb-3">
-                      <span>March 3, 2026</span>
-                      <span>June 1, 2026</span>
-                    </div>
-                    <p className="text-xs leading-6 text-zinc-400">
-                      {annotations.seasonTooltip}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {[
-                { label: ui.serviceButtons[0], href: "/boosting/rank-up" },
-                { label: ui.serviceButtons[1], href: "/boosting/champion" },
-                { label: ui.serviceButtons[2], href: "/boosting/competitive" },
-                { label: ui.serviceButtons[3], href: "/boosting/unrated" },
-                { label: "E-Learning", href: "/boosting/elearning" },
-              ].map((item, index) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block w-full rounded-xl border px-4 py-3 text-sm font-medium transition ${
-                    index === 0
-                      ? "border-cyan-500/40 bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-300 shadow-lg shadow-cyan-500/20"
-                      : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.05] hover:border-white/20"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-center text-sm font-bold text-emerald-300 shadow-lg shadow-emerald-500/20">
-              {ui.rated}
-              <span className="flex items-center gap-0.5">
-                {[0,1,2,3,4].map((i) => (
-                  <Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20} unoptimized className="h-5 w-5" />
-                ))}
-              </span>
-            </div>
-          </aside>
-
-          <main className="space-y-8">
-            <div className="flex items-center justify-between rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-500/12 to-cyan-600/8 px-5 py-4 shadow-lg shadow-cyan-500/10">
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/coin.png"
-                  alt="Savings coin"
-                  width={144}
-                  height={144}
-                  unoptimized
-                  className="h-32 w-32 shrink-0 object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.3)]"
-                />
-                <div>
-                  <p className="font-bold text-white">{ui.discountTitle}</p>
-                  <p className="text-sm text-zinc-300 mt-1">
-                    {ui.discountSubtitle}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-zinc-500">{ui.discountEnds}</p>
-                <p className="text-2xl font-bold text-yellow-300 tabular-nums font-mono">
-                  {formatTime(discountTime.hours)}:{formatTime(discountTime.minutes)}:{formatTime(discountTime.seconds)}
-                </p>
-              </div>
-            </div>
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <main className="min-w-0 space-y-7">
 
             <div className="grid gap-6 xl:grid-cols-2">
               <section
-                className="relative rounded-3xl border border-white/10 bg-black/40 p-6 overflow-hidden"
+                className="relative overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${currentRankData?.color} transition-all duration-500 ease-in-out`} />
                 <div className="relative z-10">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="w-full flex flex-col items-start">
@@ -981,23 +633,26 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                         alt={currentRankData.name}
                         width={56}
                         height={56}
-                        unoptimized
-                        className="mb-2 mx-0 drop-shadow-[0_0_16px_rgba(109,40,217,0.25)]"
+                        className="mb-2 mx-0"
+                        style={{ width: "56px", height: "56px" }}
                       />
                     )}
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight">{ui.currentRank}</h2>
-                    <p className={`${rankTextColorMap[currentRank]} text-base font-medium mt-1`}>
+                    <h2 className="text-lg font-semibold text-[var(--foreground)]">{ui.currentRank}</h2>
+                    <p className="mt-1 text-sm font-semibold" style={{ color: rankTextColors[currentRank] }}>
                       {currentRank} {currentDivision}
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-4 gap-3">
-                  {ranks.filter((rank) => rank.name !== "Champion").map((rank) => (
+                  {ranks.map((rank) => (
                     <button
                       key={rank.name}
-                      onClick={() => setCurrentRank(rank.name)}
-                      className={`${rankCard(currentRank === rank.name, false)} bg-gradient-to-br ${rank.color} aspect-square flex items-center justify-center`}
+                      type="button"
+                      aria-label={`Set current rank to ${rank.name}`}
+                      aria-pressed={currentRank === rank.name}
+                      onClick={() => handleCurrentRankChange(rank.name)}
+                      className={`${rankCard(currentRank === rank.name, false)} aspect-square flex items-center justify-center`}
                     >
                       <div className="flex flex-col items-center justify-center">
                         <Image
@@ -1005,32 +660,28 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                           alt={rank.name}
                           width={38}
                           height={38}
-                          unoptimized
-                          className="h-[38px] w-[38px] object-contain mx-auto drop-shadow-[0_0_8px_rgba(255,255,255,0.12)]"
+                          className="h-[38px] w-[38px] object-contain mx-auto"
+                          style={{ width: "38px", height: "38px" }}
                         />
                       </div>
                     </button>
                   ))}
                 </div>
 
-                <div className="mt-4 grid grid-cols-5 gap-3">
-                  {divisions.map((division) => (
-                    <button
-                      key={division}
-                      onClick={() => setCurrentDivision(division)}
-                      className={pillButton(currentDivision === division)}
-                    >
-                      {division}
-                    </button>
-                  ))}
-                </div>
+                <RankDivisionSelector
+                  divisions={divisions}
+                  value={currentDivision}
+                  accent={rankTextColors[currentRank]}
+                  onChange={handleCurrentDivisionChange}
+                  ariaLabel={`${ui.currentRank} division`}
+                  className="mt-4"
+                />
                 </div>
               </section>
 
               <section
-                className="relative rounded-3xl border border-white/10 bg-black/40 p-6 overflow-hidden"
+                className="relative overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${desiredRankData?.color} transition-all duration-500 ease-in-out`} />
                 <div className="relative z-10">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="w-full flex flex-col items-start">
@@ -1040,13 +691,13 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                         alt={desiredRankData.name}
                         width={56}
                         height={56}
-                        unoptimized
-                        className="mb-2 mx-0 drop-shadow-[0_0_16px_rgba(109,40,217,0.25)]"
+                        className="mb-2 mx-0"
+                        style={{ width: "56px", height: "56px" }}
                       />
                     )}
-                    <h2 className="text-2xl font-extrabold text-white tracking-tight">{ui.desiredRank}</h2>
-                    <p className={`${rankTextColorMap[desiredRank]} text-base font-medium mt-1`}>
-                      {desiredRank === "Champion" ? desiredRank : `${desiredRank} ${desiredDivision}`}
+                    <h2 className="text-lg font-semibold text-[var(--foreground)]">{ui.desiredRank}</h2>
+                    <p className="mt-1 text-sm font-semibold" style={{ color: rankTextColors[desiredRank] }}>
+                      {desiredRank} {desiredDivision}
                     </p>
                   </div>
                 </div>
@@ -1057,9 +708,12 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                     return (
                       <button
                         key={rank.name}
-                        onClick={() => !disabled && setDesiredRank(rank.name)}
+                        type="button"
+                        aria-label={`Set desired rank to ${rank.name}`}
+                        aria-pressed={desiredRank === rank.name && !disabled}
+                        onClick={() => !disabled && handleDesiredRankChange(rank.name)}
                         disabled={disabled}
-                        className={`${rankCard(desiredRank === rank.name, disabled)} ${disabled ? "" : `bg-gradient-to-br ${rank.color}`} aspect-square flex items-center justify-center`}
+                        className={`${rankCard(desiredRank === rank.name, disabled)} aspect-square flex items-center justify-center`}
                       >
                         <div className="flex flex-col items-center justify-center">
                           <Image
@@ -1067,8 +721,8 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                             alt={rank.name}
                             width={38}
                             height={38}
-                            unoptimized
-                            className="h-[38px] w-[38px] object-contain mx-auto drop-shadow-[0_0_8px_rgba(255,255,255,0.12)]"
+                            className="h-[38px] w-[38px] object-contain mx-auto"
+                            style={{ width: "38px", height: "38px" }}
                           />
                         </div>
                       </button>
@@ -1076,104 +730,83 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                   })}
                 </div>
 
-                {desiredRank !== "Champion" && (
-                  <div className="mt-4 grid grid-cols-5 gap-3">
-                    {divisions.map((division) => {
-                      const disabled = isDesiredDivisionDisabled(division);
-                      return (
-                        <button
-                          key={division}
-                          onClick={() => !disabled && setDesiredDivision(division)}
-                          disabled={disabled}
-                          className={pillButton(desiredDivision === division, disabled)}
-                        >
-                          {division}
-                        </button>
-                      );
-                    })}
-                  </div>
+                <RankDivisionSelector
+                  divisions={divisions}
+                  value={desiredDivision}
+                  accent={rankTextColors[desiredRank]}
+                  onChange={setDesiredDivision}
+                  isDisabled={isDesiredDivisionDisabled}
+                  ariaLabel={`${ui.desiredRank} division`}
+                  className="mt-4"
+                />
+                {!hasValidRankPath && (
+                  <p role="status" className="mt-3 text-sm font-medium text-[var(--muted)]">
+                    You are already at the highest available rank.
+                  </p>
                 )}
                 </div>
               </section>
             </div>
 
-            <section>
-              <h3 className="mb-4 text-4xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">{ui.selectPlatform}</h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                {platforms.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => setPlatform(item)}
-                    className={`${pillButton(platform === item)} flex items-center justify-center gap-2 py-4`}
-                  >
-                    <span className="text-xl">
-                      <Image
-                        src={item === "PC" ? "/windows.png" : item === "Xbox" ? "/xbox.png" : "/playstation.png"}
-                        alt={item}
-                        width={24}
-                        height={24}
-                        unoptimized
-                        className="h-6 w-6 object-contain"
-                      />
-                    </span>
-                    {item}
-                  </button>
-                ))}
-              </div>
+            <section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+              <h3 className="mb-4 text-lg font-semibold">{ui.selectPlatform}</h3>
+              <PlatformSelector
+                platforms={platforms}
+                value={platform}
+                onChange={setPlatform}
+                ariaLabel={ui.selectPlatform}
+              />
             </section>
 
-            <section className="grid gap-4 lg:grid-cols-2">
+            <section className="grid gap-4 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5 lg:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-white">
+                <label className="mb-2 block text-sm font-semibold">
                   {annotations.rpGainLabel}
                 </label>
                 <div className="relative">
                   <select
                     value={rpGain}
                     onChange={(e) => setRpGain(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3.5 pr-12 text-white outline-none transition hover:border-white/20 focus:border-white/20 cursor-pointer appearance-none"
+                    className="w-full appearance-none rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 pr-12 text-[var(--foreground)] outline-none transition hover:border-[var(--line-strong)] focus:border-[var(--foreground)] cursor-pointer"
                   >
                     {rpOptions.map((option) => (
-                      <option key={option} value={option} className="bg-[#0a0a0a] text-white py-2">
+                      <option key={option} value={option}>
                         {option}
                       </option>
                     ))}
                   </select>
-                  <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-400">
+                  <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[var(--muted)]">
                     ▾
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-white">
+                <label className="mb-2 block text-sm font-semibold">
                   {annotations.serverLabel}
                 </label>
                 <div className="relative">
                   <select
                     value={server}
                     onChange={(e) => setServer(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3.5 pr-12 text-white outline-none transition hover:border-white/20 focus:border-white/20 cursor-pointer appearance-none"
+                    className="w-full appearance-none rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 pr-12 text-[var(--foreground)] outline-none transition hover:border-[var(--line-strong)] focus:border-[var(--foreground)] cursor-pointer"
                   >
                     {servers.map((option) => (
-                      <option key={option} value={option} className="bg-[#0a0a0a] text-white py-2">
+                      <option key={option} value={option}>
                         {option}
                       </option>
                     ))}
                   </select>
-                  <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-400">
+                  <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[var(--muted)]">
                     ▾
                   </span>
                 </div>
               </div>
             </section>
 
-            <section className="pt-4">
-              <div className="mb-6 flex items-center gap-4">
-                <h3 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">{annotations.customize}</h3>
-                <div className="flex-1 h-px bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
-              </div>
-              <div className="grid gap-4 lg:grid-cols-3">
+            <section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+              <h3 className="mb-4 text-lg font-semibold">{annotations.customize}</h3>
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-4">
                   {addOnCard(annotations.addOns?.playOffline?.title ?? localizedAnnotations.en.addOns.playOffline.title, annotations.free, playOffline, setPlayOffline, annotations.addOns?.playOffline?.desc ?? localizedAnnotations.en.addOns.playOffline.desc)}
                   {addOnCard(annotations.addOns?.express?.title ?? localizedAnnotations.en.addOns.express.title, "+20%", express, setExpress, annotations.addOns?.express?.desc ?? localizedAnnotations.en.addOns.express.desc)}
@@ -1196,67 +829,48 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
             </section>
           </main>
 
-          <aside className="h-fit rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur-sm xl:sticky xl:top-6 shadow-lg shadow-cyan-500/10">
-            <div className="mb-4 rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-4 text-sm text-zinc-300">
-              <div className="flex items-center gap-3">
-                <div className="min-w-0 flex-1">
-                  <p>{annotations.competitorIntro}</p>
-                  <p className="font-bold text-cyan-300">£{competitorSavings.toFixed(2)} {annotations.competitorSuffix}</p>
-                  <button
-                    onClick={() => setShowDetails(true)}
-                    className="mt-2 text-xs text-cyan-400 underline underline-offset-2 hover:text-cyan-300 transition cursor-pointer"
-                  >
-                    {annotations.details}
-                  </button>
-                </div>
-                <Image
-                  src="/coin.png"
-                  alt="Savings coin"
-                  width={128}
-                  height={128}
-                  unoptimized
-                  className="h-28 w-28 shrink-0 object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.3)]"
-                />
-              </div>
-            </div>
-
+          <aside className="h-fit min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5 xl:sticky xl:top-24">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="pr-1 text-2xl font-bold italic bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">{ui.summary}</h3>
-              <div className="flex items-center gap-2 text-sm text-zinc-400">
+              <h3 className="pr-1 text-xl font-semibold">{ui.summary}</h3>
+              <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
                 <span>~ {(() => { const hrs = Math.max(1, Math.round(steps * 2.33)); const d = Math.floor(hrs / 24); const h = hrs % 24; return d > 0 ? `${d} ${d > 1 ? annotations.days : annotations.day}, ${h}h` : `${h}h`; })()}</span>
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                 <div className="group/time relative">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400 text-black text-xs font-bold cursor-help">?</div>
-                  <div className="invisible group-hover/time:visible absolute right-0 top-8 z-50 w-72 rounded-xl border border-white/10 bg-[#111] p-4 shadow-2xl text-sm">
-                    <p className="font-bold text-white mb-2">{ui.policyTitle}</p>
-                    <p className="text-zinc-400 mb-2">{ui.policyLine1} <span className="text-cyan-400">{ui.policyHighlight1}</span>.</p>
-                    <p className="text-zinc-400 mb-2">{ui.policyLine2} <span className="text-cyan-400">{ui.policyHighlight2[0]}</span>, <span className="text-cyan-400">{ui.policyHighlight2[1]}</span>, {annotations.policyAnd} <span className="text-cyan-400">{ui.policyHighlight2[2]}</span>.</p>
-                    <p className="text-zinc-400">{ui.policyLine3}</p>
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--line)] text-xs font-bold cursor-help">?</div>
+                  <div className="theme-popover invisible group-hover/time:visible absolute right-0 top-8 z-50 w-72 rounded-lg border p-4 shadow-lg text-sm">
+                    <p className="font-bold mb-2">{ui.policyTitle}</p>
+                    <p className="text-[var(--muted)] mb-2">{ui.policyLine1} {ui.policyHighlight1}.</p>
+                    <p className="text-[var(--muted)] mb-2">{ui.policyLine2} {ui.policyHighlight2.join(", ")}.</p>
+                    <p className="text-[var(--muted)]">{ui.policyLine3}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+            <div className="mb-4 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-1">
               <div className="relative grid grid-cols-2 gap-1">
                 <div
-                  className={`absolute inset-y-0 w-[calc(50%-2px)] rounded-xl bg-gradient-to-r from-cyan-400 to-cyan-600 transition-transform duration-300 ease-out ${
+                  className={`absolute inset-y-0 w-[calc(50%-2px)] rounded-md border border-[var(--line-strong)] bg-[var(--surface-strong)] transition-transform duration-300 ease-out ${
                     queueType === "Duo" ? "translate-x-[calc(100%+4px)]" : "translate-x-0"
                   }`}
                 />
                 <button
+                  type="button"
+                  aria-pressed={queueType === "Solo"}
                   onClick={() => setQueueType("Solo")}
-                  className={`relative z-10 flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition-colors duration-300 ${
-                    queueType === "Solo" ? "text-black" : "text-zinc-400"
+                  className={`relative z-10 flex items-center justify-center gap-2 rounded-md px-4 py-2.5 font-semibold transition-colors duration-300 ${
+                    queueType === "Solo" ? "text-[var(--foreground)]" : "text-[var(--muted)]"
                   }`}
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                   {ui.solo}
                 </button>
                 <button
+                  type="button"
+                  aria-pressed={queueType === "Duo"}
                   onClick={() => setQueueType("Duo")}
-                  className={`relative z-10 flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition-colors duration-300 ${
-                    queueType === "Duo" ? "text-black" : "text-zinc-400"
+                  className={`relative z-10 flex items-center justify-center gap-2 rounded-md px-4 py-2.5 font-semibold transition-colors duration-300 ${
+                    queueType === "Duo" ? "text-[var(--foreground)]" : "text-[var(--muted)]"
                   }`}
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
@@ -1268,7 +882,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
             {queueType === "Duo" && (
               <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <Image src="/booster.png" alt="Booster" width={80} height={80} unoptimized className="h-20 w-20 object-contain" />
+                  <Image src="/booster.png" alt="Booster" width={80} height={80}  className="h-20 w-20 object-contain" />
                   <div className="flex-1">
                     <span className="font-semibold text-white text-sm">{annotations.extraBooster}</span>
                     <p className="text-xs text-zinc-400">{annotations.increaseBoosters}</p>
@@ -1282,13 +896,16 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    type="button"
+                    aria-label="Remove an extra booster"
                     onClick={() => setDuoBoosterCount(Math.max(1, duoBoosterCount - 1))}
-                    className="flex h-10 w-16 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xl hover:bg-cyan-500/30 active:scale-95 transition cursor-pointer"
+                    className="flex h-10 w-16 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] text-xl font-semibold text-[var(--foreground)] transition hover:border-[var(--line-strong)] hover:bg-[var(--surface-hover)] active:scale-95"
                   >
                     −
                   </button>
                   <div className="flex-1 flex items-center justify-center rounded-lg border border-white/10 bg-white/5 h-10">
                     <input
+                      aria-label="Number of extra boosters"
                       type="number"
                       min={1}
                       max={4}
@@ -1301,8 +918,10 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                     />
                   </div>
                   <button
+                    type="button"
+                    aria-label="Add an extra booster"
                     onClick={() => setDuoBoosterCount(Math.min(4, duoBoosterCount + 1))}
-                    className="flex h-10 w-16 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xl hover:bg-cyan-500/30 active:scale-95 transition cursor-pointer"
+                    className="flex h-10 w-16 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] text-xl font-semibold text-[var(--foreground)] transition hover:border-[var(--line-strong)] hover:bg-[var(--surface-hover)] active:scale-95"
                   >
                     +
                   </button>
@@ -1310,9 +929,15 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
               </div>
             )}
 
-            <div className="space-y-3 border-b border-white/10 pb-5 text-sm text-zinc-300">
-              <div className="flex justify-between">
-                <span>{currentRank} {currentDivision} &gt; {desiredRank === "Champion" ? "Champion" : `${desiredRank} ${desiredDivision}`}</span>
+            <div className="space-y-3 border-b border-[var(--line)] pb-5 text-sm text-[var(--muted)]">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold" style={{ color: rankTextColors[currentRank] }}>
+                  {currentRank} {currentDivision}
+                </span>
+                <span className="text-[var(--muted-soft)]">to</span>
+                <span className="font-semibold" style={{ color: rankTextColors[desiredRank] }}>
+                  {desiredRank} {desiredDivision}
+                </span>
               </div>
               {queueType === "Duo" && (
                 <>
@@ -1327,7 +952,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                   {duoBoosterCount > 1 && (
                     <div className="flex justify-between">
                       <span>+{duoBoosterCount - 1} {duoBoosterCount > 2 ? annotations.extraBoosterPlural : annotations.extraBoosterSuffix}</span>
-                      <span className="font-semibold text-cyan-400">+{(duoBoosterCount - 1) * 75}%</span>
+                      <span className="font-semibold text-[var(--foreground)]">+{(duoBoosterCount - 1) * 75}%</span>
                     </div>
                   )}
                 </>
@@ -1342,33 +967,26 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
               </div>
               <div className="flex justify-between items-center">
                 <span className="flex items-center gap-2">
-                  <Image
-                    src={platform === "PC" ? "/windows.png" : platform === "Xbox" ? "/xbox.png" : "/playstation.png"}
-                    alt={platform}
-                    width={18}
-                    height={18}
-                    unoptimized
-                    className="h-4.5 w-4.5 object-contain"
-                  />
+                  <PlatformLogo platform={platform} size={18} />
                   {platform.toUpperCase()}
                 </span>
                 <span className="font-semibold">{platform === "PC" ? annotations.free : "20%"}</span>
               </div>
             </div>
 
-            <div className="space-y-3 border-b border-white/10 py-5">
+            <div className="space-y-3 border-b border-[var(--line)] py-5">
               <button
                 onClick={() => setSpecificBooster(!specificBooster)}
-                className="flex w-full items-center justify-between rounded-xl bg-[#111] px-4 py-3 cursor-pointer hover:bg-[#161616] transition"
+                className="flex w-full items-center justify-between rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 cursor-pointer hover:border-[var(--line-strong)] transition"
               >
-                <span className="flex items-center gap-3 font-semibold text-white">
-                  <Image src="/booster.png" alt="Booster" width={36} height={36} unoptimized className="h-9 w-9 object-contain" />
+                <span className="flex items-center gap-3 font-semibold text-[var(--foreground)]">
+                  <Image src="/booster.png" alt="Booster" width={36} height={36}  className="h-9 w-9 object-contain" />
                   {ui.specificBooster}
                 </span>
-                <svg className={`h-5 w-5 text-zinc-400 transition-transform duration-200 ${specificBooster ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                <svg className={`h-5 w-5 text-[var(--muted)] transition-transform duration-200 ${specificBooster ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               {specificBooster && (
-                <div className="rounded-xl bg-[#111] px-4 py-3 text-sm text-zinc-400 leading-relaxed">
+                <div className="rounded-lg bg-[var(--surface-muted)] px-4 py-3 text-sm text-[var(--muted)] leading-relaxed">
                   {ui.specificBoosterDesc}
                 </div>
               )}
@@ -1376,24 +994,25 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
               <div>
                 <button
                   onClick={() => setPromoExpanded(!promoExpanded)}
-                  className="flex w-full items-center justify-between rounded-xl bg-[#111] px-4 py-3 cursor-pointer hover:bg-[#161616] transition"
+                  className="flex w-full items-center justify-between rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 cursor-pointer hover:border-[var(--line-strong)] transition"
                 >
                   <div className="flex items-center gap-3">
-                    <img src="/coupon.png" alt="" className="h-10 w-10 object-contain opacity-90" />
-                    <span className="font-semibold text-white">{ui.applyPromo}</span>
+                    <Image src="/coupon.png" alt="" width={40} height={60}  className="h-10 w-auto object-contain opacity-90" />
+                    <span className="font-semibold text-[var(--foreground)]">{ui.applyPromo}</span>
                   </div>
-                  <span className="text-zinc-400 text-lg">{promoExpanded ? "−" : "+"}</span>
+                  <span className="text-[var(--muted)] text-lg">{promoExpanded ? "−" : "+"}</span>
                 </button>
                 {promoExpanded && (
-                  <div className="mt-2 rounded-xl bg-[#111] px-4 py-3">
+                  <div className="mt-2 rounded-lg bg-[var(--surface-muted)] px-4 py-3">
                     <div className="flex gap-2 overflow-hidden">
                       <input
+                        aria-label="Promo code"
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value)}
                         placeholder={ui.enterCoupon}
-                        className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white outline-none placeholder:text-zinc-500 focus:border-cyan-400 transition"
+                        className="min-w-0 flex-1 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-4 py-2.5 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-soft)] focus:border-[var(--foreground)] transition"
                       />
-                      <button onClick={handleApplyPromo} className="shrink-0 rounded-lg bg-cyan-500/15 px-4 py-2.5 font-semibold text-cyan-400 hover:bg-cyan-500/25 transition cursor-pointer">
+                      <button onClick={handleApplyPromo} className="shrink-0 rounded-lg bg-[var(--foreground)] px-4 py-2.5 font-semibold text-[var(--background)] transition cursor-pointer">
                         {ui.apply}
                       </button>
                     </div>
@@ -1402,49 +1021,50 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
               </div>
             </div>
 
-            <div className="space-y-3 py-5 border-b border-white/10">
-              <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 flex items-center gap-3 text-sm">
-                <img src="/coupon.png" alt="" className="h-[60px] w-[60px] object-contain opacity-95" />
-                <span className="text-cyan-300">
+            <div className="space-y-3 py-5 border-b border-[var(--line)]">
+              <div className="rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 text-sm">
+                <span className="text-[var(--muted)]">
                   {hasExtraDiscount
                     ? annotations.extraDiscountUnlocked
                     : annotations.extraDiscountAdd.replace("{amount}", amountToExtraDiscount.toFixed(2))}
                 </span>
               </div>
-              <div className="flex justify-between text-sm text-zinc-400">
+              <div className="flex justify-between text-sm text-[var(--muted)]">
                 <span>{annotations.extraDiscountLabel}</span>
-                <span className="font-semibold text-cyan-400">{extraDiscountPercent > 0 ? `-${extraDiscountPercent}%` : "0%"}</span>
+                <span className="font-semibold text-[var(--foreground)]">{extraDiscountPercent > 0 ? `-${extraDiscountPercent}%` : "0%"}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="font-semibold text-white">{annotations.totalAmountLabel}</span>
+                <span className="font-semibold">{annotations.totalAmountLabel}</span>
                 <span className="flex items-center gap-2">
-                  {discount > 0 && <span className="text-zinc-500 line-through text-xs">£{subtotal.toFixed(2)}</span>}
-                  <span className="text-lg font-bold text-white">£{total.toFixed(2)}</span>
+                  {discount > 0 && <span className="text-[var(--muted-soft)] line-through text-xs">£{subtotal.toFixed(2)}</span>}
+                  <span className="text-lg font-bold">£{total.toFixed(2)}</span>
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-400">{annotations.cashbackLabel}</span>
-                <span className="flex items-center gap-1 text-zinc-300">
-                  <span className="text-yellow-400">💰</span> £ 0.00
-                </span>
+                <span className="text-[var(--muted)]">{annotations.cashbackLabel}</span>
+                <span className="text-[var(--muted)]">£0.00</span>
               </div>
             </div>
 
             <button
               onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="relative z-10 w-full rounded-2xl bg-cyan-500 px-5 py-4 text-lg font-bold text-black cursor-pointer hover:bg-cyan-400 transition-colors duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-wait"
+              disabled={checkoutLoading || !hasValidRankPath}
+              className="relative z-10 w-full rounded-lg bg-[var(--foreground)] px-5 py-3.5 text-base font-semibold text-[var(--background)] cursor-pointer transition-opacity hover:opacity-85 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-45"
             >
-              {checkoutLoading ? annotations.redirectingLabel : `${annotations.checkoutButton} (£${total.toFixed(2)})`}
+              {!hasValidRankPath
+                ? "No higher rank available"
+                : checkoutLoading
+                  ? annotations.redirectingLabel
+                  : `${annotations.checkoutButton} (£${total.toFixed(2)})`}
             </button>
 
             <div className="mt-6">
-              <div className="rounded-xl bg-[#111] p-3">
+              <div className="rounded-lg bg-[var(--surface-muted)] p-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <Image src="/icons/ssl.png" alt="Secure" width={24} height={24} unoptimized className="h-6 w-6 object-contain" />
+                  <Image src="/icons/ssl.png" alt="Secure" width={24} height={24}  className="h-6 w-6 object-contain" />
                   <div>
-                    <p className="font-bold text-white text-xs">{annotations.safePaymentsTitle}</p>
-                    <p className="text-[10px] text-zinc-400">{annotations.safePaymentsDesc}</p>
+                    <p className="font-bold text-xs">{annotations.safePaymentsTitle}</p>
+                    <p className="text-[10px] text-[var(--muted)]">{annotations.safePaymentsDesc}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1455,42 +1075,40 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                       alt={method.name}
                       width={28}
                       height={28}
-                      unoptimized
                       className="h-6 w-auto object-contain"
                     />
                   ))}
                 </div>
               </div>
-              <p className="mt-3 text-center text-[10px] leading-4 text-zinc-500">
-                By placing an order at <span className="text-zinc-300 font-medium">proboost.gg</span>{" "}
+              <p className="mt-3 text-center text-[10px] leading-4 text-[var(--muted-soft)]">
+                By placing an order at <span className="text-[var(--muted)] font-medium">proboost.gg</span>{" "}
                 you&apos;re agreeing to our{" "}
-                <Link href="/terms" className="text-zinc-300 underline underline-offset-2 hover:text-white transition-colors">Terms of Use</Link>
+                <Link href="/terms" className="text-[var(--muted)] underline underline-offset-2 hover:text-[var(--foreground)] transition-colors">Terms of Use</Link>
                 {" "}{annotations.policyAnd}{" "}
-                <Link href="/privacy" className="text-zinc-300 underline underline-offset-2 hover:text-white transition-colors">Privacy Policy</Link>
+                <Link href="/privacy" className="text-[var(--muted)] underline underline-offset-2 hover:text-[var(--foreground)] transition-colors">Privacy Policy</Link>
               </p>
             </div>
           </aside>
         </div>
 
-        <div className="mt-8 xl:ml-[304px] xl:pr-[344px]">
+        <div className="mt-12">
           <TrustSection copy={trustCopy} />
         </div>
-        <div className="xl:ml-[304px] xl:pr-[344px]">
+        <div>
           <FaqSection copy={faqCopy} />
-          <InfoSection copy={infoCopy} />
         </div>
       </div>
       {showDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md" onClick={() => setShowDetails(false)}>
-          <div className="relative mx-4 w-full max-w-2xl rounded-2xl border border-white/[0.08] bg-[#111315] p-8 shadow-[0_40px_100px_rgba(0,0,0,0.8)]" onClick={(e) => e.stopPropagation()}>
+        <div className="theme-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md" onClick={() => setShowDetails(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="pricing-dialog-title" className="theme-popover relative mx-4 w-full max-w-2xl rounded-2xl border p-8" onClick={(e) => e.stopPropagation()}>
 
             {/* close */}
-            <button onClick={() => setShowDetails(false)} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-zinc-500 hover:text-white transition cursor-pointer">
+            <button type="button" aria-label={annotations.modalClose} onClick={() => setShowDetails(false)} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] text-[var(--muted)] transition hover:border-[var(--line-strong)] hover:text-[var(--foreground)]">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3.5 w-3.5"><path d="M3 3l10 10M13 3L3 13"/></svg>
             </button>
 
             <p className="mb-1.5 text-center text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-400/60">{annotations.modalSubtitle}</p>
-            <h2 className="mb-8 text-center text-xl font-black text-white">{annotations.modalTitle}</h2>
+            <h2 id="pricing-dialog-title" className="mb-8 text-center text-xl font-black text-white">{annotations.modalTitle}</h2>
 
             <div className="grid grid-cols-3 gap-3">
 

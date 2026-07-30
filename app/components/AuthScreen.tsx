@@ -7,24 +7,11 @@ import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import type { OAuthStrategy } from "@clerk/shared/types";
-
-type LangCode = "en" | "it" | "fr" | "es" | "de" | "nl" | "pt" | "uk" | "ru";
-
-const LANGUAGES: { code: LangCode; name: string; flag: string }[] = [
-  { code: "en", name: "English",    flag: "us" },
-  { code: "it", name: "Italiano",   flag: "it" },
-  { code: "fr", name: "Français",   flag: "fr" },
-  { code: "es", name: "Español",    flag: "es" },
-  { code: "de", name: "Deutsch",    flag: "de" },
-  { code: "nl", name: "Nederlands", flag: "nl" },
-  { code: "pt", name: "Português",  flag: "pt" },
-  { code: "uk", name: "Українська", flag: "ua" },
-  { code: "ru", name: "Русский",    flag: "ru" },
-];
+import type { LanguageCode } from "./Dropdown";
 
 type ModeKey = "login" | "signup";
 
-const i18n: Record<LangCode, {
+const i18n: Record<LanguageCode, {
   login:  { eyebrow: string; title: string; subtitle: string; primary: string; altLabel: string; altText: string };
   signup: { eyebrow: string; title: string; subtitle: string; primary: string; altLabel: string; altText: string };
   emailLabel: string; emailPlaceholder: string;
@@ -52,32 +39,18 @@ type AuthScreenProps = {
 };
 
 export default function AuthScreen({ mode }: AuthScreenProps) {
-        const router = useRouter();
+  const router = useRouter();
   const clerk = useClerk();
-  const [clerkReady, setClerkReady] = React.useState(false);
-
-  React.useEffect(() => {
-    // Poll until clerk.client is available
-    if (clerk.client) { setClerkReady(true); return; }
-    const id = setInterval(() => {
-      if (clerk.client) { setClerkReady(true); clearInterval(id); }
-    }, 50);
-    return () => clearInterval(id);
-  }, [clerk]);
-
-  const [selectedLang, setSelectedLang] = React.useState<LangCode>("en");
-  const [langOpen, setLangOpen] = React.useState(false);
-  const langRef = React.useRef<HTMLDivElement>(null);
-    const [email, setEmail] = React.useState("");
+  const [selectedLang, setSelectedLang] = React.useState<LanguageCode>("en");
+  const [email, setEmail] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirm, setConfirm] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 
-          const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clerkReady || !clerk.client) return;
     setError("");
     if (mode === "signup" && password !== confirm) {
       setError("Passwords do not match.");
@@ -98,7 +71,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           router.push("/");
         }
       } else {
-        const res = await clerk.client!.signUp.create({ emailAddress: email, password, username });
+        const res = await clerk.client.signUp.create({ emailAddress: email, password, username });
         if (res.status === "complete") {
           await clerk.setActive({ session: res.createdSessionId });
           router.push("/");
@@ -115,8 +88,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
     }
   };
 
-          const handleOAuth = (strategy: OAuthStrategy) => {
-    if (!clerkReady || !clerk.client) return;
+  const handleOAuth = (strategy: OAuthStrategy) => {
     const origin = window.location.origin;
     const params = {
       strategy,
@@ -132,54 +104,28 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
 
   React.useEffect(() => {
     const saved = localStorage.getItem("proboost_lang");
-    if (saved) setSelectedLang(saved as never);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const id = window.setTimeout(() => {
+      if (saved && saved in i18n) {
+        setSelectedLang(saved as LanguageCode);
+      }
+    }, 0);
+    const handleLanguageChange = (event: Event) => {
+      const language = (event as CustomEvent<LanguageCode>).detail;
+      if (language && language in i18n) setSelectedLang(language);
+    };
+    window.addEventListener("proboost:language-change", handleLanguageChange);
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener("proboost:language-change", handleLanguageChange);
+    };
   }, []);
   const t = i18n[selectedLang];
   const content = t[mode];
   const altHref = mode === "login" ? "/signup" : "/login";
-  const currentFlag = LANGUAGES.find((l) => l.code === selectedLang)!.flag;
-
-  React.useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-    return (
-    <div className="relative min-h-screen bg-black flex flex-col items-center justify-center px-4 py-12">
+  return (
+    <main className="auth-shell relative flex min-h-screen flex-col items-center justify-center px-4 pb-12 pt-28">
       {/* Required by Clerk for Smart CAPTCHA on custom sign-up flows */}
       <div id="clerk-captcha" />
-      {/* Language picker — top right */}
-      <div className="absolute right-6 top-6 z-50" ref={langRef}>
-        <button
-          onClick={() => setLangOpen((o) => !o)}
-          className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-300 hover:bg-white/[0.08] hover:text-white transition"
-        >
-          <img src={`https://flagcdn.com/20x15/${currentFlag}.png`} width={20} height={15} alt="" className="rounded-[2px]" />
-          <span className="uppercase font-medium">{selectedLang}</span>
-          <svg className="h-3.5 w-3.5 text-zinc-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3.5 6.5 8 11l4.5-4.5" /></svg>
-        </button>
-        {langOpen && (
-          <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-white/10 bg-[#111315] py-1.5 shadow-2xl">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => { setSelectedLang(l.code); localStorage.setItem("proboost_lang", l.code); setLangOpen(false); }}
-                className={`flex w-full items-center gap-2.5 px-3.5 py-2 text-sm transition ${selectedLang === l.code ? "text-cyan-300 bg-cyan-500/10" : "text-zinc-300 hover:bg-white/[0.05] hover:text-white"}`}
-              >
-                <img src={`https://flagcdn.com/20x15/${l.flag}.png`} width={20} height={15} alt="" className="rounded-[2px]" />
-                {l.name}
-                {selectedLang === l.code && (
-                  <svg className="ml-auto h-3.5 w-3.5 text-cyan-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M3 8l3.5 3.5L13 5" /></svg>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
 
       {/* Character image */}
       <div className="mb-2 flex justify-center">
@@ -188,31 +134,36 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           alt="ProBoost Character"
           width={220}
           height={220}
-          priority
-          unoptimized
-          className="h-44 w-auto object-contain drop-shadow-[0_0_40px_rgba(34,211,238,0.25)]"
+          loading="eager"
+          className="h-44 w-auto object-contain"
         />
       </div>
 
       {/* Form card */}
       <div className="w-full max-w-sm">
-        <h1 className="mb-2 text-center text-3xl font-black tracking-tight text-white">{content.title}</h1>
-        <p className="mb-7 text-center text-sm text-zinc-400">{content.subtitle}</p>
+        <h1 className="mb-2 text-center text-3xl font-semibold tracking-tight text-[var(--foreground)]">{content.title}</h1>
+        <p className="mb-7 text-center text-sm text-[var(--muted)]">{content.subtitle}</p>
 
         <form onSubmit={handleSubmit}>
                     {/* Username — signup only */}
           {mode === "signup" && (
             <div className="relative mb-3">
+              <label htmlFor="auth-username" className="sr-only">
+                Username
+              </label>
               <input
+                id="auth-username"
                 type="text"
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Username"
                 autoComplete="username"
-                className="w-full rounded-2xl border border-white/10 bg-[#111315] px-4 py-3.5 pr-11 text-white outline-none transition placeholder:text-zinc-500 focus:border-cyan-400/60 focus:bg-[#13181f]"
+                aria-invalid={!!error}
+                aria-describedby={error ? "auth-error" : undefined}
+                className="w-full rounded-lg border border-[var(--line)] bg-[var(--surface-raised)] px-4 py-3.5 pr-11 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-soft)] hover:border-[var(--line-strong)] focus:border-[var(--foreground)]"
               />
-              <svg className="pointer-events-none absolute right-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="pointer-events-none absolute right-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
               </svg>
             </div>
@@ -220,76 +171,99 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
 
           {/* Email */}
           <div className="relative mb-3">
+            <label htmlFor="auth-email" className="sr-only">
+              {t.emailLabel}
+            </label>
             <input
+              id="auth-email"
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t.emailPlaceholder}
-              className="w-full rounded-2xl border border-white/10 bg-[#111315] px-4 py-3.5 pr-11 text-white outline-none transition placeholder:text-zinc-500 focus:border-cyan-400/60 focus:bg-[#13181f]"
+              autoComplete="email"
+              aria-invalid={!!error}
+              aria-describedby={error ? "auth-error" : undefined}
+              className="w-full rounded-lg border border-[var(--line)] bg-[var(--surface-raised)] px-4 py-3.5 pr-11 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-soft)] hover:border-[var(--line-strong)] focus:border-[var(--foreground)]"
             />
-            <svg className="pointer-events-none absolute right-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="pointer-events-none absolute right-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-[var(--muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="4" width="20" height="16" rx="3" /><path d="m2 7 10 7 10-7" />
             </svg>
           </div>
 
           {/* Password */}
           <div className="relative mb-3">
+            <label htmlFor="auth-password" className="sr-only">
+              {t.passwordLabel}
+            </label>
             <input
+              id="auth-password"
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t.passwordPlaceholder}
-              className="w-full rounded-2xl border border-white/10 bg-[#111315] px-4 py-3.5 text-white outline-none transition placeholder:text-zinc-500 focus:border-cyan-400/60 focus:bg-[#13181f]"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              minLength={mode === "signup" ? 8 : undefined}
+              aria-invalid={!!error}
+              aria-describedby={error ? "auth-error" : undefined}
+              className="w-full rounded-lg border border-[var(--line)] bg-[var(--surface-raised)] px-4 py-3.5 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-soft)] hover:border-[var(--line-strong)] focus:border-[var(--foreground)]"
             />
           </div>
 
           {mode === "signup" && (
             <div className="relative mb-3">
+              <label htmlFor="auth-password-confirm" className="sr-only">
+                {t.confirmLabel}
+              </label>
               <input
+                id="auth-password-confirm"
                 type="password"
                 required
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder={t.confirmPlaceholder}
-                className="w-full rounded-2xl border border-white/10 bg-[#111315] px-4 py-3.5 text-white outline-none transition placeholder:text-zinc-500 focus:border-cyan-400/60 focus:bg-[#13181f]"
+                autoComplete="new-password"
+                minLength={8}
+                aria-invalid={!!error}
+                aria-describedby={error ? "auth-error" : undefined}
+                className="w-full rounded-lg border border-[var(--line)] bg-[var(--surface-raised)] px-4 py-3.5 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-soft)] hover:border-[var(--line-strong)] focus:border-[var(--foreground)]"
               />
             </div>
           )}
 
                     {/* Error message */}
           {error && (
-            <p className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-400">
+            <p id="auth-error" role="alert" className="theme-error mb-3 rounded-xl px-4 py-2.5 text-sm">
               {error}
             </p>
           )}
 
           {/* Primary CTA */}
-                    <button
-                      type="submit"
-                      disabled={loading || !clerkReady}
-                      className="mt-1 w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-cyan-600 py-3.5 font-bold text-black transition hover:from-cyan-300 hover:to-cyan-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {!clerkReady ? "Loading…" : loading ? "Please wait…" : content.primary}
-                    </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="theme-button-primary mt-1 w-full rounded-xl py-3.5 font-semibold transition active:scale-[0.99] disabled:opacity-50"
+          >
+            {loading ? "Please wait…" : content.primary}
+          </button>
 
           {/* Trouble logging in */}
           {mode === "login" && (
-            <p className="mt-3 text-center text-xs text-zinc-500">
+            <p className="mt-3 text-center text-xs text-[var(--muted)]">
               Trouble logging in?{" "}
-              <button type="button" className="font-semibold text-cyan-400 hover:text-cyan-300 transition cursor-pointer">
+              <a href="mailto:support@proboost.gg" className="theme-link font-semibold transition">
                 Get help
-              </button>
+              </a>
             </p>
           )}
         </form>
 
         {/* OR divider */}
-        <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-zinc-600">
-          <div className="h-px flex-1 bg-white/10" />
+        <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-[var(--muted-soft)]">
+          <div className="h-px flex-1 bg-[var(--line)]" />
           <span>{t.orDivider}</span>
-          <div className="h-px flex-1 bg-white/10" />
+          <div className="h-px flex-1 bg-[var(--line)]" />
         </div>
 
         {/* Social buttons */}
@@ -298,7 +272,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => handleOAuth("oauth_google")}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white py-3 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 active:scale-[0.98] cursor-pointer"
+            className="theme-button-secondary flex items-center justify-center gap-2 rounded-lg border py-3 text-sm font-semibold transition active:scale-[0.99]"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -312,7 +286,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => handleOAuth("oauth_discord")}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-[#5865F2] py-3 text-sm font-semibold text-white transition hover:bg-[#4752c4] active:scale-[0.98] cursor-pointer"
+            className="theme-button-secondary flex items-center justify-center gap-2 rounded-lg border py-3 text-sm font-semibold transition active:scale-[0.99]"
           >
             <svg className="h-5 w-5" viewBox="0 0 127.14 96.36" fill="currentColor">
               <path d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z"/>
@@ -321,13 +295,13 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           </button>
         </div>
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
+        <p className="mt-6 text-center text-sm text-[var(--muted)]">
           {content.altLabel}{" "}
-          <Link href={altHref} className="font-semibold text-cyan-400 hover:text-cyan-300 transition">
+          <Link href={altHref} className="theme-link font-semibold transition">
             {content.altText}
           </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }

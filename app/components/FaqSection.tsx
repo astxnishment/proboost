@@ -9,10 +9,11 @@ type FaqCopy = {
 
 export default function FaqSection({ copy }: { copy: FaqCopy }) {
   const [open, setOpen] = React.useState<number | null>(null);
+  const idPrefix = React.useId();
 
   return (
     <section className="mt-8">
-      <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.28em] text-cyan-400">
+      <p className="mb-4 text-xs font-semibold uppercase text-[var(--muted)]">
         {copy.label}
       </p>
 
@@ -21,21 +22,25 @@ export default function FaqSection({ copy }: { copy: FaqCopy }) {
           const isOpen = open === i;
           return (
             <div
-              key={i}
-              className={`rounded-2xl border transition-colors duration-300 ${
+              key={faq.q}
+              className={`rounded-xl border transition-colors duration-300 ${
                 isOpen
-                  ? "border-cyan-500/30 bg-white/[0.04]"
-                  : "border-white/10 bg-white/[0.02]"
+                  ? "border-[var(--line-strong)] bg-[var(--surface-muted)]"
+                  : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"
               }`}
             >
               <button
-                className="flex w-full items-center justify-between px-6 py-5 text-left"
+                type="button"
+                id={`${idPrefix}-question-${i}`}
+                aria-expanded={isOpen}
+                aria-controls={`${idPrefix}-answer-${i}`}
+                className="flex w-full items-center justify-between px-5 py-4 text-left sm:px-6 sm:py-5"
                 onClick={() => setOpen(isOpen ? null : i)}
               >
-                <span className="text-base font-semibold text-white">{faq.q}</span>
+                <span className="text-base font-semibold text-[var(--foreground)]">{faq.q}</span>
                 {/* chevron rotates smoothly */}
                 <span
-                  className={`ml-4 shrink-0 text-cyan-400 transition-transform duration-300 ${
+                  className={`ml-4 shrink-0 text-[var(--muted)] transition-transform duration-300 ${
                     isOpen ? "rotate-180" : "rotate-0"
                   }`}
                 >
@@ -53,12 +58,17 @@ export default function FaqSection({ copy }: { copy: FaqCopy }) {
 
               {/* smooth height animation via CSS grid trick */}
               <div
+                id={`${idPrefix}-answer-${i}`}
+                role="region"
+                aria-labelledby={`${idPrefix}-question-${i}`}
+                aria-hidden={!isOpen}
+                inert={!isOpen}
                 className={`grid transition-all duration-300 ease-in-out ${
                   isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                 }`}
               >
                 <div className="overflow-hidden">
-                  <div className="px-6 pb-5 text-sm leading-7 text-zinc-400">
+                  <div className="px-6 pb-5 text-sm leading-7 text-[var(--muted)]">
                     {faq.a}
                   </div>
                 </div>

@@ -97,7 +97,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-black flex flex-col items-center justify-center px-4 py-12">
+    <main className="auth-shell relative flex min-h-screen flex-col items-center justify-center px-4 pb-12 pt-28">
       <div id="clerk-captcha" />
 
       {/* Character image */}
@@ -107,17 +107,16 @@ export default function VerifyPage() {
           alt="ProBoost Character"
           width={220}
           height={220}
-          priority
-          unoptimized
-          className="h-44 w-auto object-contain drop-shadow-[0_0_40px_rgba(34,211,238,0.25)]"
+          loading="eager"
+          className="h-44 w-auto object-contain"
         />
       </div>
 
       <div className="w-full max-w-sm">
-        <h1 className="mb-2 text-center text-3xl font-black tracking-tight text-white">
+        <h1 className="mb-2 text-center text-3xl font-semibold text-[var(--foreground)]">
           Check your email
         </h1>
-        <p className="mb-8 text-center text-sm text-zinc-400">
+        <p className="mb-8 text-center text-sm text-[var(--muted)]">
           We sent a 6-digit code to your email. Enter it below to verify your account.
         </p>
 
@@ -131,21 +130,23 @@ export default function VerifyPage() {
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
+                aria-label={`Verification code digit ${i + 1}`}
+                aria-invalid={!!error}
                 value={d}
                 onChange={(e) => handleDigit(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
-                className="w-12 h-14 rounded-2xl border border-white/10 bg-[#111315] text-center text-xl font-bold text-white outline-none transition focus:border-cyan-400/60 focus:bg-[#13181f] caret-cyan-400"
+                className="h-14 w-12 rounded-lg border border-[var(--line)] bg-[var(--surface-raised)] text-center text-xl font-semibold text-[var(--foreground)] outline-none transition hover:border-[var(--line-strong)] focus:border-[var(--foreground)]"
               />
             ))}
           </div>
 
           {error && (
-            <p className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-400 text-center">
+            <p role="alert" className="theme-error mb-3 rounded-xl px-4 py-2.5 text-center text-sm">
               {error}
             </p>
           )}
           {resent && (
-            <p className="mb-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2.5 text-sm text-cyan-400 text-center">
+            <p role="status" className="theme-surface mb-3 rounded-xl border px-4 py-2.5 text-center text-sm">
               Code resent — check your inbox.
             </p>
           )}
@@ -153,23 +154,23 @@ export default function VerifyPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-cyan-600 py-3.5 font-bold text-black transition hover:from-cyan-300 hover:to-cyan-500 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="theme-button-primary w-full rounded-xl py-3.5 font-semibold transition active:scale-[0.99] disabled:opacity-50"
           >
             {loading ? "Verifying…" : "Verify Email"}
           </button>
         </form>
 
-        <p className="mt-5 text-center text-sm text-zinc-500">
+        <p className="mt-5 text-center text-sm text-[var(--muted)]">
           Didn&apos;t receive it?{" "}
           <button
             type="button"
             onClick={handleResend}
-            className="font-semibold text-cyan-400 hover:text-cyan-300 transition cursor-pointer"
+            className="theme-link font-semibold transition"
           >
             Resend code
           </button>
         </p>
       </div>
-    </div>
+    </main>
   );
 }
