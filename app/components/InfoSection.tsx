@@ -9,9 +9,9 @@ type InfoCopy = {
 
 export default function InfoSection({ copy }: { copy: InfoCopy }) {
   return (
-    <section className="mt-8 space-y-5 text-sm leading-7 text-[var(--muted)]">
+    <section className="mt-10 grid gap-x-10 gap-y-8 border-t border-[var(--line)] pt-8 text-sm leading-7 text-[var(--muted)] lg:grid-cols-2">
       {copy.sections.map((section) => (
-        <div key={section.heading} className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+        <div key={section.heading}>
           <h2 className="mb-3 text-xl font-semibold text-[var(--foreground)]">{section.heading}</h2>
           {section.paragraphs?.map((paragraph, index) => (
             <p key={paragraph} className={index < section.paragraphs!.length - 1 ? "mb-4" : ""}>
@@ -40,7 +40,6 @@ export default function InfoSection({ copy }: { copy: InfoCopy }) {
           )}
         </div>
       ))}
-
     </section>
   );
 }

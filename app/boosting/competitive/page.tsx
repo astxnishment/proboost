@@ -289,8 +289,8 @@ export default function CompetitiveWins() {
       </div>
 
       {/* Sub-nav */}
-      <div className="fixed left-0 right-0 top-16 z-40 overflow-hidden border-b border-white/[0.07] bg-[#050607]/90 backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-[1550px] items-center justify-between px-3 py-2 sm:px-7">
+      <div className="fixed left-0 right-0 top-[var(--header-height)] z-40 overflow-hidden border-b border-white/[0.07] bg-[#050607]/90 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-3 py-2 sm:px-7">
           <div className="service-subnav flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
             <Link href="/en/rainbow-six-siege-boost" className="rounded-full px-4 py-1 text-sm text-zinc-400 transition hover:text-white">Overview</Link>
             <Link href="/en/rainbow-six-siege-boost/rainbow-six-siege-rank-boost" className="rounded-full bg-white/12 px-4 py-1.5 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">Boosting</Link>
@@ -299,16 +299,16 @@ export default function CompetitiveWins() {
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-[1550px] px-4 py-8 pt-32 sm:px-6 sm:pt-36">
+      <div className="relative mx-auto max-w-[1280px] px-4 py-8 pt-24 sm:px-6 sm:pt-24">
         <ServiceIntro
           title="Rainbow Six Siege Competitive Wins Boost"
           description="Choose how many ranked wins you need. Pricing and delivery update with your platform and options."
         />
 
-        <div className="grid min-w-0 gap-6 2xl:grid-cols-[250px_minmax(0,1fr)_320px]">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
 
           {/* Left sidebar */}
-          <aside className="order-3 min-w-0 space-y-4 2xl:order-1">
+          <aside className="hidden">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
               <p className="text-sm font-semibold text-white">Secure order</p>
               <p className="mt-1 text-sm leading-6 text-zinc-400">
@@ -345,7 +345,7 @@ export default function CompetitiveWins() {
           </aside>
 
           {/* Main content */}
-          <main className="order-1 min-w-0 space-y-8 2xl:order-2">
+          <main className="min-w-0 space-y-6">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
               <p className="font-semibold text-white">Transparent pricing</p>
               <p className="mt-1 text-sm text-zinc-400">
@@ -486,7 +486,7 @@ export default function CompetitiveWins() {
           </main>
 
           {/* Right sidebar — summary */}
-          <aside className="order-2 h-fit min-w-0 rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur-sm shadow-lg shadow-cyan-500/10 2xl:order-3 2xl:sticky 2xl:top-6">
+          <aside className="h-fit min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5 xl:sticky xl:top-32">
             {/* Summary header */}
             <div className="mb-4 flex items-center justify-between">
               <h3 className="pr-1 text-2xl font-semibold text-[var(--foreground)]">Summary</h3>

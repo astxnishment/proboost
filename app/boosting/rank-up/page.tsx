@@ -19,7 +19,21 @@ import {
   ORDER_SERVERS,
   RP_OPTIONS,
 } from "@/app/lib/order-options";
-import { Clock3, Headphones, LockKeyhole, ShieldCheck } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  CircleDollarSign,
+  CircleHelp,
+  Clock3,
+  Headphones,
+  LockKeyhole,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  User,
+  Users,
+  X,
+} from "lucide-react";
 
 type Rank = {
   name: string;
@@ -569,31 +583,34 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
   };
 
   return (
-    <div className="relative bg-[var(--background)] text-[var(--foreground)] font-sans">
-      {/* Toast notification */}
+    <div className="service-configurator relative min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)]">
       {toastMessage && (
         <div
           role={toastType === "error" ? "alert" : "status"}
           aria-live="polite"
-          className="fixed top-4 right-4 z-[100] flex items-start gap-3 rounded-xl bg-[#1a1a1a] border border-white/10 px-4 py-3 shadow-2xl max-w-sm"
+          className="theme-popover fixed right-4 top-[calc(var(--header-height)+16px)] z-[var(--z-toast)] flex max-w-sm items-start gap-3 rounded-lg border px-4 py-3"
         >
-          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${toastType === "success" ? "bg-emerald-500/20" : "bg-pink-500/20"}`}>
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${
+            toastType === "success"
+              ? "bg-[var(--success-surface)] text-[var(--success)]"
+              : "bg-[var(--danger-surface)] text-[var(--danger)]"
+          }`}>
             {toastType === "success" ? (
-              <svg className="h-4 w-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2.5} />
             ) : (
-              <span className="text-pink-400 font-bold text-sm">!</span>
+              <span className="text-sm font-bold">!</span>
             )}
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-white text-sm">{toastType === "success" ? annotations.couponAppliedTitle : annotations.couponMissingTitle}</p>
-            <p className="text-xs text-zinc-400">{toastMessage}</p>
+            <p className="text-sm font-semibold">{toastType === "success" ? annotations.couponAppliedTitle : annotations.couponMissingTitle}</p>
+            <p className="text-xs text-[var(--muted)]">{toastMessage}</p>
           </div>
-          <button type="button" aria-label="Dismiss notification" onClick={() => setToastMessage(null)} className="text-zinc-400 hover:text-white transition cursor-pointer">
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <button type="button" aria-label="Dismiss notification" onClick={() => setToastMessage(null)} className="text-[var(--muted)] transition hover:text-[var(--foreground)]">
+            <X aria-hidden="true" className="h-4 w-4" />
           </button>
         </div>
       )}
-      <div className="relative mx-auto max-w-[1440px] px-4 py-10 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-[1280px] px-5 py-10 sm:px-7 lg:px-10">
         <header className="mb-8 max-w-4xl">
           <p className="mb-3 text-xs font-semibold uppercase text-[var(--muted)]">Rainbow Six Siege</p>
           <h1 className="text-3xl font-semibold sm:text-4xl">
@@ -617,7 +634,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
           </div>
         </header>
 
-        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
           <main className="min-w-0 space-y-7">
 
             <div className="grid gap-6 xl:grid-cols-2">
@@ -633,8 +650,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                         alt={currentRankData.name}
                         width={56}
                         height={56}
-                        className="mb-2 mx-0"
-                        style={{ width: "56px", height: "56px" }}
+                        className="mb-2 h-auto w-14"
                       />
                     )}
                     <h2 className="text-lg font-semibold text-[var(--foreground)]">{ui.currentRank}</h2>
@@ -660,8 +676,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                           alt={rank.name}
                           width={38}
                           height={38}
-                          className="h-[38px] w-[38px] object-contain mx-auto"
-                          style={{ width: "38px", height: "38px" }}
+                          className="mx-auto h-auto w-[38px] object-contain"
                         />
                       </div>
                     </button>
@@ -691,8 +706,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                         alt={desiredRankData.name}
                         width={56}
                         height={56}
-                        className="mb-2 mx-0"
-                        style={{ width: "56px", height: "56px" }}
+                        className="mb-2 h-auto w-14"
                       />
                     )}
                     <h2 className="text-lg font-semibold text-[var(--foreground)]">{ui.desiredRank}</h2>
@@ -721,8 +735,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                             alt={rank.name}
                             width={38}
                             height={38}
-                            className="h-[38px] w-[38px] object-contain mx-auto"
-                            style={{ width: "38px", height: "38px" }}
+                            className="mx-auto h-auto w-[38px] object-contain"
                           />
                         </div>
                       </button>
@@ -862,7 +875,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                     queueType === "Solo" ? "text-[var(--foreground)]" : "text-[var(--muted)]"
                   }`}
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                  <User aria-hidden="true" className="h-4 w-4" />
                   {ui.solo}
                 </button>
                 <button
@@ -873,23 +886,23 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                     queueType === "Duo" ? "text-[var(--foreground)]" : "text-[var(--muted)]"
                   }`}
                 >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                  <Users aria-hidden="true" className="h-5 w-5" />
                   {ui.duo}
                 </button>
               </div>
             </div>
 
             {queueType === "Duo" && (
-              <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="mb-4 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <Image src="/booster.png" alt="Booster" width={80} height={80}  className="h-20 w-20 object-contain" />
                   <div className="flex-1">
-                    <span className="font-semibold text-white text-sm">{annotations.extraBooster}</span>
-                    <p className="text-xs text-zinc-400">{annotations.increaseBoosters}</p>
+                    <span className="text-sm font-semibold text-[var(--foreground)]">{annotations.extraBooster}</span>
+                    <p className="text-xs text-[var(--muted)]">{annotations.increaseBoosters}</p>
                   </div>
                   <div className="group/boost relative">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400 text-black text-xs font-bold cursor-help">?</div>
-                    <div className="invisible group-hover/boost:visible absolute right-0 top-8 z-50 w-64 rounded-xl border border-white/10 bg-[#111] p-4 shadow-2xl text-sm text-zinc-400">
+                    <CircleHelp aria-hidden="true" className="h-5 w-5 cursor-help text-[var(--muted)]" />
+                    <div className="theme-popover invisible absolute right-0 top-8 z-[var(--z-popover)] w-64 rounded-lg border p-4 text-sm text-[var(--muted)] group-hover/boost:visible">
                       {annotations.extraBoosterTooltip}
                     </div>
                   </div>
@@ -903,7 +916,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                   >
                     −
                   </button>
-                  <div className="flex-1 flex items-center justify-center rounded-lg border border-white/10 bg-white/5 h-10">
+                  <div className="flex h-10 flex-1 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)]">
                     <input
                       aria-label="Number of extra boosters"
                       type="number"
@@ -914,7 +927,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                         const v = parseInt(e.target.value);
                         if (!isNaN(v)) setDuoBoosterCount(Math.min(4, Math.max(1, v)));
                       }}
-                      className="w-full h-full bg-transparent text-center text-white font-semibold text-lg outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="h-full w-full bg-transparent text-center text-lg font-semibold text-[var(--foreground)] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     />
                   </div>
                   <button
@@ -983,7 +996,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                   <Image src="/booster.png" alt="Booster" width={36} height={36}  className="h-9 w-9 object-contain" />
                   {ui.specificBooster}
                 </span>
-                <svg className={`h-5 w-5 text-[var(--muted)] transition-transform duration-200 ${specificBooster ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                <ChevronDown aria-hidden="true" className={`h-5 w-5 text-[var(--muted)] transition-transform duration-200 ${specificBooster ? "rotate-180" : ""}`} />
               </button>
               {specificBooster && (
                 <div className="rounded-lg bg-[var(--surface-muted)] px-4 py-3 text-sm text-[var(--muted)] leading-relaxed">
@@ -1100,62 +1113,48 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
       </div>
       {showDetails && (
         <div className="theme-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md" onClick={() => setShowDetails(false)}>
-          <div role="dialog" aria-modal="true" aria-labelledby="pricing-dialog-title" className="theme-popover relative mx-4 w-full max-w-2xl rounded-2xl border p-8" onClick={(e) => e.stopPropagation()}>
-
-            {/* close */}
+          <div role="dialog" aria-modal="true" aria-labelledby="pricing-dialog-title" className="theme-popover relative mx-4 max-h-[calc(100svh-32px)] w-full max-w-3xl overflow-y-auto rounded-lg border p-6 sm:p-8" onClick={(e) => e.stopPropagation()}>
             <button type="button" aria-label={annotations.modalClose} onClick={() => setShowDetails(false)} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] text-[var(--muted)] transition hover:border-[var(--line-strong)] hover:text-[var(--foreground)]">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3.5 w-3.5"><path d="M3 3l10 10M13 3L3 13"/></svg>
+              <X aria-hidden="true" className="h-4 w-4" />
             </button>
 
-            <p className="mb-1.5 text-center text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-400/60">{annotations.modalSubtitle}</p>
-            <h2 id="pricing-dialog-title" className="mb-8 text-center text-xl font-black text-white">{annotations.modalTitle}</h2>
+            <p className="eyebrow mb-1.5 text-center">{annotations.modalSubtitle}</p>
+            <h2 id="pricing-dialog-title" className="mb-7 text-center text-xl font-semibold text-[var(--foreground)] sm:text-2xl">{annotations.modalTitle}</h2>
 
-            <div className="grid grid-cols-3 gap-3">
-
-              {/* card 1 — commission */}
-              <div className="flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/10">
-                  <svg className="h-5 w-5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="10"/><path d="M15 9a3 3 0 00-6 0c0 3 6 3 6 6a3 3 0 01-6 0"/>
-                    <path d="M12 6v1M12 17v1"/>
-                  </svg>
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="flex flex-col rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-5">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--surface-strong)] text-[var(--foreground)]">
+                  <CircleDollarSign aria-hidden="true" className="h-5 w-5" />
                 </div>
-                <div className="mb-1 text-3xl font-black text-cyan-400">10%</div>
-                <div className="mb-1 text-sm font-bold text-white">{annotations.modalFeeTitle}</div>
-                <p className="text-xs leading-relaxed text-zinc-500">{annotations.modalFeeDesc}</p>
+                <div className="mb-1 text-3xl font-semibold">10%</div>
+                <div className="mb-1 text-sm font-semibold">{annotations.modalFeeTitle}</div>
+                <p className="text-xs leading-relaxed text-[var(--muted)]">{annotations.modalFeeDesc}</p>
               </div>
 
-              {/* card 2 — quality */}
-              <div className="flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex flex-col rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-5">
                 <div className="mb-4 flex gap-0.5">
                   {[0,1,2,3,4].map(i => (
-                    <svg key={i} className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
+                    <Star key={i} aria-hidden="true" className="h-4 w-4 fill-[var(--foreground)] text-[var(--foreground)]" />
                   ))}
                 </div>
-                <div className="mb-1 text-3xl font-black text-white">4.9<span className="text-lg font-bold text-zinc-500">/5</span></div>
-                <div className="mb-1 text-sm font-bold text-white">{annotations.modalQualityTitle}</div>
-                <p className="text-xs leading-relaxed text-zinc-500">{annotations.modalQualityDesc}</p>
+                <div className="mb-1 text-3xl font-semibold">4.9<span className="text-lg text-[var(--muted)]">/5</span></div>
+                <div className="mb-1 text-sm font-semibold">{annotations.modalQualityTitle}</div>
+                <p className="text-xs leading-relaxed text-[var(--muted)]">{annotations.modalQualityDesc}</p>
               </div>
 
-              {/* card 3 — savings */}
-              <div className="flex flex-col rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] p-5">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-                  <svg className="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
+              <div className="flex flex-col rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] p-5">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--accent-hover)]">
+                  <Sparkles aria-hidden="true" className="h-5 w-5" />
                 </div>
-                <div className="mb-1 text-3xl font-black text-emerald-400">~35%</div>
-                <div className="mb-1 text-sm font-bold text-white">{annotations.modalSavingsTitle}</div>
-                <p className="text-xs leading-relaxed text-zinc-500">{annotations.modalSavingsDesc.replace("{amount}", competitorSavings.toFixed(2))}</p>
+                <div className="mb-1 text-3xl font-semibold text-[var(--accent-hover)]">~35%</div>
+                <div className="mb-1 text-sm font-semibold">{annotations.modalSavingsTitle}</div>
+                <p className="text-xs leading-relaxed text-[var(--muted)]">{annotations.modalSavingsDesc.replace("{amount}", competitorSavings.toFixed(2))}</p>
               </div>
-
             </div>
 
             <button
               onClick={() => setShowDetails(false)}
-              className="mt-6 mx-auto flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-8 py-2.5 text-sm font-semibold text-white hover:bg-white/[0.08] transition cursor-pointer"
+              className="button-base button-secondary mx-auto mt-6"
             >
               {annotations.modalClose}
             </button>

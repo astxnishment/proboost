@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Terms and Conditions — ProBoost.gg",
@@ -266,14 +267,14 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-[var(--background)] pt-16 text-[var(--muted)]">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--muted)]">
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-[var(--line)]">
-        <div className="relative mx-auto max-w-4xl px-6 py-20 text-center">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[var(--muted)]">
+        <div className="relative mx-auto max-w-[var(--reading-max-width)] px-5 py-14 text-center sm:px-8 sm:py-16">
+          <p className="status-badge mb-4">
             Legal
           </p>
-          <h1 className="mb-4 text-4xl font-black tracking-tight text-[var(--foreground)] md:text-5xl">
+          <h1 className="page-title mb-4 text-[var(--foreground)]">
             Terms &amp; Conditions
           </h1>
           <p className="text-sm text-[var(--muted)]">
@@ -283,10 +284,10 @@ export default function TermsPage() {
       </div>
 
       {/* Body */}
-      <div className="mx-auto max-w-4xl px-6 py-16">
+      <div className="mx-auto max-w-[var(--reading-max-width)] px-5 py-14 sm:px-8 sm:py-16">
         {/* Quick-nav */}
         <nav aria-label="Terms and conditions contents" className="theme-surface mb-14 rounded-lg border p-6">
-          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Contents</p>
+          <p className="eyebrow mb-4">Contents</p>
           <ol className="grid gap-1 sm:grid-cols-2">
             {sections.map((s) => (
               <li key={s.id}>
@@ -332,9 +333,10 @@ export default function TermsPage() {
           </p>
           <Link
             href="/"
-            className="theme-button-secondary inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold transition"
+            className="button-base button-secondary"
           >
-            ← Back to Home
+            <ArrowLeft aria-hidden className="h-4 w-4" />
+            Back to Home
           </Link>
         </div>
       </div>

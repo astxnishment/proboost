@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ChevronDown } from "lucide-react";
 
 type FaqCopy = {
   label: string;
@@ -12,21 +13,19 @@ export default function FaqSection({ copy }: { copy: FaqCopy }) {
   const idPrefix = React.useId();
 
   return (
-    <section className="mt-8">
-      <p className="mb-4 text-xs font-semibold uppercase text-[var(--muted)]">
+    <section className="mt-10">
+      <p className="eyebrow mb-4">
         {copy.label}
       </p>
 
-      <div className="flex flex-col gap-3">
+      <div className="overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--surface)]">
         {copy.items.map((faq, i) => {
           const isOpen = open === i;
           return (
             <div
               key={faq.q}
-              className={`rounded-xl border transition-colors duration-300 ${
-                isOpen
-                  ? "border-[var(--line-strong)] bg-[var(--surface-muted)]"
-                  : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"
+              className={`border-b border-[var(--line)] transition-colors last:border-b-0 ${
+                isOpen ? "bg-[var(--surface-muted)]" : "hover:bg-[var(--surface-raised)]"
               }`}
             >
               <button
@@ -34,41 +33,30 @@ export default function FaqSection({ copy }: { copy: FaqCopy }) {
                 id={`${idPrefix}-question-${i}`}
                 aria-expanded={isOpen}
                 aria-controls={`${idPrefix}-answer-${i}`}
-                className="flex w-full items-center justify-between px-5 py-4 text-left sm:px-6 sm:py-5"
+                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
                 onClick={() => setOpen(isOpen ? null : i)}
               >
-                <span className="text-base font-semibold text-[var(--foreground)]">{faq.q}</span>
-                {/* chevron rotates smoothly */}
-                <span
-                  className={`ml-4 shrink-0 text-[var(--muted)] transition-transform duration-300 ${
-                    isOpen ? "rotate-180" : "rotate-0"
+                <span className="text-sm font-semibold text-[var(--foreground)] sm:text-base">{faq.q}</span>
+                <ChevronDown
+                  aria-hidden="true"
+                  className={`h-4 w-4 shrink-0 text-[var(--muted)] transition-transform duration-200 ${
+                    isOpen ? "rotate-180" : ""
                   }`}
-                >
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <path
-                      d="M4 6.5L9 11.5L14 6.5"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
+                />
               </button>
 
-              {/* smooth height animation via CSS grid trick */}
               <div
                 id={`${idPrefix}-answer-${i}`}
                 role="region"
                 aria-labelledby={`${idPrefix}-question-${i}`}
                 aria-hidden={!isOpen}
                 inert={!isOpen}
-                className={`grid transition-all duration-300 ease-in-out ${
+                className={`grid transition-[grid-template-rows] duration-200 ease-out ${
                   isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                 }`}
               >
                 <div className="overflow-hidden">
-                  <div className="px-6 pb-5 text-sm leading-7 text-[var(--muted)]">
+                  <div className="max-w-3xl px-5 pb-5 text-sm leading-7 text-[var(--muted)] sm:px-6">
                     {faq.a}
                   </div>
                 </div>

@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { MailCheck } from "lucide-react";
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -61,7 +61,6 @@ export default function VerifyPage() {
     }
   };
 
-  // Handle each digit in the OTP input separately for a nice UX
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
   const [digits, setDigits] = React.useState(["", "", "", "", "", ""]);
 
@@ -73,7 +72,6 @@ export default function VerifyPage() {
     const newCode = next.join("");
     setCode(newCode);
     if (value && index < 5) inputRefs.current[index + 1]?.focus();
-    // Auto-submit as soon as all 6 digits are filled
     if (newCode.length === 6) submitCode(newCode);
   };
 
@@ -97,32 +95,25 @@ export default function VerifyPage() {
   };
 
   return (
-    <main className="auth-shell relative flex min-h-screen flex-col items-center justify-center px-4 pb-12 pt-28">
+    <main className="auth-shell flex min-h-[calc(100svh-var(--header-height))] items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
       <div id="clerk-captcha" />
 
-      {/* Character image */}
-      <div className="mb-2 flex justify-center">
-        <Image
-          src="/booster.png"
-          alt="ProBoost Character"
-          width={220}
-          height={220}
-          loading="eager"
-          className="h-44 w-auto object-contain"
-        />
-      </div>
+      <div className="surface w-full max-w-md p-6 sm:p-8">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent-hover)]">
+          <MailCheck aria-hidden="true" className="h-6 w-6" />
+        </div>
+        <div className="mx-auto mt-5 max-w-sm text-center">
+          <p className="eyebrow">Email verification</p>
+          <h1 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">
+            Check your inbox
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            Enter the six-digit code we sent to finish creating your account.
+          </p>
+        </div>
 
-      <div className="w-full max-w-sm">
-        <h1 className="mb-2 text-center text-3xl font-semibold text-[var(--foreground)]">
-          Check your email
-        </h1>
-        <p className="mb-8 text-center text-sm text-[var(--muted)]">
-          We sent a 6-digit code to your email. Enter it below to verify your account.
-        </p>
-
-        <form onSubmit={handleSubmit}>
-          {/* OTP digit inputs */}
-          <div className="flex justify-center gap-2 mb-5" onPaste={handlePaste}>
+        <form className="mt-7" onSubmit={handleSubmit}>
+          <div className="grid grid-cols-6 gap-2" onPaste={handlePaste}>
             {digits.map((d, i) => (
               <input
                 key={i}
@@ -135,28 +126,28 @@ export default function VerifyPage() {
                 value={d}
                 onChange={(e) => handleDigit(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
-                className="h-14 w-12 rounded-lg border border-[var(--line)] bg-[var(--surface-raised)] text-center text-xl font-semibold text-[var(--foreground)] outline-none transition hover:border-[var(--line-strong)] focus:border-[var(--foreground)]"
+                className="field-control h-13 min-w-0 px-0 text-center text-lg font-semibold tabular-nums sm:h-14 sm:text-xl"
               />
             ))}
           </div>
 
           {error && (
-            <p role="alert" className="theme-error mb-3 rounded-xl px-4 py-2.5 text-center text-sm">
+            <p role="alert" className="theme-error mt-4 rounded-lg px-4 py-3 text-center text-sm">
               {error}
             </p>
           )}
           {resent && (
-            <p role="status" className="theme-surface mb-3 rounded-xl border px-4 py-2.5 text-center text-sm">
-              Code resent — check your inbox.
+            <p role="status" className="mt-4 rounded-lg border border-[var(--success-line)] bg-[var(--success-surface)] px-4 py-3 text-center text-sm text-[var(--success)]">
+              A new code is on its way.
             </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="theme-button-primary w-full rounded-xl py-3.5 font-semibold transition active:scale-[0.99] disabled:opacity-50"
+            className="button-base button-primary mt-5 w-full"
           >
-            {loading ? "Verifying…" : "Verify Email"}
+            {loading ? "Verifying..." : "Verify email"}
           </button>
         </form>
 
@@ -165,7 +156,7 @@ export default function VerifyPage() {
           <button
             type="button"
             onClick={handleResend}
-            className="theme-link font-semibold transition"
+            className="font-semibold text-[var(--foreground)] underline decoration-[var(--line-strong)] transition hover:decoration-[var(--foreground)]"
           >
             Resend code
           </button>

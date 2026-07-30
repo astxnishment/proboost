@@ -759,19 +759,20 @@ export default function Cs2ServiceConfigurator({
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
       style={{ "--cs2-accent": CS2_ACCENT } as CSSProperties}
     >
-      <section className="theme-preserve-media relative min-h-[420px] overflow-hidden border-b border-[var(--line)] bg-[#08090b] pt-16 text-white">
-        <div className="absolute inset-x-0 bottom-0 top-16">
+      <section className="theme-preserve-media relative min-h-[420px] overflow-hidden border-b border-[var(--line)] bg-[#08090b] text-white">
+        <div className="absolute inset-0">
           <Image
             src="/cs2/cs2-hero.webp"
             alt="Counter-Strike 2 tactical specialist at an industrial bombsite"
             fill
-            priority
+            loading="eager"
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover object-[66%_center]"
           />
         </div>
-        <div className="absolute inset-x-0 bottom-0 top-16 bg-black/25" aria-hidden />
-        <div className="relative mx-auto flex min-h-[356px] max-w-[1320px] items-center px-5 py-11 sm:px-8 lg:px-10">
+        <div className="absolute inset-0 bg-black/25" aria-hidden />
+        <div className="relative mx-auto flex min-h-[420px] max-w-[1280px] items-center px-5 py-11 sm:px-8 lg:px-10">
           <div className="max-w-[620px]">
             <Link
               href={basePath}
@@ -799,7 +800,7 @@ export default function Cs2ServiceConfigurator({
       </section>
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)]">
-        <div className="mx-auto grid max-w-[1320px] grid-cols-2 px-5 sm:px-8 lg:grid-cols-4 lg:px-10">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-2 px-5 sm:px-8 lg:grid-cols-4 lg:px-10">
           {[
             { label: "Verified specialists", Icon: UserRoundCheck },
             { label: "Private handling", Icon: LockKeyhole },
@@ -826,7 +827,7 @@ export default function Cs2ServiceConfigurator({
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1320px] px-5 py-10 sm:px-8 sm:py-12 lg:px-10">
+      <div className="mx-auto max-w-[1280px] px-5 py-10 sm:px-8 sm:py-12 lg:px-10">
         <nav
           ref={serviceNavRef}
           aria-label="Counter-Strike 2 services"
@@ -862,7 +863,7 @@ export default function Cs2ServiceConfigurator({
           })}
         </nav>
 
-        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="min-w-0 space-y-5">
             {service === "cs2-rank-boost" && (
               <div className="grid gap-5 xl:grid-cols-2">
@@ -1241,7 +1242,7 @@ export default function Cs2ServiceConfigurator({
       </div>
 
       <section className="border-t border-[var(--line)] bg-[var(--surface-muted)] px-5 py-12 sm:px-8 lg:px-10">
-        <div className="mx-auto flex max-w-[1320px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-[1280px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Need help configuring it?</h2>
             <p className="mt-2 text-sm text-[var(--muted)]">

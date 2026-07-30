@@ -5,14 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Activity,
+  ArrowRight,
   Gamepad2,
   Headphones,
-  LockKeyhole,
   RotateCcw,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
 import type { LanguageCode } from "./components/Dropdown";
+import { ButtonLink, PageContainer, Section, SectionHeading, StatusBadge } from "./components/ui";
 
 type LangCode = LanguageCode;
 
@@ -88,7 +89,7 @@ const i18n: Record<LangCode, {
     soon: "Soon",
     howItWorksLabel: "How It Works",
     howItWorksTitle: "Simple, transparent, and fast.",
-    howItWorksSub: "Every order follows a clear three-step flow. Pick your service, configure your preferences, and track live progress \u2014 no waiting around, no ambiguity.",
+    howItWorksSub: "Choose a service, set your goal, and follow every update.",
     trustPoints: [
       "Real players only with manual gameplay",
       "VPN-matched sessions for region consistency",
@@ -96,9 +97,9 @@ const i18n: Record<LangCode, {
       "Flexible queue options for solo or duo boosting",
     ],
     steps: [
-      { step: "01", title: "Pick your game", description: "Start from the homepage and enter the service that matches the title you want to push." },
-      { step: "02", title: "Customize the order", description: "Set rank goals, platform, and add-ons from the calculator before checkout." },
-      { step: "03", title: "Track the progress", description: "Follow your order status and stay in control while the assigned booster completes the run." },
+      { step: "01", title: "Pick your game", description: "Open a supported title and service." },
+      { step: "02", title: "Customize the order", description: "Set your target, platform, and extras." },
+      { step: "03", title: "Track the progress", description: "Follow status and completion updates." },
     ],
     rewardsLabel: "Exclusive Rewards",
     rewardsTitle: "Save more on every order with priority service, monthly rewards and exclusive member pricing.",
@@ -503,14 +504,31 @@ const i18n: Record<LangCode, {
   },
 };
 
-const gameCards = [
+type GameCard = {
+  name: string;
+  href: string;
+  logo: string;
+  live: boolean;
+  glow: string;
+  bg?: string;
+  iconOnly?: boolean;
+  backdrop?: string;
+  logoBackground?: string;
+};
+
+const gameCards: GameCard[] = [
   { name: "Rainbow Six Siege", href: "/en/rainbow-six-siege-boost", bg: "/homepage/r6-homepage.webp",             logo: "/homepage/r6-text-homepage.png",            live: true,  glow: "#aea896" },
-  { name: "Valorant",          href: "/en/valorant-boost",         bg: "/homepage/valorant-homepage.webp",         logo: "/homepage/valorant-text-homepage.webp",     live: true,  glow: "#ff5261" },
-  { name: "Counter-Strike 2",  href: "/en/counter-strike-2-boost", bg: "/homepage/cs2-homepage.webp",              logo: "/homepage/cs2-text-homepage.webp",          live: true,  glow: "#ff6b1b" },
-  { name: "Rocket League",     href: "#",                          bg: "/homepage/rocketleague-homepage.webp",     logo: "/homepage/rocketleague-text-homepage.webp", live: false, glow: "#e9852d" },
-  { name: "League of Legends", href: "#",                          bg: "/homepage/lol-homepage.webp",              logo: "/homepage/lol-text-homepage.webp",          live: false, glow: "#0fa2b7" },
-  { name: "Marvel Rivals",     href: "#",                          bg: "/homepage/marvelrivals-homepage.webp",     logo: "/homepage/marvelrivals-text-homepage.webp", live: false, glow: "#fcd92d" },
-  { name: "Apex Legends",      href: "#",                          bg: "/homepage/apex-homepage.webp",             logo: "/homepage/apex-text-homepage.webp",         live: false, glow: "#f75e34" },
+  { name: "Valorant",          href: "/en/valorant-boost",          bg: "/homepage/valorant-homepage.webp",         logo: "/homepage/valorant-text-homepage.webp",     live: true,  glow: "#ff5261" },
+  { name: "Counter-Strike 2",  href: "/en/counter-strike-2-boost",  bg: "/homepage/cs2-homepage.webp",              logo: "/homepage/cs2-text-homepage.webp",          live: true,  glow: "#ff6b1b" },
+  { name: "Rocket League",     href: "#",                           bg: "/homepage/rocketleague-homepage.webp",     logo: "/homepage/rocketleague-text-homepage.webp", live: false, glow: "#e9852d" },
+  { name: "League of Legends", href: "#",                           bg: "/homepage/lol-homepage.webp",              logo: "/homepage/lol-text-homepage.webp",          live: false, glow: "#0fa2b7" },
+  { name: "Marvel Rivals",     href: "#",                           bg: "/homepage/marvelrivals-homepage.webp",     logo: "/homepage/marvelrivals-text-homepage.webp", live: false, glow: "#fcd92d" },
+  { name: "Apex Legends",      href: "#",                           bg: "/homepage/apex-homepage.webp",             logo: "/homepage/apex-text-homepage.webp",         live: false, glow: "#f75e34" },
+  { name: "World of Warcraft", href: "#",                           bg: "/homepage/wow-homepage.webp",              logo: "/game-icons/game_icon (1).webp",            live: false, glow: "#e4b74c", iconOnly: true },
+  { name: "Fortnite",          href: "#",                           bg: "/homepage/fortnite-homepage.webp",         logo: "/game-icons/game_icon (8).webp",            live: false, glow: "#8b5cf6", iconOnly: true },
+  { name: "Call of Duty",      href: "#",                           bg: "/homepage/cod-homepage.webp",              logo: "/game-icons/game_icon (10).webp",           live: false, glow: "#d4d4d8", iconOnly: true },
+  { name: "Dota 2",            href: "#",                           bg: "/homepage/dota2-characters-homepage.webp", logo: "/game-icons/game_icon (6).webp",            live: false, glow: "#df493d", iconOnly: true },
+  { name: "Overwatch 2",       href: "#",                           bg: "/homepage/overwatch-homepage.webp",        logo: "/game-icons/overwatch-2-logo.webp",         live: false, glow: "#f56600", iconOnly: true, logoBackground: "#f5f5f7" },
 ];
 
 const platformLogos = [
@@ -675,14 +693,6 @@ const membershipI18n: Record<LangCode, {
   },
 };
 
-function SectionEyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-zinc-500">
-      {children}
-    </p>
-  );
-}
-
 export default function HomePageClient() {
   const [selectedLang, setSelectedLang] = React.useState<LangCode>("en");
   const [billingYearly, setBillingYearly] = React.useState(false);
@@ -718,19 +728,70 @@ export default function HomePageClient() {
   ];
 
   return (
-    <main className="bg-black pt-16 text-white">
-      <section className="min-h-screen px-5 pb-20 pt-10 sm:px-8 sm:pt-16 lg:px-10 lg:pt-20">
-        <div className="mx-auto grid max-w-[1440px] gap-14 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,0.72fr)] lg:items-center">
-          <div>
-            <div className="mb-8 flex flex-wrap gap-2" aria-label="Supported platforms">
+    <main className="bg-[var(--background)] text-[var(--foreground)]">
+      <Section spacing="compact" className="homepage-hero">
+        <PageContainer>
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.92fr)] lg:gap-16">
+            <div className="max-w-[690px]">
+              <StatusBadge tone="accent">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+                {t.badge}
+              </StatusBadge>
+              <h1 className="display-title mt-6">{t.hero}</h1>
+              <p className="body-large mt-6">{t.sub}</p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <ButtonLink href={`/${selectedLang}/rainbow-six-siege-boost`} size="large">
+                  {t.ctaPrimary}
+                  <ArrowRight aria-hidden className="h-4 w-4" />
+                </ButtonLink>
+                <a href="#games" className="button-large button-secondary">
+                  {t.ctaSecondary}
+                </a>
+              </div>
+            </div>
+
+            <Link
+              href={`/${selectedLang}/rainbow-six-siege-boost`}
+              className="image-frame group block h-[300px] sm:h-[430px] lg:h-[540px]"
+            >
+              <Image
+                src="/homepage/r6-homepage.webp"
+                alt="Rainbow Six Siege operator"
+                fill
+                loading="eager"
+                fetchPriority="high"
+                sizes="(max-width: 1023px) 100vw, 46vw"
+                className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.025]"
+              />
+              <StatusBadge className="absolute left-4 top-4 border-white/20 bg-black/70 text-white" tone="default">
+                {t.openNow}
+              </StatusBadge>
+              <span className="absolute inset-x-4 bottom-4 flex min-h-16 items-center justify-between rounded-[var(--radius-control)] border border-white/15 bg-black/75 px-4 text-white">
+                <Image
+                  src="/homepage/r6-text-homepage.png"
+                  alt="Rainbow Six Siege"
+                  width={281}
+                  height={84}
+                  className="h-auto w-[min(220px,66%)] object-contain object-left"
+                />
+                <span className="icon-button border border-white/20 bg-white text-black">
+                  <ArrowRight aria-hidden className="h-4 w-4" />
+                </span>
+              </span>
+            </Link>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-[var(--line)] pt-5">
+            <p className="mr-2 text-sm font-medium text-[var(--muted)]">{t.platformReady}</p>
+            <div className="flex flex-wrap gap-2" aria-label="Supported platforms">
               {platformLogos.map((platform) => (
                 <span
                   key={platform.name}
                   role="img"
                   aria-label={platform.name}
                   title={platform.name}
-                  className="flex h-11 w-11 items-center justify-center rounded-xl border transition-transform duration-150 hover:-translate-y-0.5"
-                  style={{ backgroundColor: platform.color, borderColor: "rgba(255,255,255,0.2)" }}
+                  className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-[var(--line)]"
+                  style={{ backgroundColor: platform.color }}
                 >
                   <Image
                     src={platform.src}
@@ -738,118 +799,101 @@ export default function HomePageClient() {
                     width={72}
                     height={72}
                     unoptimized
-                    className="h-8 w-8 object-contain mix-blend-screen"
+                    className="h-6 w-6 object-contain mix-blend-screen"
                   />
                 </span>
               ))}
             </div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-xl border border-white/12 px-3 py-2 text-sm font-medium text-zinc-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-white" />
-              {t.badge}
-            </div>
-            <h1 className="max-w-[10ch] text-5xl font-semibold leading-[0.96] tracking-normal text-white sm:text-7xl lg:text-[6.25rem]">
-              {t.hero}
-            </h1>
-            <p className="mt-6 max-w-[58ch] text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
-              {t.sub}
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href={`/${selectedLang}/rainbow-six-siege-boost`}
-                className="inline-flex h-12 items-center justify-center rounded-xl bg-white px-6 text-sm font-semibold text-black transition hover:bg-zinc-200"
-              >
-                {t.ctaPrimary}
-              </Link>
-              <a
-                href="#games"
-                className="inline-flex h-12 items-center justify-center rounded-xl border border-white/18 px-6 text-sm font-semibold text-white transition hover:bg-white/[0.06]"
-              >
-                {t.ctaSecondary}
-              </a>
-            </div>
           </div>
+        </PageContainer>
+      </Section>
 
-          <Link
-            href={`/${selectedLang}/rainbow-six-siege-boost`}
-            className="group relative block overflow-hidden rounded-[24px] border border-white/12"
-          >
-            <Image
-              src="/homepage/r6-homepage.webp"
-              alt="Rainbow Six Siege operator"
-              width={880}
-              height={1100}
-              loading="eager"
-              sizes="(max-width: 1023px) 100vw, 42vw"
-              className="h-[420px] w-full object-cover transition duration-700 group-hover:scale-[1.03] sm:h-[540px]"
-            />
-            <div className="absolute left-4 top-4 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
-              {t.openNow}
-            </div>
-            <div className="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-2xl bg-black/70 px-5 py-4 backdrop-blur-md">
-              <Image
-                src="/homepage/r6-text-homepage.png"
-                alt="Rainbow Six Siege"
-                width={281}
-                height={84}
-                className="h-8 w-auto object-contain sm:h-10"
-                style={{ width: "auto" }}
-              />
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-black transition group-hover:translate-x-0.5">
-                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 8h10M9 4l4 4-4 4" />
-                </svg>
-              </span>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      <section id="games" className="mono-section-light scroll-mt-24 px-5 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-[1440px]">
-          <div className="mb-10 max-w-3xl">
-            <div className="max-w-3xl">
-              <SectionEyebrow>{t.selectYourGame}</SectionEyebrow>
-              <h2 className="mt-4 text-4xl font-semibold leading-tight text-black sm:text-5xl">{t.pickGame}</h2>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">{t.gameSectionSub}</p>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {gameCards.map((game) => {
+      <Section id="games" className="bg-[var(--surface-muted)]">
+        <PageContainer>
+          <SectionHeading
+            eyebrow={t.selectYourGame}
+            title={t.pickGame}
+            description={t.gameSectionSub}
+          />
+          <div className="mt-10 grid auto-rows-[280px] gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {gameCards.map((game, index) => {
+              const localizedHref = game.href.replace(/^\/en/, `/${selectedLang}`);
               const card = (
-                <div className="group relative h-64 overflow-hidden rounded-[20px] border border-black/10 bg-black">
-                  <Image
-                    src={game.bg}
-                    alt={game.name}
-                    width={640}
-                    height={800}
-                    sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
-                    className={`h-full w-full object-cover transition duration-700 ${
-                      game.live ? "group-hover:scale-[1.05]" : "opacity-50"
-                    }`}
-                  />
-                  <div className="absolute left-3.5 top-3.5 rounded-lg bg-black/70 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-md">
-                    {game.live ? t.openNow : t.soon}
-                  </div>
-                  <div className="absolute inset-x-3.5 bottom-3.5 flex items-center justify-between rounded-xl bg-black/70 px-4 py-3 backdrop-blur-md">
+                <article
+                  className="home-game-card group relative h-[280px] overflow-hidden rounded-[var(--radius-card)] border border-white/10 bg-[#08080a]"
+                >
+                  {game.bg ? (
                     <Image
-                      src={game.logo}
+                      src={game.bg}
                       alt={game.name}
-                      width={170}
-                      height={36}
-                      className="h-6 w-auto max-w-[75%] object-contain object-left"
-                      style={{ width: "auto" }}
+                      fill
+                      loading={index < 4 ? "eager" : "lazy"}
+                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.025]"
                     />
-                    {game.live && (
-                      <svg className="h-4 w-4 shrink-0 text-white transition group-hover:translate-x-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 8h10M9 4l4 4-4 4" />
-                      </svg>
+                  ) : (
+                    <div
+                      className="absolute inset-0 flex items-center justify-center pb-14"
+                      style={{ backgroundColor: game.backdrop }}
+                    >
+                      <Image
+                        src={game.logo}
+                        alt=""
+                        width={160}
+                        height={160}
+                        className="h-28 w-28 rounded-[22px] object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+                      />
+                    </div>
+                  )}
+                  <StatusBadge
+                    className="absolute left-4 top-4 border-white/20 bg-black/75 text-white"
+                    tone={game.live ? "accent" : "default"}
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: game.live ? game.glow : "#8a8a93" }}
+                    />
+                    {game.live ? t.openNow : t.comingSoon}
+                  </StatusBadge>
+                  <div className="absolute inset-x-4 bottom-4 flex min-h-16 items-center justify-between rounded-[var(--radius-control)] border border-white/15 bg-black/75 px-4">
+                    {game.iconOnly ? (
+                      <span className="flex min-w-0 items-center gap-3 text-sm font-semibold text-white">
+                        <span
+                          className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg"
+                          style={{ backgroundColor: game.logoBackground }}
+                        >
+                          <Image
+                            src={game.logo}
+                            alt=""
+                            width={40}
+                            height={40}
+                            className="h-8 w-8 object-contain"
+                          />
+                        </span>
+                        <span className="truncate">{game.name}</span>
+                      </span>
+                    ) : (
+                      <Image
+                        src={game.logo}
+                        alt={game.name}
+                        width={190}
+                        height={44}
+                        className="h-auto max-h-8 w-auto max-w-[76%] object-contain object-left"
+                      />
                     )}
+                    {game.live ? (
+                      <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-white" />
+                    ) : null}
                   </div>
-                </div>
+                </article>
               );
 
               return game.live ? (
-                <Link key={game.name} href={game.href} aria-label={`${game.name} ${t.enterService}`}>
+                <Link
+                  key={game.name}
+                  href={localizedHref}
+                  aria-label={`${game.name} ${t.enterService}`}
+                >
                   {card}
                 </Link>
               ) : (
@@ -857,130 +901,84 @@ export default function HomePageClient() {
               );
             })}
           </div>
-        </div>
-      </section>
+        </PageContainer>
+      </Section>
 
-      <section id="how-it-works" className="px-5 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-[1440px]">
-          <div>
-            <SectionEyebrow>{t.howItWorksLabel}</SectionEyebrow>
-            <h2 className="mt-4 max-w-lg text-4xl font-semibold leading-tight text-white sm:text-5xl">{t.howItWorksTitle}</h2>
-          </div>
-          <div className="mt-10 grid gap-3 md:grid-cols-3">
-            {t.steps.map((item, index) => {
-              const StepIcon = [Gamepad2, SlidersHorizontal, Activity][index];
-              return (
-                <div key={item.step} className="mono-card flex min-h-40 flex-col justify-between p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/12 text-white">
-                      <StepIcon aria-hidden className="h-5 w-5" strokeWidth={1.6} />
-                    </span>
-                    <span className="font-mono text-xs text-zinc-500">{item.step}</span>
-                  </div>
-                  <h3 className="mt-8 text-xl font-medium text-white">{item.title}</h3>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {[
-              { icon: ShieldCheck, label: "Secure service" },
-              { icon: LockKeyhole, label: "Private sessions" },
-              { icon: Headphones, label: "24/7 support" },
-              { icon: RotateCcw, label: "Refund policy" },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center gap-3 border-t border-white/12 px-1 py-4">
-                <item.icon aria-hidden className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.7} />
-                <span className="text-sm font-medium text-zinc-300">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-5 pb-20 sm:px-8 lg:px-10">
-        <Link
-          href={`/${selectedLang}/rainbow-six-siege-boost`}
-          className="group relative mx-auto flex min-h-[300px] max-w-[1440px] items-center overflow-hidden rounded-[24px] border px-7 py-10 sm:px-10"
-          style={{
-            backgroundColor: "#050505",
-            borderColor: "rgba(255, 255, 255, 0.12)",
-            color: "#f5f5f7",
-          }}
-        >
-          <Image
-            src="/homepage/r6-homepage.webp"
-            alt="Rainbow Six Siege operator"
-            width={440}
-            height={440}
-            loading="eager"
-            className="pointer-events-none absolute bottom-0 right-[-70px] h-[280px] w-auto object-contain opacity-25 transition-transform duration-500 group-hover:translate-x-[-4px] sm:right-[5%] sm:h-[300px] sm:opacity-100"
-          />
-          <div className="relative z-10 max-w-xl">
-            <Image
-              src="/homepage/r6-text-homepage.png"
-              alt="Tom Clancy's Rainbow Six Siege"
-              width={281}
-              height={84}
-              className="h-auto w-[min(280px,70vw)] object-contain"
-              style={{ height: "auto" }}
+      <Section id="how-it-works" spacing="compact">
+        <PageContainer>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:items-start lg:gap-14">
+            <SectionHeading
+              eyebrow={t.howItWorksLabel}
+              title={t.howItWorksTitle}
+              description={t.howItWorksSub}
             />
-            <p className="mt-6 text-xl font-semibold sm:text-2xl">{t.ctaPrimary}</p>
-            <span
-              className="mt-8 inline-flex h-12 items-center rounded-xl px-6 text-sm font-semibold transition group-hover:opacity-85"
-              style={{ backgroundColor: "#ffffff", color: "#050505" }}
-            >
-              {t.enterService}
-            </span>
-          </div>
-        </Link>
-      </section>
-
-      <section id="rewards" className="scroll-mt-24 border-t border-[var(--line)] px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1120px]">
-          <div className="mx-auto mb-10 max-w-[700px] text-center">
-            <div className="inline-flex items-center gap-3" aria-label="ProBoost Plus">
-              <span className="relative flex h-9 w-11 items-center justify-center">
-                <Image
-                  src="/brand/proboost-icon-white.png"
-                  alt=""
-                  width={189}
-                  height={134}
-                  className="brand-mark h-7 w-auto object-contain"
-                />
-                <span className="absolute -right-0.5 top-0 text-base font-semibold leading-none">+</span>
-              </span>
-              <span className="text-lg font-semibold">ProBoost+</span>
+            <div className="grid gap-3 md:grid-cols-3">
+              {t.steps.map((item, index) => {
+                const StepIcon = [Gamepad2, SlidersHorizontal, Activity][index];
+                return (
+                  <article
+                    key={item.step}
+                    className="surface flex min-h-[190px] flex-col p-6"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accent-soft)] text-[var(--accent-hover)]">
+                        <StepIcon aria-hidden className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="text-xs font-semibold text-[var(--muted-soft)]">{item.step}</span>
+                    </div>
+                    <div className="mt-auto pt-8">
+                      <h3 className="card-title">{item.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.description}</p>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
-            <h2 className="mt-6 text-4xl font-semibold leading-[1.04] text-[var(--foreground)] sm:text-5xl lg:text-6xl">
-              {m.heading}
-            </h2>
-            <p className="mx-auto mt-5 max-w-[58ch] text-base leading-7 text-[var(--muted)] sm:text-lg">
-              {m.desc}
-            </p>
-            <p className="mt-4 text-sm font-medium text-[var(--muted-soft)]">{m.cancel}</p>
+          </div>
+        </PageContainer>
+      </Section>
+
+      <Section id="rewards" spacing="compact" className="bg-[var(--surface-muted)]">
+        <PageContainer size="content">
+          <div className="mb-8 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+            <div className="section-heading">
+              <div className="inline-flex items-center gap-3" aria-label="ProBoost Plus">
+                <span className="relative flex h-9 w-11 items-center justify-center">
+                  <Image
+                    src="/brand/proboost-icon-white.png"
+                    alt=""
+                    width={189}
+                    height={134}
+                    className="brand-mark h-7 w-auto object-contain"
+                  />
+                  <span className="absolute -right-0.5 top-0 text-base font-semibold leading-none text-[var(--accent-hover)]">+</span>
+                </span>
+                <span className="eyebrow">ProBoost+</span>
+              </div>
+              <h2 className="section-title">{m.heading}</h2>
+              <p className="body-large">{m.desc}</p>
+            </div>
+            <StatusBadge tone="muted">{m.cancel}</StatusBadge>
           </div>
 
-          <article className="grid overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--surface)] lg:grid-cols-[0.8fr_1.2fr]">
+          <article className="grid overflow-hidden rounded-[var(--radius-featured)] border border-[var(--line)] bg-[var(--surface)] lg:grid-cols-[0.78fr_1.22fr]">
             <div className="flex flex-col border-b border-[var(--line)] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">ProBoost+</p>
-                <div className="mt-5 flex items-start font-semibold leading-none tabular-nums text-[var(--foreground)]">
-                  <span className="mr-1 mt-2 text-3xl sm:text-4xl">$</span>
-                  <span className="text-6xl sm:text-7xl">{displayPrice}</span>
-                </div>
-                <p className="mt-3 text-sm text-[var(--muted)]">per month</p>
-                <p className={`mt-2 min-h-5 text-xs text-[var(--muted-soft)] ${billingYearly ? "opacity-100" : "opacity-0"}`}>
-                  {m.billedAs.replace("${amount}", (monthlyPrice * 0.8 * 12).toFixed(2))}
-                </p>
+              <p className="eyebrow">ProBoost+</p>
+              <div className="mt-5 flex items-start font-semibold leading-none tabular-nums text-[var(--foreground)]">
+                <span className="mr-1 mt-2 text-2xl sm:text-3xl">$</span>
+                <span className="text-6xl sm:text-7xl">{displayPrice}</span>
               </div>
+              <p className="mt-3 text-sm text-[var(--muted)]">per month</p>
+              <p className={`mt-2 min-h-5 text-xs text-[var(--muted-soft)] ${billingYearly ? "opacity-100" : "opacity-0"}`}>
+                {m.billedAs.replace("${amount}", (monthlyPrice * 0.8 * 12).toFixed(2))}
+              </p>
 
-              <div className="mt-7 grid grid-cols-2 rounded-xl bg-[var(--surface-subtle)] p-1" role="group" aria-label="Membership billing period">
+              <div className="mt-7 grid grid-cols-2 rounded-[var(--radius-control)] bg-[var(--surface-subtle)] p-1" role="group" aria-label="Membership billing period">
                 <button
                   type="button"
                   aria-pressed={!billingYearly}
                   onClick={() => setBillingYearly(false)}
-                  className="membership-billing-option min-h-10 whitespace-nowrap rounded-lg px-2 text-[13px] font-medium sm:px-3 sm:text-sm"
+                  className="membership-billing-option min-h-10 rounded-lg px-2 text-[13px] font-medium sm:px-3 sm:text-sm"
                 >
                   {m.monthly}
                 </button>
@@ -988,18 +986,19 @@ export default function HomePageClient() {
                   type="button"
                   aria-pressed={billingYearly}
                   onClick={() => setBillingYearly(true)}
-                  className="membership-billing-option min-h-10 whitespace-nowrap rounded-lg px-2 text-[13px] font-medium sm:px-3 sm:text-sm"
+                  className="membership-billing-option min-h-10 rounded-lg px-2 text-[13px] font-medium leading-tight sm:px-3 sm:text-sm"
                 >
-                  {m.annually} <span aria-hidden>{"\u00b7"}</span> Save 20%
+                  {m.annually}
+                  <span className="ml-1 text-[11px] font-semibold text-[var(--accent-hover)]">
+                    Save 20%
+                  </span>
                 </button>
               </div>
 
-              <Link
-                href="/signup"
-                className="theme-inverse mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl border px-6 text-sm font-semibold transition hover:opacity-85"
-              >
+              <ButtonLink href="/signup" className="mt-4 w-full">
                 {m.cta}
-              </Link>
+                <ArrowRight aria-hidden className="h-4 w-4" />
+              </ButtonLink>
               <p className="mt-4 text-center text-xs text-[var(--muted-soft)]">
                 {m.cancel} <span aria-hidden>{"\u00b7"}</span>{" "}
                 <Link href="/terms" className="underline decoration-[var(--line-strong)] hover:text-[var(--foreground)]">
@@ -1009,13 +1008,13 @@ export default function HomePageClient() {
             </div>
 
             <div className="p-6 sm:p-8 lg:p-10">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Member benefits</p>
+              <p className="eyebrow">Member benefits</p>
               <h3 className="mt-3 text-2xl font-semibold text-[var(--foreground)]">Everything that comes with Plus.</h3>
               <div className="mt-7 grid gap-x-8 gap-y-7 sm:grid-cols-2">
-                {membershipBenefits.map((benefit) => (
+                {membershipBenefits.slice(0, 4).map((benefit) => (
                   <div key={benefit.title} className="grid grid-cols-[40px_1fr] gap-3.5">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--surface-subtle)] text-[var(--foreground)]">
-                      <benefit.icon aria-hidden className="h-4.5 w-4.5" strokeWidth={1.7} />
+                    <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accent-soft)] text-[var(--accent-hover)]">
+                      <benefit.icon aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.8} />
                     </span>
                     <div>
                       <p className="text-sm font-semibold text-[var(--foreground)]">{benefit.value}</p>
@@ -1025,10 +1024,16 @@ export default function HomePageClient() {
                   </div>
                 ))}
               </div>
+              <div className="mt-8 border-t border-[var(--line)] pt-6">
+                <p className="text-sm leading-6 text-[var(--muted)]">
+                  {membershipBenefits[4].title} <span aria-hidden>{"\u00b7"}</span>{" "}
+                  {membershipBenefits[5].title}
+                </p>
+              </div>
             </div>
           </article>
-        </div>
-      </section>
+        </PageContainer>
+      </Section>
     </main>
   );
 }

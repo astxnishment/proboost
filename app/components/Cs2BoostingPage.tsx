@@ -143,12 +143,13 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
           src="/cs2/cs2-hero.webp"
           alt="Tactical Counter-Strike 2 specialist at an industrial bombsite"
           fill
-          priority
+          loading="eager"
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover object-[70%_center] md:object-contain md:object-right"
         />
         <div className="absolute inset-0 bg-black/45 md:hidden" aria-hidden />
-        <div className="relative mx-auto flex min-h-[540px] max-w-[1320px] items-center px-5 py-14 sm:px-8 lg:px-10">
+        <div className="relative mx-auto flex min-h-[540px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
           <div className="max-w-[560px] md:max-w-[48%]">
             <div className="inline-flex items-center gap-2.5">
               <Image
@@ -209,7 +210,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
       </section>
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)] px-5 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-[1320px] grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-2 lg:grid-cols-4">
           {HERO_POINTS.map((item, index) => (
             <div
               key={item.label}
@@ -236,7 +237,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
         id="services"
         className="scroll-mt-20 px-5 py-14 sm:px-8 sm:py-16 lg:px-10"
       >
-        <div className="mx-auto max-w-[1320px]">
+        <div className="mx-auto max-w-[1280px]">
           <div className="max-w-[720px]">
             <p className="text-xs font-semibold uppercase text-[var(--muted)]">
               CS2 services
@@ -304,7 +305,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
       </section>
 
       <section className="border-y border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
-        <div className="mx-auto grid max-w-[1320px] gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(540px,1fr)] lg:items-start">
+        <div className="mx-auto grid max-w-[1280px] gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(540px,1fr)] lg:items-start">
           <div>
             <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)]">
               <Settings2
@@ -349,7 +350,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
       </section>
 
       <section id="how" className="px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
-        <div className="mx-auto max-w-[1320px]">
+        <div className="mx-auto max-w-[1280px]">
           <p className="text-xs font-semibold uppercase text-[var(--muted)]">
             How it works
           </p>
@@ -388,7 +389,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
       </section>
 
       <section className="border-t border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
-        <div className="mx-auto max-w-[1320px]">
+        <div className="mx-auto max-w-[1280px]">
           <div className="mb-8">
             <p className="text-xs font-semibold uppercase text-[var(--muted)]">
               CS2 FAQ
@@ -402,7 +403,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
       </section>
 
       <section className="border-t border-[var(--line)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
-        <div className="mx-auto flex max-w-[1320px] flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mx-auto flex max-w-[1280px] flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <Image
               src="/homepage/cs2-text-homepage.webp"

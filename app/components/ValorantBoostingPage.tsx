@@ -153,13 +153,14 @@ export default function ValorantBoostingPage({
             src="/valorant/omen-full-portrait.webp"
             alt="Omen from Valorant"
             fill
-            priority
+            loading="eager"
+            fetchPriority="high"
             sizes="(max-width: 767px) 92vw, 58vw"
             className="object-contain object-right-bottom"
           />
         </div>
 
-        <div className="relative mx-auto flex min-h-[610px] max-w-[1440px] items-center px-5 pb-14 pt-28 sm:px-8 lg:px-10">
+        <div className="relative mx-auto flex min-h-[540px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
           <div className="max-w-[650px] md:max-w-[52%]">
             <div className="inline-flex items-center gap-2.5 rounded-lg border border-white/20 bg-black/35 px-2.5 py-2">
               <Image
@@ -223,7 +224,7 @@ export default function ValorantBoostingPage({
       </section>
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)] px-5 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-[1440px] grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-2 lg:grid-cols-4">
           {HERO_POINTS.map((item, index) => (
             <div
               key={item.label}
@@ -250,7 +251,7 @@ export default function ValorantBoostingPage({
         id="services"
         className="scroll-mt-20 px-5 py-16 sm:px-8 sm:py-20 lg:px-10"
       >
-        <div className="mx-auto max-w-[1440px]">
+        <div className="mx-auto max-w-[1280px]">
           <div className="grid gap-5 md:grid-cols-[minmax(0,0.78fr)_minmax(360px,1fr)] md:items-end">
             <div>
               <p className="text-xs font-semibold uppercase text-[var(--muted)]">
@@ -320,7 +321,7 @@ export default function ValorantBoostingPage({
       </section>
 
       <section className="border-y border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
-        <div className="mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[minmax(0,0.7fr)_minmax(540px,1fr)] lg:items-start">
+        <div className="mx-auto grid max-w-[1280px] gap-12 lg:grid-cols-[minmax(0,0.7fr)_minmax(540px,1fr)] lg:items-start">
           <div>
             <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)]">
               <Settings2
@@ -364,7 +365,7 @@ export default function ValorantBoostingPage({
       </section>
 
       <section id="how" className="px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
-        <div className="mx-auto max-w-[1440px]">
+        <div className="mx-auto max-w-[1280px]">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase text-[var(--muted)]">
               How it works
@@ -408,7 +409,7 @@ export default function ValorantBoostingPage({
         id="faq"
         className="border-t border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10"
       >
-        <div className="mx-auto max-w-[1440px]">
+        <div className="mx-auto max-w-[1280px]">
           <div className="mb-8">
             <p className="text-xs font-semibold uppercase text-[var(--muted)]">
               Valorant FAQ
@@ -422,7 +423,7 @@ export default function ValorantBoostingPage({
       </section>
 
       <section className="border-t border-[var(--line)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mx-auto flex max-w-[1280px] flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <Image
               src="/homepage/valorant-text-homepage.webp"

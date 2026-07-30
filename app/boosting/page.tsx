@@ -374,7 +374,7 @@ export default function SiegeBoostingPage({
           loading="eager"
           className="pointer-events-none absolute bottom-0 right-[-90px] h-[360px] w-auto object-contain opacity-25 sm:right-[-20px] md:right-[6%] md:h-[440px] md:opacity-100"
         />
-        <div className="relative mx-auto flex min-h-[470px] max-w-[1440px] items-center px-5 pb-12 pt-24 sm:px-8 lg:px-10">
+        <div className="relative mx-auto flex min-h-[470px] max-w-[1280px] items-center px-5 pb-12 pt-24 sm:px-8 lg:px-10">
           <div className="w-full max-w-2xl md:max-w-[48%] xl:max-w-2xl">
             <h1 className="sr-only">Tom Clancy&apos;s Rainbow Six Siege boosting services</h1>
             <div aria-hidden="true">
@@ -405,7 +405,7 @@ export default function SiegeBoostingPage({
       </section>
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)] px-5 py-4 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-2 gap-3 sm:grid-cols-4">
           {["PC, Xbox & PlayStation", "All regions", "Verified boosters", "24/7 support"].map((item) => (
             <div key={item} className="flex min-h-14 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 text-xs font-medium text-[var(--muted)] sm:text-sm">
               <Check className="h-4 w-4 shrink-0" />
@@ -416,7 +416,7 @@ export default function SiegeBoostingPage({
       </section>
 
       <section id="boosting" className="px-5 py-12 sm:px-8 sm:py-14 lg:px-10">
-        <div className="mx-auto max-w-[1440px]">
+        <div className="mx-auto max-w-[1280px]">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase text-[var(--muted)]">{t.boostingLabel}</p>
             <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">Choose your service</h2>
@@ -456,7 +456,7 @@ export default function SiegeBoostingPage({
       </section>
 
       <section className="border-y border-[var(--line)] bg-[var(--surface-muted)] px-5 py-14 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-[1440px] gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mx-auto grid max-w-[1280px] gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {t.trust.map((item, i) => {
             const TrustIcon = TRUST_ICONS[i];
             return (
@@ -471,7 +471,7 @@ export default function SiegeBoostingPage({
       </section>
 
       <section id="how" className="px-5 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-[1440px]">
+        <div className="mx-auto max-w-[1280px]">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase text-[var(--muted)]">{t.howLabel}</p>
@@ -494,7 +494,7 @@ export default function SiegeBoostingPage({
         </div>
       </section>
 
-      <section id="faq" className="mx-auto max-w-[1440px] px-5 py-20 sm:px-8 lg:px-10">
+      <section id="faq" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-10">
         <h2 className="mb-8 text-3xl font-semibold sm:text-4xl">{t.faqTitle}</h2>
         <FaqSection copy={{ label: t.faqLabel, items: t.faq }} />
       </section>

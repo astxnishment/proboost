@@ -646,23 +646,24 @@ export default function ValorantServiceConfigurator({
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
       style={{ "--valorant-accent": "#ff4655" } as CSSProperties}
     >
-      <section className="theme-preserve-media relative min-h-[450px] overflow-hidden border-b border-[var(--line)] bg-[#101116] pt-16 text-white">
-        <div className="absolute inset-x-0 bottom-0 top-16">
+      <section className="theme-preserve-media relative min-h-[450px] overflow-hidden border-b border-[var(--line)] bg-[#101116] text-white">
+        <div className="absolute inset-0">
           <Image
             src="/valorant/valorant-hero-v2.webp"
             alt="Tactical Valorant specialist in a competitive arena"
             fill
-            priority
+            loading="eager"
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover object-[68%_top]"
           />
         </div>
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 top-16"
+          className="absolute inset-0"
           style={{ backgroundColor: "rgba(0, 0, 0, 0.2)" }}
         />
-        <div className="relative mx-auto flex min-h-[386px] max-w-[1440px] items-center px-5 py-14 sm:px-8 lg:px-10">
+        <div className="relative mx-auto flex min-h-[450px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
           <div className="max-w-[650px]">
             <Link
               href={basePath}
@@ -690,7 +691,7 @@ export default function ValorantServiceConfigurator({
       </section>
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)]">
-        <div className="mx-auto grid max-w-[1440px] grid-cols-2 px-5 sm:px-8 lg:grid-cols-4 lg:px-10">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-2 px-5 sm:px-8 lg:grid-cols-4 lg:px-10">
           {[
             { label: "Manual service", Icon: ShieldCheck },
             { label: "Private handling", Icon: LockKeyhole },
@@ -717,7 +718,7 @@ export default function ValorantServiceConfigurator({
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-14 lg:px-10">
+      <div className="mx-auto max-w-[1280px] px-5 py-10 sm:px-8 sm:py-14 lg:px-10">
         <nav
           aria-label="Valorant services"
           className="service-subnav mb-8 flex max-w-full gap-2 overflow-x-auto border-b border-[var(--line)] pb-3"
@@ -1229,7 +1230,7 @@ export default function ValorantServiceConfigurator({
       </div>
 
       <section className="border-t border-[var(--line)] bg-[var(--surface-muted)] px-5 py-12 sm:px-8 lg:px-10">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-[1280px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Need help configuring it?</h2>
             <p className="mt-2 text-sm text-[var(--muted)]">

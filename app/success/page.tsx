@@ -1,8 +1,9 @@
 ﻿"use client";
 
 import React from "react";
-import Link from "next/link";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { LanguageCode } from "../components/Dropdown";
+import { ButtonLink, StatusBadge } from "../components/ui";
 
 const i18n: Record<LanguageCode, {
   title: string; sub: string; nextLabel: string;
@@ -42,38 +43,41 @@ export default function SuccessPage() {
   const t = i18n[selectedLang];
 
   return (
-    <main className="auth-shell flex min-h-screen flex-col items-center justify-center px-6 pb-16 pt-28">
-      <div className="max-w-md w-full text-center space-y-6">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg border border-[var(--line-strong)] bg-[var(--surface-raised)]">
-          <svg className="h-9 w-9 text-[var(--foreground)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    <main className="auth-shell flex min-h-[calc(100svh-var(--header-height))] items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
+      <div className="surface w-full max-w-lg p-6 text-center sm:p-9">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg border border-[var(--success-line)] bg-[var(--success-surface)] text-[var(--success)]">
+          <CheckCircle2 aria-hidden="true" className="h-7 w-7" />
         </div>
 
-        <h1 className="text-4xl font-semibold tracking-tight text-[var(--foreground)]">
+        <StatusBadge tone="success" className="mt-5">Order confirmed</StatusBadge>
+
+        <h1 className="mt-4 text-3xl font-semibold text-[var(--foreground)] sm:text-4xl">
           {t.title}
         </h1>
 
-        <p className="leading-relaxed text-[var(--muted)]">
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--muted)] sm:text-base">
           {t.sub}
         </p>
 
-        <div className="space-y-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5 text-sm text-[var(--foreground-soft)]">
+        <div className="mt-7 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-5 text-left text-sm">
           <p className="font-semibold text-[var(--foreground)]">{t.nextLabel}</p>
-          <ul className="mt-3 space-y-2 text-left text-[var(--muted)]">
+          <ul className="mt-4 space-y-3 text-[var(--muted)]">
             {t.steps.map((step, i) => (
               <li key={i} className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[var(--surface-subtle)] text-[10px] font-bold text-[var(--foreground)]">{i + 1}</span>
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[var(--surface-strong)] text-[10px] font-bold text-[var(--foreground)]">{i + 1}</span>
                 {step}
               </li>
             ))}
           </ul>
         </div>
 
-        <Link
+        <ButtonLink
           href="/"
-          className="theme-button-primary inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 text-lg font-semibold transition"
+          className="mt-6 w-full"
         >
           {t.cta}
-        </Link>
+          <ArrowRight aria-hidden="true" className="h-4 w-4" />
+        </ButtonLink>
       </div>
     </main>
   );
