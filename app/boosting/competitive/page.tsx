@@ -20,6 +20,7 @@ import {
   ORDER_SERVERS,
   R6_SERVICE_BUTTONS,
 } from "@/app/lib/order-options";
+import { useCurrency } from "@/app/components/CurrencyProvider";
 
 type Rank = {
   name: string;
@@ -80,6 +81,7 @@ const paymentMethods = ORDER_PAYMENT_METHODS;
 const SERVICE_BUTTONS = R6_SERVICE_BUTTONS;
 
 export default function CompetitiveWins() {
+  const { currency, formatPrice } = useCurrency();
   // State
   const [currentRank, setCurrentRank] = React.useState("Copper");
   const [currentDivision, setCurrentDivision] = React.useState("V");
@@ -153,7 +155,7 @@ export default function CompetitiveWins() {
   const handleCheckout = async () => {
     setCheckoutLoading(true);
     try {
-      const checkoutUrl = await createCheckoutSession(order);
+      const checkoutUrl = await createCheckoutSession(order, currency);
       window.location.assign(checkoutUrl);
     } catch (error) {
       setToastType("error");
@@ -477,7 +479,7 @@ export default function CompetitiveWins() {
                   {addOnCard("VIP Priority", "+50%", vipPriority, setVipPriority, "Your order jumps to the front of the queue and gets assigned immediately.")}
                 </div>
                 <div className="space-y-4">
-                  {addOnCard("Streaming", "+£9.00", streaming, setStreaming, "Watch your boost live via a private stream link.")}
+                  {addOnCard("Streaming", `+${formatPrice(9)}`, streaming, setStreaming, "Watch your boost live via a private stream link.")}
                   {addOnCard("One Trick Pony", "+30%", oneTrickPony, setOneTrickPony, "The booster will play only one specific operator of your choice.")}
                   {addOnCard("Insane Clip Drop", "+15%", insaneClipDrop, setInsaneClipDrop, "Receive highlight clips of the best plays from your boost sessions.")}
                 </div>
@@ -589,7 +591,7 @@ export default function CompetitiveWins() {
               <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 flex items-center gap-3 text-sm">
                 <Image src="/coupon.png" alt="" width={40} height={60}  className="h-[60px] w-auto object-contain opacity-95" />
                 <span className="text-cyan-300">
-                  {hasExtraDiscount ? "Extra 3% discount unlocked on your order" : `Add £${amountToExtraDiscount.toFixed(2)} more to save an extra 3%`}
+                  {hasExtraDiscount ? "Extra 3% discount unlocked on your order" : `Add ${formatPrice(amountToExtraDiscount)} more to save an extra 3%`}
                 </span>
               </div>
               <div className="flex justify-between text-sm text-zinc-400">
@@ -599,19 +601,19 @@ export default function CompetitiveWins() {
               <div className="flex justify-between items-center text-sm">
                 <span className="font-semibold text-white">Total Amount</span>
                 <span className="flex items-center gap-2">
-                  {discount > 0 && <span className="text-zinc-500 line-through text-xs">£{subtotal.toFixed(2)}</span>}
-                  <span className="text-lg font-bold text-white">£{total.toFixed(2)}</span>
+                  {discount > 0 && <span className="text-zinc-500 line-through text-xs">{formatPrice(subtotal)}</span>}
+                  <span className="text-lg font-bold text-white">{formatPrice(total)}</span>
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-zinc-400">Cashback</span>
-                <span className="flex items-center gap-1 text-zinc-300"><span className="text-yellow-400">💰</span> £ 0.00</span>
+                <span className="flex items-center gap-1 text-zinc-300"><span className="text-yellow-400">💰</span> {formatPrice(0)}</span>
               </div>
             </div>
 
             <button onClick={handleCheckout} disabled={checkoutLoading}
               className="relative z-10 w-full rounded-2xl bg-cyan-500 px-5 py-4 text-lg font-bold text-black cursor-pointer hover:bg-cyan-400 transition-colors duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-wait">
-              {checkoutLoading ? "Redirecting..." : `Checkout (£${total.toFixed(2)})`}
+              {checkoutLoading ? "Redirecting..." : `Checkout (${formatPrice(total)})`}
             </button>
 
             <p className="mt-3 text-center text-[10px] leading-4 text-zinc-500">

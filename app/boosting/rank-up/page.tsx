@@ -8,6 +8,7 @@ import FaqSection from "../../components/FaqSection";
 import PlatformLogo from "../../components/PlatformLogo";
 import PlatformSelector from "../../components/PlatformSelector";
 import RankDivisionSelector from "../../components/RankDivisionSelector";
+import { useCurrency } from "../../components/CurrencyProvider";
 import { computeOrderPrice, type RankUpOrder } from "@/app/lib/pricing";
 import {
   createCheckoutSession,
@@ -147,6 +148,7 @@ const addOnDescsByLang: Record<string, { playOffline: string; express: string; r
 };
 
 export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang?: string }) {
+  const { currency, formatPrice } = useCurrency();
   const ranks: Rank[] = [
     {
       name: "Copper",
@@ -572,7 +574,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
 
     setCheckoutLoading(true);
     try {
-      const checkoutUrl = await createCheckoutSession(order);
+      const checkoutUrl = await createCheckoutSession(order, currency);
       window.location.assign(checkoutUrl);
     } catch (error) {
       setToastType("error");
@@ -834,7 +836,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                 </div>
 
                 <div className="space-y-4">
-                  {addOnCard(annotations.addOns?.streaming?.title ?? localizedAnnotations.en.addOns.streaming.title, "+£10.00", streaming, setStreaming, annotations.addOns?.streaming?.desc ?? localizedAnnotations.en.addOns.streaming.desc)}
+                  {addOnCard(annotations.addOns?.streaming?.title ?? localizedAnnotations.en.addOns.streaming.title, `+${formatPrice(10)}`, streaming, setStreaming, annotations.addOns?.streaming?.desc ?? localizedAnnotations.en.addOns.streaming.desc)}
                   {addOnCard(annotations.addOns?.oneTrickPony?.title ?? localizedAnnotations.en.addOns.oneTrickPony.title, "+30%", oneTrickPony, setOneTrickPony, annotations.addOns?.oneTrickPony?.desc ?? localizedAnnotations.en.addOns.oneTrickPony.desc)}
                   {addOnCard(annotations.addOns?.insaneClipDrop?.title ?? localizedAnnotations.en.addOns.insaneClipDrop.title, "+15%", insaneClipDrop, setInsaneClipDrop, annotations.addOns?.insaneClipDrop?.desc ?? localizedAnnotations.en.addOns.insaneClipDrop.desc)}
                 </div>
@@ -1039,7 +1041,9 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                 <span className="text-[var(--muted)]">
                   {hasExtraDiscount
                     ? annotations.extraDiscountUnlocked
-                    : annotations.extraDiscountAdd.replace("{amount}", amountToExtraDiscount.toFixed(2))}
+                    : annotations.extraDiscountAdd
+                        .replace("£{amount}", formatPrice(amountToExtraDiscount))
+                        .replace("{amount}", formatPrice(amountToExtraDiscount))}
                 </span>
               </div>
               <div className="flex justify-between text-sm text-[var(--muted)]">
@@ -1049,13 +1053,13 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
               <div className="flex justify-between items-center text-sm">
                 <span className="font-semibold">{annotations.totalAmountLabel}</span>
                 <span className="flex items-center gap-2">
-                  {discount > 0 && <span className="text-[var(--muted-soft)] line-through text-xs">£{subtotal.toFixed(2)}</span>}
-                  <span className="text-lg font-bold">£{total.toFixed(2)}</span>
+                  {discount > 0 && <span className="text-[var(--muted-soft)] line-through text-xs">{formatPrice(subtotal)}</span>}
+                  <span className="text-lg font-bold">{formatPrice(total)}</span>
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-[var(--muted)]">{annotations.cashbackLabel}</span>
-                <span className="text-[var(--muted)]">£0.00</span>
+                <span className="text-[var(--muted)]">{formatPrice(0)}</span>
               </div>
             </div>
 
@@ -1068,7 +1072,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                 ? "No higher rank available"
                 : checkoutLoading
                   ? annotations.redirectingLabel
-                  : `${annotations.checkoutButton} (£${total.toFixed(2)})`}
+                  : `${annotations.checkoutButton} (${formatPrice(total)})`}
             </button>
 
             <div className="mt-6">
@@ -1148,7 +1152,11 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                 </div>
                 <div className="mb-1 text-3xl font-semibold text-[var(--accent-hover)]">~35%</div>
                 <div className="mb-1 text-sm font-semibold">{annotations.modalSavingsTitle}</div>
-                <p className="text-xs leading-relaxed text-[var(--muted)]">{annotations.modalSavingsDesc.replace("{amount}", competitorSavings.toFixed(2))}</p>
+                <p className="text-xs leading-relaxed text-[var(--muted)]">
+                  {annotations.modalSavingsDesc
+                    .replace("£{amount}", formatPrice(competitorSavings))
+                    .replace("{amount}", formatPrice(competitorSavings))}
+                </p>
               </div>
             </div>
 

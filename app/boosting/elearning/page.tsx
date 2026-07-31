@@ -20,6 +20,7 @@ import {
   ORDER_SERVERS,
   R6_SERVICE_BUTTONS,
 } from "@/app/lib/order-options";
+import { useCurrency } from "@/app/components/CurrencyProvider";
 
 function Toggle({
   enabled,
@@ -121,6 +122,7 @@ const paymentMethods = ORDER_PAYMENT_METHODS;
 
 
 export default function ELearning() {
+  const { currency, formatPrice } = useCurrency();
   // State
   const [selectedService, setSelectedService] = React.useState<ServiceId>("coaching");
   const [quantity, setQuantity] = React.useState(1);
@@ -194,7 +196,7 @@ export default function ELearning() {
   const handleCheckout = async () => {
     setCheckoutLoading(true);
     try {
-      const checkoutUrl = await createCheckoutSession(order);
+      const checkoutUrl = await createCheckoutSession(order, currency);
       window.location.assign(checkoutUrl);
     } catch (error) {
       setToastType("error");
@@ -424,7 +426,7 @@ export default function ELearning() {
                         <h3 className="text-lg font-semibold text-[var(--foreground)]">{s.title}</h3>
                         <p className="mt-1.5 min-h-10 text-sm leading-5 text-[var(--muted)]">{s.desc}</p>
                         <p className="mt-4 text-xl font-semibold text-[var(--foreground)]">
-                          £{s.price.toFixed(2)}{" "}
+                          {formatPrice(s.price)}{" "}
                           <span className="text-sm font-normal text-[var(--muted)]">per {s.unit}</span>
                         </p>
                       </div>
@@ -520,7 +522,7 @@ export default function ELearning() {
                   {addOnCard("Custom Focus Area", "+10%", customFocus, setCustomFocus, "Specify your weak points and the coach will tailor the entire session around them.")}
                 </div>
                 <div className="space-y-4">
-                  {addOnCard("Streaming", "+£9.00", streaming, setStreaming, "Watch or re-watch your session live via a private stream link.")}
+                  {addOnCard("Streaming", `+${formatPrice(9)}`, streaming, setStreaming, "Watch or re-watch your session live via a private stream link.")}
                   {addOnCard("Recorded Session", "+15%", recordedSession, setRecordedSession, "Receive a full recording of your coaching session to review later.")}
                 </div>
               </div>
@@ -631,7 +633,7 @@ export default function ELearning() {
               <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 flex items-center gap-3 text-sm">
                 <Image src="/coupon.png" alt="" width={40} height={60}  className="h-[60px] w-auto object-contain opacity-95" />
                 <span className="text-cyan-300">
-                  {hasExtraDiscount ? "Extra 3% discount unlocked on your order" : `Add £${amountToExtraDiscount.toFixed(2)} more to save an extra 3%`}
+                  {hasExtraDiscount ? "Extra 3% discount unlocked on your order" : `Add ${formatPrice(amountToExtraDiscount)} more to save an extra 3%`}
                 </span>
               </div>
               <div className="flex justify-between text-sm text-zinc-400">
@@ -641,19 +643,19 @@ export default function ELearning() {
               <div className="flex justify-between items-center text-sm">
                 <span className="font-semibold text-white">Total Amount</span>
                 <span className="flex items-center gap-2">
-                  {discount > 0 && <span className="text-zinc-500 line-through text-xs">£{subtotal.toFixed(2)}</span>}
-                  <span className="text-lg font-bold text-white">£{total.toFixed(2)}</span>
+                  {discount > 0 && <span className="text-zinc-500 line-through text-xs">{formatPrice(subtotal)}</span>}
+                  <span className="text-lg font-bold text-white">{formatPrice(total)}</span>
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-zinc-400">Cashback</span>
-                <span className="flex items-center gap-1 text-zinc-300"><span className="text-yellow-400">💰</span> £ 0.00</span>
+                <span className="flex items-center gap-1 text-zinc-300"><span className="text-yellow-400">💰</span> {formatPrice(0)}</span>
               </div>
             </div>
 
             <button onClick={handleCheckout} disabled={checkoutLoading}
               className="relative z-10 w-full rounded-2xl bg-cyan-500 px-5 py-4 text-lg font-bold text-black cursor-pointer hover:bg-cyan-400 transition-colors duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-wait">
-              {checkoutLoading ? "Redirecting..." : `Checkout (£${total.toFixed(2)})`}
+              {checkoutLoading ? "Redirecting..." : `Checkout (${formatPrice(total)})`}
             </button>
 
             <p className="mt-3 text-center text-[10px] leading-4 text-zinc-500">

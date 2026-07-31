@@ -12,15 +12,18 @@ import {
   Crosshair,
   GraduationCap,
   Headphones,
+  HeartHandshake,
   LoaderCircle,
   LockKeyhole,
   Minus,
   Plus,
+  Shield,
   ShieldCheck,
   Sparkles,
   Target,
   Trophy,
   UserRoundCheck,
+  UsersRound,
   Video,
   Zap,
 } from "lucide-react";
@@ -30,103 +33,140 @@ import {
   createCheckoutSession,
   getCheckoutErrorMessage,
 } from "@/app/lib/checkout";
-import { ORDER_PLATFORMS, ORDER_SERVERS } from "@/app/lib/order-options";
+import { ORDER_SERVERS } from "@/app/lib/order-options";
 import {
   computeOrderPrice,
-  flattenValorantRank,
-  VALORANT_DIVISIONS,
-  VALORANT_RANKS,
+  flattenOverwatchRank,
   type Order,
   type QueueType,
 } from "@/app/lib/pricing";
 import {
-  VALORANT_COACHING_FOCUS,
-  VALORANT_SERVICE_CONFIG,
-  VALORANT_SERVICE_SLUGS,
-  type ValorantServiceSlug,
-} from "@/app/lib/valorant";
-
-const RANKS = [
-  {
-    name: "Iron",
-    icon: "/valorant/ranks/iron.png",
-    accent: "#8b8d91",
-  },
-  {
-    name: "Bronze",
-    icon: "/valorant/ranks/bronze.png",
-    accent: "#a9744f",
-  },
-  {
-    name: "Silver",
-    icon: "/valorant/ranks/silver.png",
-    accent: "#aeb8bd",
-  },
-  {
-    name: "Gold",
-    icon: "/valorant/ranks/gold.png",
-    accent: "#d89b2b",
-  },
-  {
-    name: "Platinum",
-    icon: "/valorant/ranks/platinum.png",
-    accent: "#31adb5",
-  },
-  {
-    name: "Diamond",
-    icon: "/valorant/ranks/diamond.png",
-    accent: "#b46ed2",
-  },
-  {
-    name: "Ascendant",
-    icon: "/valorant/ranks/ascendant.png",
-    accent: "#39a773",
-  },
-  {
-    name: "Immortal",
-    icon: "/valorant/ranks/immortal.png",
-    accent: "#d64665",
-  },
-  {
-    name: "Radiant",
-    icon: "/valorant/ranks/radiant.png",
-    accent: "#c7a24f",
-  },
-] as const;
+  OVERWATCH_COACHING_FOCUS,
+  OVERWATCH_DIVISIONS,
+  OVERWATCH_PLATFORMS,
+  OVERWATCH_RANK_COLORS,
+  OVERWATCH_RANKS,
+  OVERWATCH_ROLES,
+  OVERWATCH_SERVICE_CONFIG,
+  OVERWATCH_SERVICE_SLUGS,
+  type OverwatchServiceSlug,
+} from "@/app/lib/overwatch";
 
 const SERVICE_ICONS = {
-  "valorant-rank-boost": Crosshair,
+  "overwatch-rank-boost": Crosshair,
   placements: Target,
   "competitive-wins": Trophy,
   coaching: GraduationCap,
-} satisfies Record<ValorantServiceSlug, typeof Crosshair>;
+} satisfies Record<OverwatchServiceSlug, typeof Crosshair>;
 
-const SERVICE_SUMMARY_LABELS: Record<ValorantServiceSlug, string> = {
-  "valorant-rank-boost": "Rank progression",
+const SERVICE_SUMMARY_LABELS: Record<OverwatchServiceSlug, string> = {
+  "overwatch-rank-boost": "Rank progression",
   placements: "Placement package",
   "competitive-wins": "Competitive package",
   coaching: "Private coaching",
 };
 
-function rankData(rank: string) {
-  return RANKS.find((item) => item.name === rank) ?? RANKS[0];
+const ROLE_ICONS = {
+  Tank: Shield,
+  Damage: Crosshair,
+  Support: HeartHandshake,
+  "Open Queue": UsersRound,
+} satisfies Record<(typeof OVERWATCH_ROLES)[number], typeof Shield>;
+
+function rankColor(rank: string) {
+  return (
+    OVERWATCH_RANK_COLORS[
+      rank as keyof typeof OVERWATCH_RANK_COLORS
+    ] ?? OVERWATCH_RANK_COLORS.Bronze
+  );
 }
 
 function flatRankToSelection(value: number) {
-  const bounded = Math.min(24, Math.max(0, value));
-  if (bounded === 24) {
-    return { rank: "Radiant", division: "I" };
-  }
+  const max = OVERWATCH_RANKS.length * OVERWATCH_DIVISIONS.length - 1;
+  const bounded = Math.min(max, Math.max(0, value));
   return {
-    rank: VALORANT_RANKS[Math.floor(bounded / 3)],
-    division: VALORANT_DIVISIONS[bounded % 3],
+    rank: OVERWATCH_RANKS[Math.floor(bounded / OVERWATCH_DIVISIONS.length)],
+    division: OVERWATCH_DIVISIONS[bounded % OVERWATCH_DIVISIONS.length],
   };
 }
 
 function maxRankValue(rank: string) {
-  return rank === "Radiant"
-    ? 24
-    : flattenValorantRank(rank, "III");
+  return flattenOverwatchRank(rank, "1");
+}
+
+function OverwatchRankBadge({
+  rank,
+  size = "compact",
+}: {
+  rank: string;
+  size?: "compact" | "large";
+}) {
+  const tier = Math.max(
+    0,
+    OVERWATCH_RANKS.indexOf(rank as (typeof OVERWATCH_RANKS)[number])
+  );
+  const color = rankColor(rank);
+  const large = size === "large";
+  const wingCount = Math.min(4, Math.max(1, tier + 1));
+
+  return (
+    <span
+      aria-hidden
+      className={`inline-flex shrink-0 items-center justify-center ${
+        large ? "h-16 w-16" : "h-11 w-11"
+      }`}
+    >
+      <svg
+        viewBox="0 0 72 72"
+        className={large ? "h-16 w-16" : "h-11 w-11"}
+        fill="none"
+      >
+        <path
+          d="M36 5 56 16l7 20-7 20-20 11-20-11L9 36l7-20L36 5Z"
+          fill="#101216"
+          stroke={color}
+          strokeWidth="2.4"
+        />
+        <path
+          d="m36 14 13 8 4 14-4 14-13 8-13-8-4-14 4-14 13-8Z"
+          fill={color}
+          opacity="0.16"
+          stroke={color}
+          strokeWidth="1.5"
+        />
+        <path d="m36 21 10 15-10 15-10-15 10-15Z" fill={color} />
+        <path d="m36 27 5.5 9-5.5 9-5.5-9 5.5-9Z" fill="#101216" />
+        {Array.from({ length: wingCount }, (_, index) => {
+          const y = 23 + index * 7;
+          const extension = 2 + index * 1.5;
+          return (
+            <React.Fragment key={y}>
+              <path
+                d={`M${18 - extension} ${y}h-7l-4 4h9`}
+                stroke={color}
+                strokeWidth="2"
+                strokeLinecap="square"
+              />
+              <path
+                d={`M${54 + extension} ${y}h7l4 4h-9`}
+                stroke={color}
+                strokeWidth="2"
+                strokeLinecap="square"
+              />
+            </React.Fragment>
+          );
+        })}
+        {tier >= 5 ? (
+          <path
+            d="m27 10 4-6 5 5 5-5 4 6"
+            stroke={color}
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
+        ) : null}
+      </svg>
+    </span>
+  );
 }
 
 function Toggle({
@@ -147,7 +187,7 @@ function Toggle({
       onClick={() => onChange(!checked)}
       className={`keep-pill relative h-6 w-11 shrink-0 rounded-full border transition-colors ${
         checked
-          ? "border-[var(--valorant-accent)] bg-[var(--valorant-accent)]"
+          ? "border-[var(--overwatch-accent)] bg-[var(--overwatch-accent)]"
           : "border-[var(--line-strong)] bg-[var(--surface-muted)]"
       }`}
     >
@@ -175,9 +215,16 @@ function QuantityStepper({
   suffix: string;
   onChange: (next: number) => void;
 }) {
+  const plural =
+    value === 1
+      ? suffix
+      : suffix === "match"
+        ? "matches"
+        : `${suffix}s`;
+
   return (
-    <div className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
-      <p className="text-sm font-semibold">{label}</p>
+    <section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+      <h2 className="text-sm font-semibold">{label}</h2>
       <div className="mt-4 grid grid-cols-[44px_1fr_44px] items-center gap-3">
         <button
           type="button"
@@ -191,14 +238,7 @@ function QuantityStepper({
         </button>
         <div className="text-center">
           <span className="text-3xl font-semibold">{value}</span>
-          {" "}
-          <span className="ml-2 text-sm text-[var(--muted)]">
-            {value === 1
-              ? suffix
-              : suffix === "match"
-                ? "matches"
-                : `${suffix}s`}
-          </span>
+          <span className="ml-2 text-sm text-[var(--muted)]">{plural}</span>
         </div>
         <button
           type="button"
@@ -211,13 +251,13 @@ function QuantityStepper({
           <Plus aria-hidden className="h-4 w-4" />
         </button>
       </div>
-    </div>
+    </section>
   );
 }
 
 function RankPicker({
   label,
-  value,
+  rank,
   division,
   onRankChange,
   onDivisionChange,
@@ -226,7 +266,7 @@ function RankPicker({
   showDivision = true,
 }: {
   label: string;
-  value: string;
+  rank: string;
   division: string;
   onRankChange: (rank: string) => void;
   onDivisionChange: (division: string) => void;
@@ -234,48 +274,42 @@ function RankPicker({
   isDivisionDisabled?: (division: string) => boolean;
   showDivision?: boolean;
 }) {
-  const selectedRank = rankData(value);
-  const hasDivisions = showDivision && value !== "Radiant";
+  const color = rankColor(rank);
 
   return (
     <section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <div className="flex min-h-16 items-center gap-3">
-        <Image
-          src={selectedRank.icon}
-          alt=""
-          width={60}
-          height={60}
-          className="h-14 w-14 shrink-0 object-contain"
-        />
+        <OverwatchRankBadge rank={rank} size="large" />
         <div className="min-w-0">
           <h2 className="text-base font-semibold">{label}</h2>
-          <p className="mt-0.5 truncate text-sm font-semibold">
-            <span style={{ color: selectedRank.accent }}>{value}</span>
-            {hasDivisions ? ` ${division}` : ""}
+          <p className="mt-0.5 truncate text-sm font-semibold" style={{ color }}>
+            {rank}{showDivision ? ` ${division}` : ""}
           </p>
         </div>
       </div>
 
       <div
         role="radiogroup"
-        aria-label={label}
-        className="mt-5 grid grid-cols-3 gap-2"
+        aria-label={`${label} tier`}
+        className="mt-5 grid grid-cols-4 gap-2"
       >
-        {RANKS.map((rank) => {
-          const selected = value === rank.name;
-          const disabled = isRankDisabled?.(rank.name) ?? false;
+        {OVERWATCH_RANKS.map((item) => {
+          const selected = item === rank;
+          const disabled = isRankDisabled?.(item) ?? false;
+          const itemColor = rankColor(item);
           return (
             <button
-              key={rank.name}
+              key={item}
               type="button"
               role="radio"
               aria-checked={selected}
-              aria-label={rank.name}
+              aria-label={item}
+              title={item}
               disabled={disabled}
-              onClick={() => onRankChange(rank.name)}
+              onClick={() => onRankChange(item)}
               className={`group flex min-h-24 min-w-0 flex-col items-center justify-center rounded-lg border p-2 text-center transition ${
                 disabled
-                  ? "border-[var(--line)] bg-[var(--surface-muted)] opacity-30"
+                  ? "border-[var(--line)] bg-[var(--surface-muted)] opacity-28"
                   : selected
                     ? "bg-[var(--surface-muted)]"
                     : "border-[var(--line)] hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)]"
@@ -283,35 +317,29 @@ function RankPicker({
               style={
                 selected
                   ? {
-                      borderColor: rank.accent,
-                      boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${rank.accent} 20%, transparent)`,
+                      borderColor: itemColor,
+                      boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${itemColor} 18%, transparent)`,
                     }
                   : undefined
               }
             >
-              <Image
-                src={rank.icon}
-                alt=""
-                width={44}
-                height={44}
-                className="h-10 w-10 object-contain transition-transform group-hover:scale-105"
-              />
-              <span className="mt-1 w-full truncate text-[11px] font-semibold text-[var(--foreground-soft)]">
-                {rank.name}
+              <OverwatchRankBadge rank={item} />
+              <span className="mt-1 w-full text-[10px] font-semibold leading-[1.15] text-[var(--foreground-soft)]">
+                {item}
               </span>
             </button>
           );
         })}
       </div>
 
-      {hasDivisions && (
+      {showDivision ? (
         <div
           role="radiogroup"
           aria-label={`${label} division`}
-          className="mt-3 grid grid-cols-3 gap-2"
+          className="mt-3 grid grid-cols-5 gap-2"
         >
-          {VALORANT_DIVISIONS.map((item) => {
-            const selected = division === item;
+          {OVERWATCH_DIVISIONS.map((item) => {
+            const selected = item === division;
             const disabled = isDivisionDisabled?.(item) ?? false;
             return (
               <button
@@ -319,11 +347,12 @@ function RankPicker({
                 type="button"
                 role="radio"
                 aria-checked={selected}
+                aria-label={`${rank} division ${item}`}
                 disabled={disabled}
                 onClick={() => onDivisionChange(item)}
                 className={`h-11 rounded-lg border text-sm font-semibold transition ${
                   disabled
-                    ? "border-[var(--line)] bg-[var(--surface-muted)] text-[var(--muted-soft)] opacity-35"
+                    ? "border-[var(--line)] bg-[var(--surface-muted)] text-[var(--muted-soft)] opacity-30"
                     : selected
                       ? "text-[var(--foreground)]"
                       : "border-[var(--line)] bg-transparent text-[var(--muted)] hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
@@ -331,8 +360,8 @@ function RankPicker({
                 style={
                   selected
                     ? {
-                        borderColor: selectedRank.accent,
-                        backgroundColor: `color-mix(in srgb, ${selectedRank.accent} 16%, var(--surface))`,
+                        borderColor: color,
+                        backgroundColor: `color-mix(in srgb, ${color} 14%, var(--surface))`,
                       }
                     : undefined
                 }
@@ -342,8 +371,55 @@ function RankPicker({
             );
           })}
         </div>
-      )}
+      ) : null}
     </section>
+  );
+}
+
+function RoleSelector({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (next: (typeof OVERWATCH_ROLES)[number]) => void;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Competitive role"
+      className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+    >
+      {OVERWATCH_ROLES.map((role) => {
+        const selected = role === value;
+        const Icon = ROLE_ICONS[role];
+        return (
+          <button
+            key={role}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            onClick={() => onChange(role)}
+            className={`flex min-h-14 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition ${
+              selected
+                ? "text-[var(--foreground)]"
+                : "border-[var(--line)] text-[var(--muted)] hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+            }`}
+            style={
+              selected
+                ? {
+                    borderColor: "var(--overwatch-accent)",
+                    backgroundColor:
+                      "color-mix(in srgb, var(--overwatch-accent) 13%, var(--surface))",
+                  }
+                : undefined
+            }
+          >
+            <Icon aria-hidden className="h-4 w-4" />
+            <span>{role}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -361,7 +437,7 @@ function QueueSelector({
       className="grid grid-cols-2 gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-1.5"
     >
       {(["Solo", "Duo"] as const).map((item) => {
-        const selected = value === item;
+        const selected = item === value;
         return (
           <button
             key={item}
@@ -376,9 +452,9 @@ function QueueSelector({
             style={
               selected
                 ? {
-                    borderColor: "var(--valorant-accent)",
+                    borderColor: "var(--overwatch-accent)",
                     backgroundColor:
-                      "color-mix(in srgb, var(--valorant-accent) 15%, var(--surface))",
+                      "color-mix(in srgb, var(--overwatch-accent) 13%, var(--surface))",
                   }
                 : undefined
             }
@@ -425,28 +501,30 @@ function OptionRow({
   );
 }
 
-export default function ValorantServiceConfigurator({
+export default function OverwatchServiceConfigurator({
   service,
   basePath,
 }: {
-  service: ValorantServiceSlug;
+  service: OverwatchServiceSlug;
   basePath: string;
 }) {
-  const config = VALORANT_SERVICE_CONFIG[service];
+  const config = OVERWATCH_SERVICE_CONFIG[service];
   const ServiceIcon = SERVICE_ICONS[service];
   const { currency, formatPrice } = useCurrency();
 
   const [currentRank, setCurrentRank] = React.useState("Silver");
-  const [currentDivision, setCurrentDivision] = React.useState("II");
-  const [desiredRank, setDesiredRank] = React.useState("Ascendant");
-  const [desiredDivision, setDesiredDivision] = React.useState("I");
-  const [currentRr, setCurrentRr] = React.useState(48);
+  const [currentDivision, setCurrentDivision] = React.useState("3");
+  const [desiredRank, setDesiredRank] = React.useState("Diamond");
+  const [desiredDivision, setDesiredDivision] = React.useState("5");
+  const [currentProgress, setCurrentProgress] = React.useState(42);
   const [previousRank, setPreviousRank] = React.useState("Gold");
-  const [matches, setMatches] = React.useState(5);
+  const [matches, setMatches] = React.useState(10);
   const [wins, setWins] = React.useState(3);
   const [hours, setHours] = React.useState(2);
   const [focus, setFocus] =
-    React.useState<(typeof VALORANT_COACHING_FOCUS)[number]>("Mechanics");
+    React.useState<(typeof OVERWATCH_COACHING_FOCUS)[number]>("Positioning");
+  const [role, setRole] =
+    React.useState<(typeof OVERWATCH_ROLES)[number]>("Damage");
   const [platform, setPlatform] = React.useState("PC");
   const [server, setServer] = React.useState("Europe");
   const [queueType, setQueueType] = React.useState<QueueType>("Solo");
@@ -459,8 +537,9 @@ export default function ValorantServiceConfigurator({
   const [message, setMessage] = React.useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
 
-  const currentValue = flattenValorantRank(currentRank, currentDivision);
-  const desiredValue = flattenValorantRank(desiredRank, desiredDivision);
+  const currentValue = flattenOverwatchRank(currentRank, currentDivision);
+  const desiredValue = flattenOverwatchRank(desiredRank, desiredDivision);
+  const maxRank = OVERWATCH_RANKS.length * OVERWATCH_DIVISIONS.length - 1;
   const validRankPath = desiredValue > currentValue;
 
   const setDesiredFromFlatValue = (value: number) => {
@@ -469,52 +548,43 @@ export default function ValorantServiceConfigurator({
     setDesiredDivision(selection.division);
   };
 
-  const changeCurrentRank = (rank: string) => {
-    const nextDivision = rank === "Radiant" ? "I" : currentDivision;
-    const nextValue = flattenValorantRank(rank, nextDivision);
-    setCurrentRank(rank);
-    if (rank === "Radiant") setCurrentDivision("I");
-    if (desiredValue <= nextValue && nextValue < 24) {
-      setDesiredFromFlatValue(nextValue + 1);
-    }
+  const changeCurrentRank = (nextRank: string) => {
+    const nextValue = flattenOverwatchRank(nextRank, currentDivision);
+    if (nextValue >= maxRank) return;
+    setCurrentRank(nextRank);
+    if (desiredValue <= nextValue) setDesiredFromFlatValue(nextValue + 1);
   };
 
-  const changeCurrentDivision = (division: string) => {
-    const nextValue = flattenValorantRank(currentRank, division);
-    setCurrentDivision(division);
-    if (desiredValue <= nextValue && nextValue < 24) {
-      setDesiredFromFlatValue(nextValue + 1);
-    }
+  const changeCurrentDivision = (nextDivision: string) => {
+    const nextValue = flattenOverwatchRank(currentRank, nextDivision);
+    if (nextValue >= maxRank) return;
+    setCurrentDivision(nextDivision);
+    if (desiredValue <= nextValue) setDesiredFromFlatValue(nextValue + 1);
   };
 
-  const changeDesiredRank = (rank: string) => {
-    const firstValidDivision =
-      rank === "Radiant"
-        ? "I"
-        : VALORANT_DIVISIONS.find(
-            (division) =>
-              flattenValorantRank(rank, division) > currentValue
-          );
+  const changeDesiredRank = (nextRank: string) => {
+    const firstValidDivision = OVERWATCH_DIVISIONS.find(
+      (division) =>
+        flattenOverwatchRank(nextRank, division) > currentValue
+    );
     if (!firstValidDivision) return;
-    setDesiredRank(rank);
-    if (
-      rank === "Radiant" ||
-      flattenValorantRank(rank, desiredDivision) <= currentValue
-    ) {
+    setDesiredRank(nextRank);
+    if (flattenOverwatchRank(nextRank, desiredDivision) <= currentValue) {
       setDesiredDivision(firstValidDivision);
     }
   };
 
   let order: Order;
   switch (service) {
-    case "valorant-rank-boost":
+    case "overwatch-rank-boost":
       order = {
-        serviceType: "valorant-rank",
+        serviceType: "overwatch-rank",
         currentRank,
         currentDivision,
         desiredRank,
         desiredDivision,
-        currentRr,
+        currentProgress,
+        role,
         platform,
         server,
         queueType,
@@ -525,9 +595,10 @@ export default function ValorantServiceConfigurator({
       break;
     case "placements":
       order = {
-        serviceType: "valorant-placements",
+        serviceType: "overwatch-placements",
         previousRank,
         numberOfMatches: matches,
+        role,
         platform,
         server,
         queueType,
@@ -538,10 +609,11 @@ export default function ValorantServiceConfigurator({
       break;
     case "competitive-wins":
       order = {
-        serviceType: "valorant-wins",
+        serviceType: "overwatch-wins",
         currentRank,
         currentDivision,
         numberOfWins: wins,
+        role,
         platform,
         server,
         queueType,
@@ -552,10 +624,11 @@ export default function ValorantServiceConfigurator({
       break;
     case "coaching":
       order = {
-        serviceType: "valorant-coaching",
+        serviceType: "overwatch-coaching",
         currentRank,
         hours,
         focus,
+        role,
         platform,
         server,
         specificBooster,
@@ -568,16 +641,15 @@ export default function ValorantServiceConfigurator({
 
   const price = computeOrderPrice(order);
   const validConfiguration =
-    service !== "valorant-rank-boost" || validRankPath;
-
+    service !== "overwatch-rank-boost" || validRankPath;
   const eta =
-    service === "valorant-rank-boost"
-      ? `${Math.max(2, Math.ceil((desiredValue - currentValue) * 1.7))}-${Math.max(
-          4,
+    service === "overwatch-rank-boost"
+      ? `${Math.max(3, Math.ceil((desiredValue - currentValue) * 1.5))}-${Math.max(
+          6,
           Math.ceil((desiredValue - currentValue) * 2.3)
         )} hours`
       : service === "placements"
-        ? `${matches}-${matches * 2} hours`
+        ? `${matches * 2}-${matches * 4} hours`
         : service === "competitive-wins"
           ? `${wins * 2}-${wins * 4} hours`
           : "Scheduled with your coach";
@@ -594,10 +666,9 @@ export default function ValorantServiceConfigurator({
 
   const handleCheckout = async () => {
     if (!validConfiguration) {
-      setMessage("Choose a target rank above your current rank.");
+      setMessage("Choose a target rank above your current division.");
       return;
     }
-
     setCheckoutLoading(true);
     setMessage(null);
     try {
@@ -610,15 +681,13 @@ export default function ValorantServiceConfigurator({
   };
 
   const summaryRows =
-    service === "valorant-rank-boost"
+    service === "overwatch-rank-boost"
       ? [
           [
             "Route",
-            `${currentRank} ${currentDivision} to ${desiredRank} ${
-              desiredRank === "Radiant" ? "" : desiredDivision
-            }`.trim(),
+            `${currentRank} ${currentDivision} to ${desiredRank} ${desiredDivision}`,
           ],
-          ["Current RR", `${currentRr} RR`],
+          ["Progress", `${currentProgress}%`],
         ]
       : service === "placements"
         ? [
@@ -627,10 +696,7 @@ export default function ValorantServiceConfigurator({
           ]
         : service === "competitive-wins"
           ? [
-              [
-                "Starting rank",
-                `${currentRank}${currentRank === "Radiant" ? "" : ` ${currentDivision}`}`,
-              ],
+              ["Starting rank", `${currentRank} ${currentDivision}`],
               ["Win target", `${wins} ${wins === 1 ? "win" : "wins"}`],
             ]
           : [
@@ -641,46 +707,42 @@ export default function ValorantServiceConfigurator({
   return (
     <main
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
-      style={{ "--valorant-accent": "#ff4655" } as CSSProperties}
+      style={{ "--overwatch-accent": "#f99e1a" } as CSSProperties}
     >
-      <section className="theme-preserve-media relative min-h-[450px] overflow-hidden border-b border-[var(--line)] bg-[#101116] text-white">
-        <div className="absolute inset-0">
+      <section className="theme-preserve-media relative min-h-[450px] overflow-hidden border-b border-[var(--line)] bg-[#090a0c] text-white">
+        <div className="absolute inset-y-0 right-[-18%] w-[104%] opacity-25 sm:right-[-5%] sm:w-[70%] sm:opacity-50 lg:right-0 lg:w-[52%] lg:border-l lg:border-white/10 lg:opacity-100">
           <Image
-            src="/valorant/valorant-hero-v2.webp"
-            alt="Tactical Valorant specialist in a competitive arena"
+            src="/homepage/overwatch-homepage.webp"
+            alt="Overwatch 2 heroes in a competitive city arena"
             fill
             loading="eager"
             fetchPriority="high"
-            sizes="100vw"
-            className="object-cover object-[68%_top]"
+            sizes="(max-width: 639px) 104vw, (max-width: 1023px) 70vw, 52vw"
+            className="object-cover object-[50%_38%]"
           />
+          <div aria-hidden className="absolute inset-0 bg-black/45 lg:bg-black/12" />
         </div>
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.2)" }}
-        />
         <div className="relative mx-auto flex min-h-[450px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
-          <div className="max-w-[650px]">
+          <div className="max-w-[34rem] lg:max-w-[44%]">
             <Link
               href={basePath}
               className="inline-flex items-center gap-2 text-sm font-semibold text-white/75 transition hover:text-white"
             >
               <ArrowLeft aria-hidden className="h-4 w-4" />
-              All Valorant services
+              All Overwatch 2 services
             </Link>
             <div className="mt-7 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 bg-black/35">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#f99e1a]/45 bg-[#f99e1a]/12 text-[#ffad32]">
                 <ServiceIcon aria-hidden className="h-5 w-5" />
               </span>
-              <span className="text-xs font-semibold uppercase text-white/70">
+              <span className="text-xs font-semibold uppercase text-[#ffb64d]">
                 {config.eyebrow}
               </span>
             </div>
             <h1 className="mt-5 text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
               {config.title}
             </h1>
-            <p className="mt-5 max-w-[58ch] text-base leading-7 text-white/72 sm:text-lg">
+            <p className="mt-5 max-w-[46ch] text-base leading-7 text-white/72 sm:text-lg">
               {config.description}
             </p>
           </div>
@@ -691,8 +753,8 @@ export default function ValorantServiceConfigurator({
         <div className="mx-auto grid max-w-[1280px] grid-cols-2 px-5 sm:px-8 lg:grid-cols-4 lg:px-10">
           {[
             { label: "Manual service", Icon: ShieldCheck },
+            { label: "Role matched", Icon: UsersRound },
             { label: "Private handling", Icon: LockKeyhole },
-            { label: "Region matched", Icon: Target },
             { label: "Support throughout", Icon: Headphones },
           ].map(({ label, Icon }, index) => (
             <div
@@ -703,10 +765,7 @@ export default function ValorantServiceConfigurator({
                 index > 1 ? "lg:border-l" : ""
               }`}
             >
-              <Icon
-                aria-hidden
-                className="h-4 w-4 shrink-0 text-[var(--muted)]"
-              />
+              <Icon aria-hidden className="h-4 w-4 shrink-0 text-[var(--muted)]" />
               <span className="text-xs font-semibold text-[var(--foreground-soft)] sm:text-sm">
                 {label}
               </span>
@@ -717,10 +776,10 @@ export default function ValorantServiceConfigurator({
 
       <div className="mx-auto max-w-[1280px] px-5 py-10 sm:px-8 sm:py-14 lg:px-10">
         <nav
-          aria-label="Valorant services"
+          aria-label="Overwatch 2 services"
           className="service-subnav mb-8 flex max-w-full gap-2 overflow-x-auto border-b border-[var(--line)] pb-3"
         >
-          {VALORANT_SERVICE_SLUGS.map((slug) => {
+          {OVERWATCH_SERVICE_SLUGS.map((slug) => {
             const active = slug === service;
             return (
               <Link
@@ -733,14 +792,13 @@ export default function ValorantServiceConfigurator({
                     : "text-[var(--muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
                 }`}
               >
-                {VALORANT_SERVICE_CONFIG[slug].navLabel}
-                {active && (
+                {OVERWATCH_SERVICE_CONFIG[slug].navLabel}
+                {active ? (
                   <span
                     aria-hidden
-                    className="absolute inset-x-4 -bottom-[13px] h-0.5"
-                    style={{ backgroundColor: "var(--valorant-accent)" }}
+                    className="absolute inset-x-4 -bottom-[13px] h-0.5 bg-[var(--overwatch-accent)]"
                   />
-                )}
+                ) : null}
               </Link>
             );
           })}
@@ -748,28 +806,28 @@ export default function ValorantServiceConfigurator({
 
         <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_370px]">
           <div className="min-w-0 space-y-6">
-            {service === "valorant-rank-boost" && (
+            {service === "overwatch-rank-boost" ? (
               <>
                 <div className="grid gap-5 lg:grid-cols-2">
                   <RankPicker
                     label="Current rank"
-                    value={currentRank}
+                    rank={currentRank}
                     division={currentDivision}
                     onRankChange={changeCurrentRank}
                     onDivisionChange={changeCurrentDivision}
-                    isRankDisabled={(rank) => rank === "Radiant"}
+                    isDivisionDisabled={(division) =>
+                      currentRank === "Champion" && division === "1"
+                    }
                   />
                   <RankPicker
                     label="Desired rank"
-                    value={desiredRank}
+                    rank={desiredRank}
                     division={desiredDivision}
                     onRankChange={changeDesiredRank}
                     onDivisionChange={setDesiredDivision}
-                    isRankDisabled={(rank) =>
-                      maxRankValue(rank) <= currentValue
-                    }
+                    isRankDisabled={(rank) => maxRankValue(rank) <= currentValue}
                     isDivisionDisabled={(division) =>
-                      flattenValorantRank(desiredRank, division) <= currentValue
+                      flattenOverwatchRank(desiredRank, division) <= currentValue
                     }
                   />
                 </div>
@@ -777,64 +835,51 @@ export default function ValorantServiceConfigurator({
                 <section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold">
-                        Current Rank Rating
-                      </h2>
+                      <h2 className="text-base font-semibold">Current division progress</h2>
                       <p className="mt-1 text-sm text-[var(--muted)]">
-                        Set the RR already earned in your current division.
+                        Set the progress already earned in your current division.
                       </p>
                     </div>
                     <output
-                      htmlFor="valorant-current-rr"
+                      htmlFor="overwatch-current-progress"
                       className="min-w-20 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-3 py-2 text-center text-sm font-semibold"
                     >
-                      {currentRr} RR
+                      {currentProgress}%
                     </output>
                   </div>
                   <input
-                    id="valorant-current-rr"
+                    id="overwatch-current-progress"
                     type="range"
                     min="0"
                     max="99"
-                    value={currentRr}
-                    onChange={(event) => setCurrentRr(Number(event.target.value))}
+                    value={currentProgress}
+                    onChange={(event) => setCurrentProgress(Number(event.target.value))}
                     className="mt-5 w-full"
-                    style={{ accentColor: "var(--valorant-accent)" }}
+                    style={{ accentColor: "var(--overwatch-accent)" }}
                   />
-                  {!validRankPath && (
+                  {!validRankPath ? (
                     <p className="theme-error mt-4 rounded-lg px-3 py-2 text-sm">
-                      Select a desired rank above your current rank.
+                      Select a target division above your current rank.
                     </p>
-                  )}
+                  ) : null}
                 </section>
               </>
-            )}
+            ) : null}
 
-            {service === "placements" && (
+            {service === "placements" ? (
               <>
                 <section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
                   <div className="flex items-center gap-3">
                     {previousRank === "Unranked" ? (
-                      <span className="flex h-14 w-14 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-muted)]">
-                        <CircleDashed
-                          aria-hidden
-                          className="h-6 w-6 text-[var(--muted)]"
-                        />
+                      <span className="flex h-16 w-16 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-muted)]">
+                        <CircleDashed aria-hidden className="h-6 w-6 text-[var(--muted)]" />
                       </span>
                     ) : (
-                      <Image
-                        src={rankData(previousRank).icon}
-                        alt=""
-                        width={60}
-                        height={60}
-                        className="h-14 w-14 object-contain"
-                      />
+                      <OverwatchRankBadge rank={previousRank} size="large" />
                     )}
                     <div>
                       <h2 className="text-base font-semibold">Previous rank</h2>
-                      <p className="mt-0.5 text-sm font-semibold">
-                        {previousRank}
-                      </p>
+                      <p className="mt-0.5 text-sm font-semibold">{previousRank}</p>
                     </div>
                   </div>
                   <div
@@ -849,44 +894,32 @@ export default function ValorantServiceConfigurator({
                       onClick={() => setPreviousRank("Unranked")}
                       className={`flex min-h-24 flex-col items-center justify-center rounded-lg border p-2 text-xs font-semibold transition ${
                         previousRank === "Unranked"
-                          ? "border-[var(--valorant-accent)] bg-[var(--surface-muted)]"
+                          ? "border-[var(--overwatch-accent)] bg-[var(--surface-muted)]"
                           : "border-[var(--line)] hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)]"
                       }`}
                     >
-                      <CircleDashed
-                        aria-hidden
-                        className="h-9 w-9 text-[var(--muted)]"
-                      />
+                      <CircleDashed aria-hidden className="h-9 w-9 text-[var(--muted)]" />
                       <span className="mt-2">Unranked</span>
                     </button>
-                    {RANKS.map((rank) => (
+                    {OVERWATCH_RANKS.map((rank) => (
                       <button
-                        key={rank.name}
+                        key={rank}
                         type="button"
                         role="radio"
-                        aria-checked={previousRank === rank.name}
-                        onClick={() => setPreviousRank(rank.name)}
+                        aria-checked={previousRank === rank}
+                        onClick={() => setPreviousRank(rank)}
                         className="flex min-h-24 flex-col items-center justify-center rounded-lg border border-[var(--line)] p-2 text-xs font-semibold transition hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)]"
                         style={
-                          previousRank === rank.name
+                          previousRank === rank
                             ? {
-                                borderColor: rank.accent,
-                                backgroundColor:
-                                  "var(--surface-muted)",
+                                borderColor: rankColor(rank),
+                                backgroundColor: "var(--surface-muted)",
                               }
                             : undefined
                         }
                       >
-                        <Image
-                          src={rank.icon}
-                          alt=""
-                          width={42}
-                          height={42}
-                          className="h-10 w-10 object-contain"
-                        />
-                        <span className="mt-1 w-full truncate">
-                          {rank.name}
-                        </span>
+                        <OverwatchRankBadge rank={rank} />
+                        <span className="mt-1 w-full text-[10px] leading-tight">{rank}</span>
                       </button>
                     ))}
                   </div>
@@ -895,21 +928,21 @@ export default function ValorantServiceConfigurator({
                   label="Placement package"
                   value={matches}
                   min={1}
-                  max={5}
+                  max={10}
                   suffix="match"
                   onChange={setMatches}
                 />
               </>
-            )}
+            ) : null}
 
-            {service === "competitive-wins" && (
+            {service === "competitive-wins" ? (
               <>
                 <RankPicker
                   label="Starting rank"
-                  value={currentRank}
+                  rank={currentRank}
                   division={currentDivision}
-                  onRankChange={changeCurrentRank}
-                  onDivisionChange={changeCurrentDivision}
+                  onRankChange={setCurrentRank}
+                  onDivisionChange={setCurrentDivision}
                 />
                 <QuantityStepper
                   label="Competitive wins"
@@ -920,16 +953,16 @@ export default function ValorantServiceConfigurator({
                   onChange={setWins}
                 />
               </>
-            )}
+            ) : null}
 
-            {service === "coaching" && (
+            {service === "coaching" ? (
               <>
                 <RankPicker
                   label="Current rank"
-                  value={currentRank}
+                  rank={currentRank}
                   division={currentDivision}
-                  onRankChange={changeCurrentRank}
-                  onDivisionChange={changeCurrentDivision}
+                  onRankChange={setCurrentRank}
+                  onDivisionChange={setCurrentDivision}
                   showDivision={false}
                 />
                 <div className="grid gap-5 md:grid-cols-2">
@@ -948,7 +981,7 @@ export default function ValorantServiceConfigurator({
                       aria-label="Coaching focus"
                       className="mt-4 grid grid-cols-2 gap-2"
                     >
-                      {VALORANT_COACHING_FOCUS.map((item) => {
+                      {OVERWATCH_COACHING_FOCUS.map((item) => {
                         const selected = focus === item;
                         return (
                           <button
@@ -965,10 +998,9 @@ export default function ValorantServiceConfigurator({
                             style={
                               selected
                                 ? {
-                                    borderColor:
-                                      "var(--valorant-accent)",
+                                    borderColor: "var(--overwatch-accent)",
                                     backgroundColor:
-                                      "color-mix(in srgb, var(--valorant-accent) 14%, var(--surface))",
+                                      "color-mix(in srgb, var(--overwatch-accent) 13%, var(--surface))",
                                   }
                                 : undefined
                             }
@@ -981,28 +1013,31 @@ export default function ValorantServiceConfigurator({
                   </section>
                 </div>
               </>
-            )}
+            ) : null}
 
             <section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
-              <h2 className="text-lg font-semibold">Platform and region</h2>
+              <h2 className="text-lg font-semibold">Role and platform</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                Select the queue and device used for this request.
+              </p>
+              <div className="mt-5">
+                <RoleSelector value={role} onChange={setRole} />
+              </div>
               <div className="mt-5">
                 <PlatformSelector
-                  platforms={ORDER_PLATFORMS}
+                  platforms={OVERWATCH_PLATFORMS}
                   value={platform}
                   onChange={setPlatform}
-                  ariaLabel="Select platform"
+                  ariaLabel="Select Overwatch 2 platform"
                 />
               </div>
               <div className="mt-5 grid gap-5 md:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="valorant-region"
-                    className="mb-2 block text-sm font-semibold"
-                  >
+                  <label htmlFor="overwatch-region" className="mb-2 block text-sm font-semibold">
                     Region
                   </label>
                   <select
-                    id="valorant-region"
+                    id="overwatch-region"
                     value={server}
                     onChange={(event) => setServer(event.target.value)}
                     className="h-12 w-full appearance-none rounded-lg border px-4 outline-none transition hover:border-[var(--line-strong)]"
@@ -1017,17 +1052,13 @@ export default function ValorantServiceConfigurator({
                 {service !== "coaching" ? (
                   <div>
                     <p className="mb-2 text-sm font-semibold">Queue format</p>
-                    <QueueSelector
-                      value={queueType}
-                      onChange={setQueueType}
-                    />
+                    <QueueSelector value={queueType} onChange={setQueueType} />
                   </div>
                 ) : (
                   <div className="rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3">
                     <p className="text-sm font-semibold">Private session</p>
                     <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
-                      Your coach confirms the voice and screen-sharing setup
-                      before the session.
+                      Your coach confirms voice and screen-sharing details before the session.
                     </p>
                   </div>
                 )}
@@ -1061,7 +1092,7 @@ export default function ValorantServiceConfigurator({
                     <OptionRow
                       icon={Sparkles}
                       title="Custom focus plan"
-                      description="Get a short written plan tailored to the session."
+                      description="Get a concise practice plan tailored to the session."
                       price="+10%"
                       checked={customFocus}
                       onChange={setCustomFocus}
@@ -1071,7 +1102,7 @@ export default function ValorantServiceConfigurator({
                   <OptionRow
                     icon={Zap}
                     title="Express delivery"
-                    description="Prioritise assignment and start ahead of standard orders."
+                    description="Prioritise assignment ahead of standard orders."
                     price="+20%"
                     checked={express}
                     onChange={setExpress}
@@ -1091,21 +1122,22 @@ export default function ValorantServiceConfigurator({
                   {SERVICE_SUMMARY_LABELS[service]}
                 </h2>
               </div>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-muted)]">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#f99e1a]/45 bg-[#f99e1a]/10 text-[#f99e1a]">
                 <ServiceIcon aria-hidden className="h-4 w-4" />
               </span>
             </div>
 
             <div className="mt-6 space-y-3 border-y border-[var(--line)] py-5">
               {summaryRows.map(([label, value]) => (
-                <div
-                  key={label}
-                  className="grid grid-cols-[96px_1fr] gap-3 text-sm"
-                >
+                <div key={label} className="grid grid-cols-[96px_1fr] gap-3 text-sm">
                   <span className="text-[var(--muted)]">{label}</span>
                   <span className="min-w-0 text-right font-medium">{value}</span>
                 </div>
               ))}
+              <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
+                <span className="text-[var(--muted)]">Role</span>
+                <span className="text-right font-medium">{role}</span>
+              </div>
               <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
                 <span className="text-[var(--muted)]">Platform</span>
                 <span className="text-right font-medium">{platform}</span>
@@ -1114,34 +1146,28 @@ export default function ValorantServiceConfigurator({
                 <span className="text-[var(--muted)]">Region</span>
                 <span className="text-right font-medium">{server}</span>
               </div>
-              {service !== "coaching" && (
+              {service !== "coaching" ? (
                 <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
                   <span className="text-[var(--muted)]">Format</span>
                   <span className="text-right font-medium">{queueType}</span>
                 </div>
-              )}
+              ) : null}
               <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
                 <span className="text-[var(--muted)]">Estimate</span>
                 <span className="flex items-center justify-end gap-1.5 text-right font-medium">
-                  <Clock3
-                    aria-hidden
-                    className="h-3.5 w-3.5 text-[var(--muted)]"
-                  />
+                  <Clock3 aria-hidden className="h-3.5 w-3.5 text-[var(--muted)]" />
                   {eta}
                 </span>
               </div>
             </div>
 
             <div className="mt-5">
-              <label
-                htmlFor="valorant-promo"
-                className="text-sm font-semibold"
-              >
+              <label htmlFor="overwatch-promo" className="text-sm font-semibold">
                 Promo code
               </label>
               <div className="mt-2 flex gap-2">
                 <input
-                  id="valorant-promo"
+                  id="overwatch-promo"
                   value={promoCode}
                   onChange={(event) => setPromoCode(event.target.value)}
                   placeholder="Enter code"
@@ -1158,29 +1184,27 @@ export default function ValorantServiceConfigurator({
             </div>
 
             <div className="mt-6">
-              {price.discount > 0 && (
+              {price.discount > 0 ? (
                 <div className="mb-2 flex items-center justify-between text-sm text-[var(--muted)]">
                   <span>Subtotal</span>
                   <span>{formatPrice(price.subtotal)}</span>
                 </div>
-              )}
-              {price.discount > 0 && (
+              ) : null}
+              {price.discount > 0 ? (
                 <div className="mb-3 flex items-center justify-between text-sm">
                   <span>Discount</span>
                   <span>-{formatPrice(price.discount)}</span>
                 </div>
-              )}
+              ) : null}
               <div className="flex items-end justify-between gap-4">
                 <span className="text-sm font-semibold">Total</span>
                 <span className="text-3xl font-semibold">
-                  {Number.isFinite(price.total)
-                    ? formatPrice(price.total)
-                    : "--"}
+                  {Number.isFinite(price.total) ? formatPrice(price.total) : "--"}
                 </span>
               </div>
             </div>
 
-            {message && (
+            {message ? (
               <p
                 role="status"
                 className={`mt-4 rounded-lg border px-3 py-2 text-sm ${
@@ -1191,7 +1215,7 @@ export default function ValorantServiceConfigurator({
               >
                 {message}
               </p>
-            )}
+            ) : null}
 
             <button
               type="button"
@@ -1205,10 +1229,7 @@ export default function ValorantServiceConfigurator({
             >
               {checkoutLoading ? (
                 <>
-                  <LoaderCircle
-                    aria-hidden
-                    className="h-4 w-4 animate-spin"
-                  />
+                  <LoaderCircle aria-hidden className="h-4 w-4 animate-spin" />
                   Starting checkout
                 </>
               ) : (
@@ -1231,8 +1252,7 @@ export default function ValorantServiceConfigurator({
           <div>
             <h2 className="text-2xl font-semibold">Need help configuring it?</h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              Support can confirm specialist fit, region, and session details
-              before you order.
+              Support can confirm role, platform, region, and specialist fit before you order.
             </p>
           </div>
           <Link

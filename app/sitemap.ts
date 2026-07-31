@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { ALL_LANGS, SITE_URL } from "./lib/site";
 import { CS2_SERVICE_SLUGS } from "./lib/cs2";
 import { VALORANT_SERVICE_SLUGS } from "./lib/valorant";
+import { OVERWATCH_SERVICE_SLUGS } from "./lib/overwatch";
 
 const EN_SERVICE_PAGES = [
   "rainbow-six-siege-rank-boost",
@@ -45,6 +46,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const service of CS2_SERVICE_SLUGS) {
       entries.push({
         url: `${SITE_URL}/${lang}/counter-strike-2-boost/${service}`,
+        lastModified,
+        changeFrequency: "weekly",
+        priority: lang === "en" ? 0.9 : 0.7,
+      });
+    }
+    entries.push({
+      url: `${SITE_URL}/${lang}/overwatch-2-boost`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: lang === "en" ? 0.9 : 0.7,
+    });
+    for (const service of OVERWATCH_SERVICE_SLUGS) {
+      entries.push({
+        url: `${SITE_URL}/${lang}/overwatch-2-boost/${service}`,
         lastModified,
         changeFrequency: "weekly",
         priority: lang === "en" ? 0.9 : 0.7,

@@ -7,7 +7,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import GameSelectorChip from "./GameSelectorChip";
-import { LanguageDropdown, type LanguageCode } from "./Dropdown";
+import {
+  CurrencyDropdown,
+  LanguageDropdown,
+  type LanguageCode,
+} from "./Dropdown";
 import { PageContainer } from "./ui";
 
 const THEME_OPTIONS = [
@@ -88,6 +92,8 @@ export default function Navbar() {
       ? "valorant"
       : /^\/(en|it|fr|es|de|nl|pt|uk|ru)\/counter-strike-2-boost/.test(pathname)
         ? "cs2"
+      : /^\/(en|it|fr|es|de|nl|pt|uk|ru)\/overwatch-2-boost/.test(pathname)
+        ? "overwatch-2"
       : undefined;
   const serviceRoot =
     activeGameId === "r6"
@@ -96,6 +102,8 @@ export default function Navbar() {
         ? `/${selectedLang}/valorant-boost`
         : activeGameId === "cs2"
           ? `/${selectedLang}/counter-strike-2-boost`
+        : activeGameId === "overwatch-2"
+          ? `/${selectedLang}/overwatch-2-boost`
         : "/#games";
   const navLinks = [
     { label: "Services", href: serviceRoot },
@@ -116,7 +124,7 @@ export default function Navbar() {
   const selectLanguage = (nextLanguage: LanguageCode) => {
     setSelectedLang(nextLanguage);
     const localizedPath = pathname.match(
-      /^\/(en|it|fr|es|de|nl|pt|uk|ru)(\/(?:rainbow-six-siege-boost|valorant-boost|counter-strike-2-boost)(?:\/.*)?)$/
+      /^\/(en|it|fr|es|de|nl|pt|uk|ru)(\/(?:rainbow-six-siege-boost|valorant-boost|counter-strike-2-boost|overwatch-2-boost)(?:\/.*)?)$/
     );
     if (localizedPath) {
       router.push(`/${nextLanguage}${localizedPath[2]}`);
@@ -161,6 +169,9 @@ export default function Navbar() {
           <div className="flex min-w-0 shrink-0 items-center justify-end gap-2">
             <div className="hidden lg:block">
               <LanguageDropdown value={selectedLang} onChange={selectLanguage} />
+            </div>
+            <div className="desktop-currency-picker">
+              <CurrencyDropdown />
             </div>
             <div className="theme-segment hidden rounded-[var(--radius-control)] border p-1 sm:flex" aria-label="Color theme">
               {THEME_OPTIONS.map((item) => (
@@ -257,6 +268,10 @@ export default function Navbar() {
                 <div>
                   <p className="mb-2 text-sm font-semibold text-[var(--foreground)]">Language</p>
                   <LanguageDropdown value={selectedLang} onChange={selectLanguage} align="start" />
+                </div>
+                <div className="mobile-preference-picker">
+                  <p className="mb-2 text-sm font-semibold text-[var(--foreground)]">Currency</p>
+                  <CurrencyDropdown align="start" />
                 </div>
                 <div>
                   <p className="mb-2 text-sm font-semibold text-[var(--foreground)]">Appearance</p>

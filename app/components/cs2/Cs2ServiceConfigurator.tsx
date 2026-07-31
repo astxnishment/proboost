@@ -43,6 +43,7 @@ import {
   type Order,
   type QueueType,
 } from "@/app/lib/pricing";
+import { useCurrency } from "@/app/components/CurrencyProvider";
 
 const CS2_ACCENT = "#f47b20";
 
@@ -87,11 +88,6 @@ const SERVICE_MOBILE_LABELS: Record<Cs2ServiceSlug, string> = {
   "competitive-wins": "Wins",
   "faceit-leveling": "FACEIT",
 };
-
-const money = new Intl.NumberFormat("en-GB", {
-  style: "currency",
-  currency: "GBP",
-});
 
 function rankIndex(rank: string) {
   return CS2_RANKS.indexOf(rank as Cs2Rank);
@@ -432,12 +428,10 @@ function FaceitPicker({
   return (
     <section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <div className="flex min-h-14 items-center gap-3">
-        <Image
-          src={`/cs2/faceit/level-${value}.png`}
-          alt=""
-          width={44}
-          height={44}
-          className="h-11 w-11 object-contain"
+        <FaceitLevelBadge
+          level={value}
+          accent={selected.accent}
+          size="large"
         />
         <div>
           <h2 className="text-sm font-semibold">{label}</h2>
@@ -484,13 +478,7 @@ function FaceitPicker({
                   : undefined
               }
             >
-              <Image
-                src={`/cs2/faceit/level-${item.level}.png`}
-                alt=""
-                width={36}
-                height={36}
-                className="h-8 w-8 object-contain"
-              />
+              <FaceitLevelBadge level={item.level} accent={item.accent} />
               <span className="mt-1 text-[10px] font-semibold">
                 LVL {item.level}
               </span>
@@ -499,6 +487,73 @@ function FaceitPicker({
         })}
       </div>
     </section>
+  );
+}
+
+function FaceitLevelBadge({
+  level,
+  accent,
+  size = "compact",
+}: {
+  level: number;
+  accent: string;
+  size?: "compact" | "large";
+}) {
+  const large = size === "large";
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  const trackLength = circumference * 0.73;
+  const progressLength = trackLength * (level / 10);
+
+  return (
+    <span
+      aria-hidden
+      className={`relative inline-flex shrink-0 items-center justify-center ${
+        large ? "h-12 w-12" : "h-9 w-9"
+      }`}
+    >
+      <svg
+        viewBox="0 0 64 64"
+        fill="none"
+        className={`${large ? "h-12 w-12" : "h-9 w-9"} overflow-visible`}
+      >
+        <circle cx="32" cy="32" r="29" fill="#111314" />
+        <circle cx="32" cy="32" r="27.5" stroke="#1d2021" strokeWidth="2" />
+        <circle
+          cx="32"
+          cy="32"
+          r={radius}
+          stroke="#2a2d2e"
+          strokeWidth="7"
+          strokeDasharray={`${trackLength} ${circumference - trackLength}`}
+          strokeLinecap="butt"
+          transform="rotate(139 32 32)"
+        />
+        <circle
+          cx="32"
+          cy="32"
+          r={radius}
+          stroke={accent}
+          strokeWidth="7"
+          strokeDasharray={`${progressLength} ${circumference - progressLength}`}
+          strokeLinecap="butt"
+          transform="rotate(139 32 32)"
+          style={{ filter: `drop-shadow(0 0 2.5px ${accent})` }}
+        />
+        <text
+          x="32"
+          y="39"
+          textAnchor="middle"
+          fill={accent}
+          fontFamily="Arial, Helvetica, sans-serif"
+          fontSize={level === 10 ? 18 : 21}
+          fontWeight="900"
+          style={{ filter: `drop-shadow(0 0 2px ${accent})` }}
+        >
+          {level}
+        </text>
+      </svg>
+    </span>
   );
 }
 
@@ -545,8 +600,10 @@ export default function Cs2ServiceConfigurator({
 }) {
   const config = CS2_SERVICE_CONFIG[service];
   const ServiceIcon = SERVICE_ICONS[service];
+  const isFaceit = service === "faceit-leveling";
   const serviceNavRef = React.useRef<HTMLElement>(null);
   const activeServiceLinkRef = React.useRef<HTMLAnchorElement>(null);
+  const { currency, formatPrice } = useCurrency();
 
   const [currentRank, setCurrentRank] = React.useState("Silver II");
   const [desiredRank, setDesiredRank] = React.useState("Gold Nova II");
@@ -746,7 +803,7 @@ export default function Cs2ServiceConfigurator({
     setCheckoutLoading(true);
     setMessage(null);
     try {
-      const checkoutUrl = await createCheckoutSession(order);
+      const checkoutUrl = await createCheckoutSession(order, currency);
       window.location.assign(checkoutUrl);
     } catch (error) {
       setMessage(getCheckoutErrorMessage(error));
@@ -762,13 +819,21 @@ export default function Cs2ServiceConfigurator({
       <section className="theme-preserve-media relative min-h-[420px] overflow-hidden border-b border-[var(--line)] bg-[#08090b] text-white">
         <div className="absolute inset-0">
           <Image
-            src="/cs2/cs2-hero.webp"
-            alt="Counter-Strike 2 tactical specialist at an industrial bombsite"
+            src={isFaceit ? "/cs2/faceit/faceit-hero-v2.webp" : "/cs2/cs2-hero.webp"}
+            alt={
+              isFaceit
+                ? "Competitive FACEIT players preparing at an esports arena"
+                : "Counter-Strike 2 tactical specialist at an industrial bombsite"
+            }
             fill
             loading="eager"
             fetchPriority="high"
             sizes="100vw"
-            className="object-cover object-[66%_center]"
+            className={
+              isFaceit
+                ? "object-cover object-[34%_center] sm:object-[52%_center] lg:object-center"
+                : "object-cover object-[66%_center]"
+            }
           />
         </div>
         <div className="absolute inset-0 bg-black/25" aria-hidden />
@@ -782,10 +847,20 @@ export default function Cs2ServiceConfigurator({
               All CS2 services
             </Link>
             <div className="mt-7 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 bg-black/35">
+              <span
+                className={`flex h-10 w-10 items-center justify-center rounded-lg border ${
+                  isFaceit
+                    ? "border-[#f47b20]/55 bg-[#f47b20]/12 text-[#ff8a3d]"
+                    : "border-white/20 bg-black/35"
+                }`}
+              >
                 <ServiceIcon aria-hidden className="h-5 w-5" />
               </span>
-              <span className="text-xs font-semibold uppercase text-white/70">
+              <span
+                className={`text-xs font-semibold uppercase ${
+                  isFaceit ? "text-[#ff9a57]" : "text-white/70"
+                }`}
+              >
                 {config.eyebrow}
               </span>
             </div>
@@ -1076,7 +1151,7 @@ export default function Cs2ServiceConfigurator({
                   icon={UserRoundCheck}
                   title="Specific specialist"
                   description="Choose an available specialist before delivery starts."
-                  price="+£7.50"
+                  price={`+${formatPrice(7.5)}`}
                   checked={specificBooster}
                   onChange={setSpecificBooster}
                 />
@@ -1173,13 +1248,13 @@ export default function Cs2ServiceConfigurator({
               {price.discount > 0 && (
                 <div className="mb-2 flex items-center justify-between text-sm text-[var(--muted)]">
                   <span>Subtotal</span>
-                  <span>{money.format(price.subtotal)}</span>
+                  <span>{formatPrice(price.subtotal)}</span>
                 </div>
               )}
               {price.discount > 0 && (
                 <div className="mb-3 flex items-center justify-between text-sm">
                   <span>Discount</span>
-                  <span>-{money.format(price.discount)}</span>
+                  <span>-{formatPrice(price.discount)}</span>
                 </div>
               )}
               <div
@@ -1189,7 +1264,7 @@ export default function Cs2ServiceConfigurator({
                 <span className="text-sm font-semibold">Total</span>
                 <span className="text-3xl font-semibold">
                   {Number.isFinite(price.total)
-                    ? money.format(price.total)
+                    ? formatPrice(price.total)
                     : "--"}
                 </span>
               </div>

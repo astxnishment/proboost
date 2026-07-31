@@ -64,15 +64,13 @@ export const ORDER_PAYMENT_METHODS = [
   { name: "JCB", icon: "/payments/jcb.webp" },
 ] as const;
 
-const PLATFORM_ICONS: Record<(typeof ORDER_PLATFORMS)[number], string> = {
+const PLATFORM_ICONS: Record<string, string> = {
   PC: "/platforms/windows-11.svg",
   Xbox: "/xbox.png",
   PlayStation: "/playstation.png",
+  "Nintendo Switch": "/homepage/icons/nintendo-switch.svg",
 };
 
 export function getPlatformIcon(platform: string): string {
-  return (
-    PLATFORM_ICONS[platform as keyof typeof PLATFORM_ICONS] ??
-    PLATFORM_ICONS.PC
-  );
+  return PLATFORM_ICONS[platform] ?? PLATFORM_ICONS.PC;
 }

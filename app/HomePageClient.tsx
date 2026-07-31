@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import type { LanguageCode } from "./components/Dropdown";
+import { useCurrency } from "./components/CurrencyProvider";
 import { ButtonLink, PageContainer, Section, SectionHeading, StatusBadge } from "./components/ui";
 
 type LangCode = LanguageCode;
@@ -514,21 +515,23 @@ type GameCard = {
   iconOnly?: boolean;
   backdrop?: string;
   logoBackground?: string;
+  logoFilter?: string;
+  objectPosition?: string;
 };
 
 const gameCards: GameCard[] = [
   { name: "Rainbow Six Siege", href: "/en/rainbow-six-siege-boost", bg: "/homepage/r6-homepage.webp",             logo: "/homepage/r6-text-homepage.png",            live: true,  glow: "#aea896" },
   { name: "Valorant",          href: "/en/valorant-boost",          bg: "/homepage/valorant-homepage.webp",         logo: "/homepage/valorant-text-homepage.webp",     live: true,  glow: "#ff5261" },
   { name: "Counter-Strike 2",  href: "/en/counter-strike-2-boost",  bg: "/homepage/cs2-homepage.webp",              logo: "/homepage/cs2-text-homepage.webp",          live: true,  glow: "#ff6b1b" },
+  { name: "Overwatch 2",       href: "/en/overwatch-2-boost",       bg: "/homepage/overwatch-homepage.webp",        logo: "/game-icons/overwatch-2-logo.webp",         live: true,  glow: "#f56600", iconOnly: true, logoBackground: "rgba(255,255,255,0.08)", logoFilter: "brightness(1.8) saturate(1.1)", objectPosition: "50% 38%" },
   { name: "Rocket League",     href: "#",                           bg: "/homepage/rocketleague-homepage.webp",     logo: "/homepage/rocketleague-text-homepage.webp", live: false, glow: "#e9852d" },
   { name: "League of Legends", href: "#",                           bg: "/homepage/lol-homepage.webp",              logo: "/homepage/lol-text-homepage.webp",          live: false, glow: "#0fa2b7" },
   { name: "Marvel Rivals",     href: "#",                           bg: "/homepage/marvelrivals-homepage.webp",     logo: "/homepage/marvelrivals-text-homepage.webp", live: false, glow: "#fcd92d" },
   { name: "Apex Legends",      href: "#",                           bg: "/homepage/apex-homepage.webp",             logo: "/homepage/apex-text-homepage.webp",         live: false, glow: "#f75e34" },
-  { name: "World of Warcraft", href: "#",                           bg: "/homepage/wow-homepage.webp",              logo: "/game-icons/game_icon (1).webp",            live: false, glow: "#e4b74c", iconOnly: true },
-  { name: "Fortnite",          href: "#",                           bg: "/homepage/fortnite-homepage.webp",         logo: "/game-icons/game_icon (8).webp",            live: false, glow: "#8b5cf6", iconOnly: true },
-  { name: "Call of Duty",      href: "#",                           bg: "/homepage/cod-homepage.webp",              logo: "/game-icons/game_icon (10).webp",           live: false, glow: "#d4d4d8", iconOnly: true },
-  { name: "Dota 2",            href: "#",                           bg: "/homepage/dota2-characters-homepage.webp", logo: "/game-icons/game_icon (6).webp",            live: false, glow: "#df493d", iconOnly: true },
-  { name: "Overwatch 2",       href: "#",                           bg: "/homepage/overwatch-homepage.webp",        logo: "/game-icons/overwatch-2-logo.webp",         live: false, glow: "#f56600", iconOnly: true, logoBackground: "#f5f5f7" },
+  { name: "World of Warcraft", href: "#",                           bg: "/homepage/wow-homepage.webp",              logo: "/game-icons/game_icon (1).webp",            live: false, glow: "#e4b74c", iconOnly: true, objectPosition: "50% 42%" },
+  { name: "Fortnite",          href: "#",                           bg: "/homepage/fortnite-homepage-v2.webp",      logo: "/game-icons/game_icon (8).webp",            live: false, glow: "#8b5cf6", iconOnly: true, objectPosition: "50% 39%" },
+  { name: "Call of Duty",      href: "#",                           bg: "/homepage/cod-homepage-v2.webp",           logo: "/game-icons/game_icon (10).webp",           live: false, glow: "#d4d4d8", iconOnly: true, objectPosition: "50% 43%" },
+  { name: "Dota 2",            href: "#",                           bg: "/homepage/dota2-homepage-v2.webp",         logo: "/game-icons/game_icon (6).webp",            live: false, glow: "#df493d", iconOnly: true, objectPosition: "50% 42%" },
 ];
 
 const platformLogos = [
@@ -696,6 +699,12 @@ const membershipI18n: Record<LangCode, {
 export default function HomePageClient() {
   const [selectedLang, setSelectedLang] = React.useState<LangCode>("en");
   const [billingYearly, setBillingYearly] = React.useState(false);
+  const {
+    formatNativePrice,
+    formatPrice,
+    formatPriceNumber,
+    symbol,
+  } = useCurrency();
 
   React.useEffect(() => {
     const saved = window.localStorage.getItem("proboost_lang") as LangCode | null;
@@ -715,13 +724,24 @@ export default function HomePageClient() {
   }, []);
 
   const monthlyPrice = 9.99;
-  const displayPrice = billingYearly ? (monthlyPrice * 0.8).toFixed(2) : monthlyPrice.toFixed(2);
+  const displayPrice = formatPriceNumber(
+    billingYearly ? monthlyPrice * 0.8 : monthlyPrice
+  );
+  const marketCredit = formatNativePrice(5, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
   const t = i18n[selectedLang];
   const m = membershipI18n[selectedLang];
   const membershipBenefits = [
     { icon: Gamepad2, value: "50% off", ...m.perks[0] },
     { icon: Activity, value: "Priority", ...m.perks[1] },
-    { icon: SlidersHorizontal, value: "$5 monthly", ...m.perks[2] },
+    {
+      icon: SlidersHorizontal,
+      value: `${marketCredit} monthly`,
+      title: m.perks[2].title,
+      desc: m.perks[2].desc.replace(/\$5|5(?:\u00a0)?\$/g, marketCredit),
+    },
     { icon: RotateCcw, value: "3% cashback", ...m.perks[3] },
     { icon: ShieldCheck, value: "Member only", ...m.perks[4] },
     { icon: Headphones, value: "Direct support", ...m.perks[5] },
@@ -820,7 +840,7 @@ export default function HomePageClient() {
               const localizedHref = game.href.replace(/^\/en/, `/${selectedLang}`);
               const card = (
                 <article
-                  className="home-game-card group relative h-[280px] overflow-hidden rounded-[var(--radius-card)] border border-white/10 bg-[#08080a]"
+                  className="home-game-card theme-preserve-media group relative h-[280px] overflow-hidden rounded-[var(--radius-card)] border border-white/10"
                 >
                   {game.bg ? (
                     <Image
@@ -830,6 +850,7 @@ export default function HomePageClient() {
                       loading={index < 4 ? "eager" : "lazy"}
                       sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.025]"
+                      style={{ objectPosition: game.objectPosition }}
                     />
                   ) : (
                     <div
@@ -845,8 +866,9 @@ export default function HomePageClient() {
                       />
                     </div>
                   )}
+                  <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08)_30%,rgba(0,0,0,0.34)_72%,rgba(0,0,0,0.7)_100%)]" />
                   <StatusBadge
-                    className="absolute left-4 top-4 border-white/20 bg-black/75 text-white"
+                    className="home-game-card-status absolute left-3 top-3 z-10 border-white/15 text-white"
                     tone={game.live ? "accent" : "default"}
                   >
                     <span
@@ -855,11 +877,11 @@ export default function HomePageClient() {
                     />
                     {game.live ? t.openNow : t.comingSoon}
                   </StatusBadge>
-                  <div className="absolute inset-x-4 bottom-4 flex min-h-16 items-center justify-between rounded-[var(--radius-control)] border border-white/15 bg-black/75 px-4">
+                  <div className="home-game-card-footer absolute inset-x-3 bottom-3 z-10 flex min-h-[68px] items-center justify-between rounded-[var(--radius-control)] border px-4">
                     {game.iconOnly ? (
-                      <span className="flex min-w-0 items-center gap-3 text-sm font-semibold text-white">
+                      <span className="flex min-w-0 items-center gap-3 text-[15px] font-semibold text-white">
                         <span
-                          className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg"
+                          className="home-game-card-icon flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border"
                           style={{ backgroundColor: game.logoBackground }}
                         >
                           <Image
@@ -868,6 +890,7 @@ export default function HomePageClient() {
                             width={40}
                             height={40}
                             className="h-8 w-8 object-contain"
+                            style={{ filter: game.logoFilter }}
                           />
                         </span>
                         <span className="truncate">{game.name}</span>
@@ -965,12 +988,15 @@ export default function HomePageClient() {
             <div className="flex flex-col border-b border-[var(--line)] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
               <p className="eyebrow">ProBoost+</p>
               <div className="mt-5 flex items-start font-semibold leading-none tabular-nums text-[var(--foreground)]">
-                <span className="mr-1 mt-2 text-2xl sm:text-3xl">$</span>
+                <span className="mr-1 mt-2 text-2xl sm:text-3xl">{symbol}</span>
                 <span className="text-6xl sm:text-7xl">{displayPrice}</span>
               </div>
               <p className="mt-3 text-sm text-[var(--muted)]">per month</p>
               <p className={`mt-2 min-h-5 text-xs text-[var(--muted-soft)] ${billingYearly ? "opacity-100" : "opacity-0"}`}>
-                {m.billedAs.replace("${amount}", (monthlyPrice * 0.8 * 12).toFixed(2))}
+                {m.billedAs.replace(
+                  "${amount}",
+                  formatPrice(monthlyPrice * 0.8 * 12)
+                )}
               </p>
 
               <div className="mt-7 grid grid-cols-2 rounded-[var(--radius-control)] bg-[var(--surface-subtle)] p-1" role="group" aria-label="Membership billing period">

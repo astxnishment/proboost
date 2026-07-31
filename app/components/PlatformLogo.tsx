@@ -4,11 +4,12 @@ import {
   ORDER_PLATFORMS,
 } from "@/app/lib/order-options";
 
-type Platform = (typeof ORDER_PLATFORMS)[number];
+type Platform = (typeof ORDER_PLATFORMS)[number] | "Nintendo Switch";
 
 const CONSOLE_COLORS: Partial<Record<Platform, string>> = {
   Xbox: "#107c10",
   PlayStation: "#006fcd",
+  "Nintendo Switch": "#e60012",
 };
 
 export default function PlatformLogo({

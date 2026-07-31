@@ -20,6 +20,7 @@ const GAMES: GameMenuItem[] = [
   { id: "r6", label: "Rainbow Six Siege", iconSrc: "/game-icons/r6-icon.webp", shortLabel: "R6", fallbackClass: "bg-cyan-400 text-black", href: "/en/rainbow-six-siege-boost" },
   { id: "valorant", label: "Valorant", iconSrc: "/game-icons/game_icon (2).webp", shortLabel: "V", fallbackClass: "bg-[#ff5468] text-black", href: "/en/valorant-boost" },
   { id: "cs2", label: "Counter-Strike 2", iconSrc: "/game-icons/game_icon (5).webp", shortLabel: "CS2", fallbackClass: "bg-[#f97316] text-black", href: "/en/counter-strike-2-boost" },
+  { id: "overwatch-2", label: "Overwatch 2", iconSrc: "/game-icons/overwatch-2-logo.webp", shortLabel: "OW2", fallbackClass: "bg-[#f56600] text-white", href: "/en/overwatch-2-boost" },
   { id: "rocket-league", label: "Rocket League", iconSrc: "/game-icons/game_icon (3).webp", shortLabel: "RL", fallbackClass: "bg-[#3d6ef7] text-white", href: "#", comingSoon: true },
   { id: "lol", label: "League of Legends", iconSrc: "/homepage/lol-homepage.webp", shortLabel: "L", fallbackClass: "bg-[#0e5a68] text-[#d4af37]", href: "#", comingSoon: true },
   { id: "marvel-rivals", label: "Marvel Rivals", iconSrc: "/game-icons/game_icon (14).webp", shortLabel: "MR", fallbackClass: "bg-zinc-700 text-white", href: "#", comingSoon: true },
@@ -28,7 +29,6 @@ const GAMES: GameMenuItem[] = [
   { id: "fortnite", label: "Fortnite", iconSrc: "/game-icons/game_icon (8).webp", shortLabel: "FN", fallbackClass: "bg-[#5b35a7] text-white", href: "#", comingSoon: true },
   { id: "call-of-duty", label: "Call of Duty", iconSrc: "/game-icons/game_icon (10).webp", shortLabel: "COD", fallbackClass: "bg-zinc-800 text-white", href: "#", comingSoon: true },
   { id: "dota-2", label: "Dota 2", iconSrc: "/game-icons/game_icon (6).webp", shortLabel: "D2", fallbackClass: "bg-[#7d231f] text-white", href: "#", comingSoon: true },
-  { id: "overwatch-2", label: "Overwatch 2", iconSrc: "/game-icons/overwatch-2-logo.webp", shortLabel: "OW2", fallbackClass: "bg-[#f56600] text-white", href: "#", comingSoon: true },
 ];
 
 function GameIcon({ item }: { item: GameMenuItem }) {
@@ -60,7 +60,9 @@ export default function GameSelectorChip({
     label: game.label,
     description: game.comingSoon
       ? "Service in preparation"
-      : game.id === "valorant"
+        : game.id === "overwatch-2"
+          ? "Role-based competitive services available"
+        : game.id === "valorant"
         ? "Competitive services available"
         : "Rank boosting available",
     icon: <GameIcon item={game} />,
@@ -75,6 +77,8 @@ export default function GameSelectorChip({
             ? `/${language}/valorant-boost`
             : game.id === "cs2"
               ? `/${language}/counter-strike-2-boost`
+            : game.id === "overwatch-2"
+              ? `/${language}/overwatch-2-boost`
             : game.href,
     selected: game.id === activeGameId,
     // Hairline between the live catalogue and upcoming titles

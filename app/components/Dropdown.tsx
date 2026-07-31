@@ -2,6 +2,12 @@
 
 import React from "react";
 import Link from "next/link";
+import {
+  CURRENCIES,
+  CURRENCY_DEFINITIONS,
+  isCurrencyCode,
+} from "../lib/currency";
+import { useCurrency } from "./CurrencyProvider";
 
 export type DropdownItem = {
   id: string;
@@ -338,6 +344,50 @@ export function LanguageDropdown({
             window.dispatchEvent(new CustomEvent("proboost:language-change", { detail: lang.code }));
           } catch {}
           onChange(lang.code);
+        },
+      }))}
+    />
+  );
+}
+
+export function CurrencyDropdown({
+  align = "end",
+}: {
+  align?: "start" | "end";
+}) {
+  const { currency, setCurrency, symbol } = useCurrency();
+
+  return (
+    <Dropdown
+      ariaLabel="Select currency"
+      align={align}
+      className="currency-picker inline-block"
+      selectable
+      trigger={
+        <>
+          <span className="dd-currency-symbol" aria-hidden>
+            {symbol}
+          </span>
+          <span className="dd-trigger-code">{currency}</span>
+        </>
+      }
+      menuHeader={
+        <>
+          <p className="text-xs font-semibold text-[var(--foreground)]">
+            Display currency
+          </p>
+          <p className="mt-1 text-[11px] leading-4 text-[var(--muted)]">
+            Checkout uses the same currency.
+          </p>
+        </>
+      }
+      items={CURRENCIES.map((code) => ({
+        id: code,
+        label: CURRENCY_DEFINITIONS[code].name,
+        meta: CURRENCY_DEFINITIONS[code].symbol,
+        selected: code === currency,
+        onSelect: (id) => {
+          if (isCurrencyCode(id)) setCurrency(id);
         },
       }))}
     />

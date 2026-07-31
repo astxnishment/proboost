@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import { CurrencyProvider } from "./components/CurrencyProvider";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import { SITE_NAME, SITE_URL } from "./lib/site";
@@ -84,6 +85,7 @@ export default function RootLayout({
         lang="en"
         data-scroll-behavior="smooth"
         data-theme="black"
+        data-currency="GBP"
         suppressHydrationWarning
         className="h-full antialiased"
       >
@@ -91,14 +93,16 @@ export default function RootLayout({
           <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         </head>
         <body className="flex min-h-full flex-col">
-          <a href="#main-content" className="skip-link">
-            Skip to content
-          </a>
-          <Navbar />
-          <div id="main-content" className="flex min-h-0 flex-1 flex-col" tabIndex={-1}>
-            {children}
-          </div>
-          <Footer />
+          <CurrencyProvider>
+            <a href="#main-content" className="skip-link">
+              Skip to content
+            </a>
+            <Navbar />
+            <div id="main-content" className="flex min-h-0 flex-1 flex-col" tabIndex={-1}>
+              {children}
+            </div>
+            <Footer />
+          </CurrencyProvider>
         </body>
       </html>
     </ClerkProvider>

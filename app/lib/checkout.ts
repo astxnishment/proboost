@@ -1,3 +1,4 @@
+import { DEFAULT_CURRENCY, type CurrencyCode } from "./currency";
 import type { Order } from "./pricing";
 
 type CheckoutResponse = {
@@ -7,7 +8,10 @@ type CheckoutResponse = {
 
 const CHECKOUT_TIMEOUT_MS = 20_000;
 
-export async function createCheckoutSession(order: Order): Promise<string> {
+export async function createCheckoutSession(
+  order: Order,
+  currency: CurrencyCode = DEFAULT_CURRENCY
+): Promise<string> {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(
     () => controller.abort(),
@@ -20,7 +24,7 @@ export async function createCheckoutSession(order: Order): Promise<string> {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(order),
+      body: JSON.stringify({ ...order, currency }),
       signal: controller.signal,
     });
 

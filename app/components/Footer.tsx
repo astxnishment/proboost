@@ -10,6 +10,7 @@ const footerGroups = [
       { href: "/en/rainbow-six-siege-boost", label: "Rainbow Six Siege" },
       { href: "/en/valorant-boost", label: "Valorant" },
       { href: "/en/counter-strike-2-boost", label: "Counter-Strike 2" },
+      { href: "/en/overwatch-2-boost", label: "Overwatch 2" },
     ],
   },
   {
@@ -17,6 +18,7 @@ const footerGroups = [
     links: [
       { href: "/en/rainbow-six-siege-boost/rainbow-six-siege-rank-boost", label: "Rank boosting" },
       { href: "/en/counter-strike-2-boost/faceit-leveling", label: "FACEIT levelling" },
+      { href: "/en/overwatch-2-boost/overwatch-rank-boost", label: "Overwatch rank boost" },
       { href: "/#rewards", label: "ProBoost+" },
     ],
   },

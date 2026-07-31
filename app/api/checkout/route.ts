@@ -18,6 +18,18 @@ import {
   faceitLevelData,
 } from "@/app/lib/cs2";
 import { VALORANT_COACHING_FOCUS } from "@/app/lib/valorant";
+import {
+  OVERWATCH_COACHING_FOCUS,
+  OVERWATCH_DIVISIONS,
+  OVERWATCH_PLATFORMS,
+  OVERWATCH_RANKS,
+  OVERWATCH_ROLES,
+} from "@/app/lib/overwatch";
+import {
+  DEFAULT_CURRENCY,
+  getChargeAmount,
+  isCurrencyCode,
+} from "@/app/lib/currency";
 
 const SERVICE_TYPES = [
   "rank-up",
@@ -29,6 +41,10 @@ const SERVICE_TYPES = [
   "valorant-placements",
   "valorant-wins",
   "valorant-coaching",
+  "overwatch-rank",
+  "overwatch-placements",
+  "overwatch-wins",
+  "overwatch-coaching",
   "cs2-rank",
   "cs2-premier",
   "cs2-wins",
@@ -106,6 +122,41 @@ function parseOrder(body: unknown): Order | null {
     value !== undefined &&
     CS2_MAPS.includes(value as (typeof CS2_MAPS)[number]);
   const isCs2Platform = (value: string | undefined) => value === "PC";
+  const isOverwatchRank = (
+    value: string | undefined
+  ): value is (typeof OVERWATCH_RANKS)[number] =>
+    value !== undefined &&
+    OVERWATCH_RANKS.includes(value as (typeof OVERWATCH_RANKS)[number]);
+  const isOverwatchDivision = (
+    value: string | undefined
+  ): value is (typeof OVERWATCH_DIVISIONS)[number] =>
+    value !== undefined &&
+    OVERWATCH_DIVISIONS.includes(
+      value as (typeof OVERWATCH_DIVISIONS)[number]
+    );
+  const isOverwatchRole = (
+    value: string | undefined
+  ): value is (typeof OVERWATCH_ROLES)[number] =>
+    value !== undefined &&
+    OVERWATCH_ROLES.includes(value as (typeof OVERWATCH_ROLES)[number]);
+  const isOverwatchPlatform = (
+    value: string | undefined
+  ): value is (typeof OVERWATCH_PLATFORMS)[number] =>
+    value !== undefined &&
+    OVERWATCH_PLATFORMS.includes(
+      value as (typeof OVERWATCH_PLATFORMS)[number]
+    );
+  const isOverwatchFocus = (
+    value: string | undefined
+  ): value is (typeof OVERWATCH_COACHING_FOCUS)[number] =>
+    value !== undefined &&
+    OVERWATCH_COACHING_FOCUS.includes(
+      value as (typeof OVERWATCH_COACHING_FOCUS)[number]
+    );
+  const isOverwatchPreviousRank = (
+    value: string | undefined
+  ): value is "Unranked" | (typeof OVERWATCH_RANKS)[number] =>
+    value === "Unranked" || isOverwatchRank(value);
 
   const common = {
     queueType: b.queueType === "Duo" ? ("Duo" as const) : ("Solo" as const),
@@ -275,6 +326,120 @@ function parseOrder(body: unknown): Order | null {
         focus,
       };
     }
+    case "overwatch-rank": {
+      const currentRank = str(b.currentRank);
+      const currentDivision = str(b.currentDivision);
+      const desiredRank = str(b.desiredRank);
+      const desiredDivision = str(b.desiredDivision);
+      const currentProgress = num(b.currentProgress);
+      const role = str(b.role);
+      const platform = str(b.platform);
+      const server = str(b.server);
+      if (
+        !isOverwatchRank(currentRank) ||
+        !isOverwatchDivision(currentDivision) ||
+        !isOverwatchRank(desiredRank) ||
+        !isOverwatchDivision(desiredDivision) ||
+        !integerInRange(currentProgress, 0, 99) ||
+        !isOverwatchRole(role) ||
+        !isOverwatchPlatform(platform) ||
+        !isValorantServer(server)
+      ) {
+        return null;
+      }
+      const currentValue =
+        OVERWATCH_RANKS.indexOf(currentRank) * OVERWATCH_DIVISIONS.length +
+        OVERWATCH_DIVISIONS.indexOf(currentDivision);
+      const desiredValue =
+        OVERWATCH_RANKS.indexOf(desiredRank) * OVERWATCH_DIVISIONS.length +
+        OVERWATCH_DIVISIONS.indexOf(desiredDivision);
+      if (desiredValue <= currentValue) return null;
+      return {
+        ...common,
+        serviceType,
+        currentRank,
+        currentDivision,
+        desiredRank,
+        desiredDivision,
+        currentProgress,
+        role,
+      };
+    }
+    case "overwatch-placements": {
+      const previousRank = str(b.previousRank);
+      const numberOfMatches = num(b.numberOfMatches);
+      const role = str(b.role);
+      const platform = str(b.platform);
+      const server = str(b.server);
+      if (
+        !isOverwatchPreviousRank(previousRank) ||
+        !integerInRange(numberOfMatches, 1, 10) ||
+        !isOverwatchRole(role) ||
+        !isOverwatchPlatform(platform) ||
+        !isValorantServer(server)
+      ) {
+        return null;
+      }
+      return {
+        ...common,
+        serviceType,
+        previousRank,
+        numberOfMatches,
+        role,
+      };
+    }
+    case "overwatch-wins": {
+      const currentRank = str(b.currentRank);
+      const currentDivision = str(b.currentDivision);
+      const numberOfWins = num(b.numberOfWins);
+      const role = str(b.role);
+      const platform = str(b.platform);
+      const server = str(b.server);
+      if (
+        !isOverwatchRank(currentRank) ||
+        !isOverwatchDivision(currentDivision) ||
+        !integerInRange(numberOfWins, 1, 10) ||
+        !isOverwatchRole(role) ||
+        !isOverwatchPlatform(platform) ||
+        !isValorantServer(server)
+      ) {
+        return null;
+      }
+      return {
+        ...common,
+        serviceType,
+        currentRank,
+        currentDivision,
+        numberOfWins,
+        role,
+      };
+    }
+    case "overwatch-coaching": {
+      const currentRank = str(b.currentRank);
+      const hours = num(b.hours);
+      const focus = str(b.focus);
+      const role = str(b.role);
+      const platform = str(b.platform);
+      const server = str(b.server);
+      if (
+        !isOverwatchRank(currentRank) ||
+        !integerInRange(hours, 1, 6) ||
+        !isOverwatchFocus(focus) ||
+        !isOverwatchRole(role) ||
+        !isOverwatchPlatform(platform) ||
+        !isValorantServer(server)
+      ) {
+        return null;
+      }
+      return {
+        ...common,
+        serviceType,
+        currentRank,
+        hours,
+        focus,
+        role,
+      };
+    }
     case "cs2-rank": {
       const currentRank = str(b.currentRank);
       const desiredRank = str(b.desiredRank);
@@ -380,13 +545,28 @@ function parseOrder(body: unknown): Order | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const order = parseOrder(await req.json());
+    const body = await req.json();
+    const order = parseOrder(body);
     if (!order) {
       return NextResponse.json({ error: "Invalid order" }, { status: 400 });
     }
 
+    const requestedCurrency =
+      typeof body === "object" && body !== null
+        ? (body as Record<string, unknown>).currency
+        : undefined;
+    if (
+      requestedCurrency !== undefined &&
+      !isCurrencyCode(requestedCurrency)
+    ) {
+      return NextResponse.json({ error: "Invalid currency" }, { status: 400 });
+    }
+    const currency = isCurrencyCode(requestedCurrency)
+      ? requestedCurrency
+      : DEFAULT_CURRENCY;
+
     const { total } = computeOrderPrice(order);
-    const amount = Math.round(total * 100);
+    const amount = getChargeAmount(total, currency);
     if (!Number.isFinite(amount) || amount < 50) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
@@ -407,7 +587,7 @@ export async function POST(req: NextRequest) {
       line_items: [
         {
           price_data: {
-            currency: "gbp",
+            currency: currency.toLowerCase(),
             product_data: {
               name,
               description: description || undefined,
@@ -417,6 +597,11 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
+      metadata: {
+        base_currency: "GBP",
+        display_currency: currency,
+        base_total: total.toFixed(2),
+      },
       success_url: `${req.nextUrl.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.nextUrl.origin}/`,
     });

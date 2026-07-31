@@ -1,4 +1,8 @@
 import { CS2_RANKS, faceitLevelData } from "./cs2";
+import {
+  OVERWATCH_DIVISIONS,
+  OVERWATCH_RANKS,
+} from "./overwatch";
 
 // Single source of truth for order pricing. Used by the calculator pages for
 // display and by /api/checkout to recompute the charge server-side, so a
@@ -69,6 +73,17 @@ export const VALORANT_PRICE_PER_WIN_BY_RANK: Record<string, number> = {
   Ascendant: 12,
   Immortal: 16,
   Radiant: 22,
+};
+
+export const OVERWATCH_PRICE_PER_WIN_BY_RANK: Record<string, number> = {
+  Bronze: 3.5,
+  Silver: 4.25,
+  Gold: 5.25,
+  Platinum: 6.75,
+  Diamond: 8.75,
+  Master: 11.5,
+  Grandmaster: 15.5,
+  Champion: 21,
 };
 
 export const ELEARNING_SERVICES: Record<
@@ -178,6 +193,39 @@ export type ValorantCoachingOrder = OrderCommon & {
   focus: string;
 };
 
+export type OverwatchRankOrder = OrderCommon & {
+  serviceType: "overwatch-rank";
+  currentRank: string;
+  currentDivision: string;
+  desiredRank: string;
+  desiredDivision: string;
+  currentProgress: number;
+  role: string;
+};
+
+export type OverwatchPlacementsOrder = OrderCommon & {
+  serviceType: "overwatch-placements";
+  previousRank: string;
+  numberOfMatches: number;
+  role: string;
+};
+
+export type OverwatchWinsOrder = OrderCommon & {
+  serviceType: "overwatch-wins";
+  currentRank: string;
+  currentDivision: string;
+  numberOfWins: number;
+  role: string;
+};
+
+export type OverwatchCoachingOrder = OrderCommon & {
+  serviceType: "overwatch-coaching";
+  currentRank: string;
+  hours: number;
+  focus: string;
+  role: string;
+};
+
 export type Cs2RankOrder = OrderCommon & {
   serviceType: "cs2-rank";
   currentRank: string;
@@ -215,6 +263,10 @@ export type Order =
   | ValorantPlacementsOrder
   | ValorantWinsOrder
   | ValorantCoachingOrder
+  | OverwatchRankOrder
+  | OverwatchPlacementsOrder
+  | OverwatchWinsOrder
+  | OverwatchCoachingOrder
   | Cs2RankOrder
   | Cs2PremierOrder
   | Cs2WinsOrder
@@ -252,6 +304,18 @@ export function flattenValorantRank(rank: string, division: string): number {
   return divisionIndex < 0 ? -1 : rankIndex * 3 + divisionIndex;
 }
 
+export function flattenOverwatchRank(rank: string, division: string): number {
+  const rankIndex = OVERWATCH_RANKS.indexOf(
+    rank as (typeof OVERWATCH_RANKS)[number]
+  );
+  const divisionIndex = OVERWATCH_DIVISIONS.indexOf(
+    division as (typeof OVERWATCH_DIVISIONS)[number]
+  );
+  return rankIndex < 0 || divisionIndex < 0
+    ? -1
+    : rankIndex * OVERWATCH_DIVISIONS.length + divisionIndex;
+}
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.floor(Number(value) || 0)));
 
@@ -278,7 +342,8 @@ function addOnMultiplier(order: Order): number {
   if (order.eliteTier) multiplier += 0.5;
   if (
     order.serviceType === "elearning" ||
-    order.serviceType === "valorant-coaching"
+    order.serviceType === "valorant-coaching" ||
+    order.serviceType === "overwatch-coaching"
   ) {
     if (order.recordedSession) multiplier += 0.15;
     if (order.customFocus) multiplier += 0.1;
@@ -433,6 +498,81 @@ function baseSubtotal(order: Order): number {
         hours * 29.5 * platformMultiplier(order) +
         boosterFee
       );
+    }
+    case "overwatch-rank": {
+      const currentValue = flattenOverwatchRank(
+        order.currentRank,
+        order.currentDivision
+      );
+      const desiredValue = flattenOverwatchRank(
+        order.desiredRank,
+        order.desiredDivision
+      );
+      if (
+        currentValue < 0 ||
+        desiredValue < 0 ||
+        desiredValue <= currentValue
+      ) {
+        return NaN;
+      }
+
+      let progressionPrice = 0;
+      const earnedProgress = clamp(order.currentProgress, 0, 99);
+      for (let step = currentValue; step < desiredValue; step += 1) {
+        const rankBand = Math.floor(step / OVERWATCH_DIVISIONS.length);
+        const stepPrice = 3.8 + rankBand * 1.05;
+        progressionPrice +=
+          step === currentValue
+            ? stepPrice * (1 - earnedProgress / 100)
+            : stepPrice;
+      }
+
+      const queueMultiplier =
+        order.queueType === "Duo" ? 1.3 * duoBoosterScale(order) : 1;
+      return (
+        progressionPrice *
+          queueMultiplier *
+          platformMultiplier(order) +
+        boosterFee
+      );
+    }
+    case "overwatch-placements": {
+      const matches = clamp(order.numberOfMatches, 1, 10);
+      const previousRankIndex =
+        order.previousRank === "Unranked"
+          ? 0
+          : Math.max(
+              0,
+              OVERWATCH_RANKS.indexOf(
+                order.previousRank as (typeof OVERWATCH_RANKS)[number]
+              )
+            );
+      const rankMultiplier = 1 + previousRankIndex * 0.1;
+      const queueMultiplier =
+        order.queueType === "Duo" ? 1.25 * duoBoosterScale(order) : 1;
+      return (
+        matches *
+          6.25 *
+          rankMultiplier *
+          queueMultiplier *
+          platformMultiplier(order) +
+        boosterFee
+      );
+    }
+    case "overwatch-wins": {
+      const wins = clamp(order.numberOfWins, 1, 10);
+      const perWin =
+        OVERWATCH_PRICE_PER_WIN_BY_RANK[order.currentRank] ?? 5.25;
+      const queueMultiplier =
+        order.queueType === "Duo" ? 1.3 * duoBoosterScale(order) : 1;
+      return (
+        wins * perWin * queueMultiplier * platformMultiplier(order) +
+        boosterFee
+      );
+    }
+    case "overwatch-coaching": {
+      const hours = clamp(order.hours, 1, 6);
+      return hours * 31.5 * platformMultiplier(order) + boosterFee;
     }
     case "cs2-rank": {
       const currentValue = CS2_RANKS.indexOf(
@@ -612,6 +752,45 @@ export function describeOrder(order: Order): {
           order.hours === 1 ? "hour" : "hours"
         }`,
         description: [...parts, order.currentRank, order.focus].join(" | "),
+      };
+    case "overwatch-rank":
+      return {
+        name: `Overwatch 2 Rank Boost: ${order.currentRank} ${order.currentDivision} → ${order.desiredRank} ${order.desiredDivision}`,
+        description: [
+          ...parts,
+          order.role,
+          `Current progress: ${clamp(order.currentProgress, 0, 99)}%`,
+        ].join(" | "),
+      };
+    case "overwatch-placements":
+      return {
+        name: `Overwatch 2 Placements: ${order.numberOfMatches} matches`,
+        description: [
+          ...parts,
+          order.role,
+          `Previous rank: ${order.previousRank}`,
+        ].join(" | "),
+      };
+    case "overwatch-wins":
+      return {
+        name: `Overwatch 2 Competitive Wins: ${order.numberOfWins}`,
+        description: [
+          ...parts,
+          order.role,
+          `${order.currentRank} ${order.currentDivision}`,
+        ].join(" | "),
+      };
+    case "overwatch-coaching":
+      return {
+        name: `Overwatch 2 Coaching: ${order.hours} ${
+          order.hours === 1 ? "hour" : "hours"
+        }`,
+        description: [
+          ...parts,
+          order.role,
+          order.currentRank,
+          order.focus,
+        ].join(" | "),
       };
     case "cs2-rank":
       return {

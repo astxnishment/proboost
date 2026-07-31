@@ -5,6 +5,7 @@ const PLATFORM_ACCENTS: Record<string, string> = {
   PC: "#0078d4",
   Xbox: "#107c10",
   PlayStation: "#006fcd",
+  "Nintendo Switch": "#e60012",
 };
 
 export default function PlatformSelector({
@@ -22,7 +23,9 @@ export default function PlatformSelector({
     <div
       role="group"
       aria-label={ariaLabel}
-      className="grid gap-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-muted)] p-1.5 sm:grid-cols-3"
+      className={`grid gap-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-muted)] p-1.5 ${
+        platforms.length > 3 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3"
+      }`}
     >
       {platforms.map((platform) => {
         const selected = value === platform;

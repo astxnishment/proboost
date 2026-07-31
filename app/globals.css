@@ -310,10 +310,14 @@ input:-webkit-autofill:focus {
   display: none;
 }
 
+.desktop-currency-picker {
+  display: none;
+}
+
 @media (min-width: 1180px) {
   .header-layout {
     grid-template-columns: auto minmax(280px, 1fr) auto !important;
-    gap: 24px !important;
+    gap: 14px !important;
   }
 
   .desktop-main-nav {
@@ -323,6 +327,16 @@ input:-webkit-autofill:focus {
   .nav-menu-toggle,
   .nav-mobile-layer {
     display: none !important;
+  }
+}
+
+@media (min-width: 1480px) {
+  .header-layout {
+    gap: 20px !important;
+  }
+
+  .desktop-currency-picker {
+    display: flex;
   }
 }
 
@@ -929,6 +943,42 @@ button.keep-pill { border-radius: 999px !important; }
   color: color-mix(in srgb, var(--foreground) 62%, transparent);
 }
 
+.dd-currency-symbol {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-subtle);
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.currency-picker .dd-panel {
+  min-width: 230px;
+}
+
+.mobile-preference-picker .currency-picker,
+.mobile-preference-picker .dd-trigger {
+  width: 100%;
+}
+
+.mobile-preference-picker .dd-trigger {
+  justify-content: flex-start;
+}
+
+.mobile-preference-picker .dd-chevron {
+  margin-left: auto;
+}
+
+.site-mobile-menu .mobile-preference-picker .dd-panel {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
 .dd-chevron {
   width: 12px;
   height: 12px;
@@ -1426,6 +1476,32 @@ button[aria-expanded="true"] > .dd-chevron {
 
 :root[data-theme="white"] .theme-preserve-media [class*="border-white"] {
   border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+.home-game-card,
+:root[data-theme="white"] .home-game-card {
+  background-color: #08080a !important;
+  color: #ffffff !important;
+}
+
+.home-game-card-status[data-tone="default"],
+:root[data-theme="white"] .home-game-card-status[data-tone="default"] {
+  background: rgba(9, 9, 11, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.home-game-card-footer,
+:root[data-theme="white"] .home-game-card-footer {
+  background-color: rgba(7, 7, 9, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.home-game-card-icon,
+:root[data-theme="white"] .home-game-card-icon {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .theme-preserve-media .theme-media-secondary {

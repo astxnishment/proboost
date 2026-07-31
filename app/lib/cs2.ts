@@ -66,16 +66,16 @@ export const CS2_MAPS = [
 export type Cs2Map = (typeof CS2_MAPS)[number];
 
 export const FACEIT_LEVELS = [
-  { level: 1, minElo: 100, maxElo: 500, accent: "#6d747d" },
-  { level: 2, minElo: 501, maxElo: 750, accent: "#7d858d" },
-  { level: 3, minElo: 751, maxElo: 900, accent: "#8f969d" },
-  { level: 4, minElo: 901, maxElo: 1050, accent: "#d1a437" },
-  { level: 5, minElo: 1051, maxElo: 1200, accent: "#d3a02e" },
-  { level: 6, minElo: 1201, maxElo: 1350, accent: "#dc8b25" },
-  { level: 7, minElo: 1351, maxElo: 1530, accent: "#df7624" },
-  { level: 8, minElo: 1531, maxElo: 1750, accent: "#e65f25" },
-  { level: 9, minElo: 1751, maxElo: 2000, accent: "#ee4826" },
-  { level: 10, minElo: 2001, maxElo: 4000, accent: "#ff2e1f" },
+  { level: 1, minElo: 100, maxElo: 500, accent: "#b8b8b8" },
+  { level: 2, minElo: 501, maxElo: 750, accent: "#44e46c" },
+  { level: 3, minElo: 751, maxElo: 900, accent: "#44e46c" },
+  { level: 4, minElo: 901, maxElo: 1050, accent: "#fccc24" },
+  { level: 5, minElo: 1051, maxElo: 1200, accent: "#fccc24" },
+  { level: 6, minElo: 1201, maxElo: 1350, accent: "#fccc24" },
+  { level: 7, minElo: 1351, maxElo: 1530, accent: "#fccc24" },
+  { level: 8, minElo: 1531, maxElo: 1750, accent: "#fc6c24" },
+  { level: 9, minElo: 1751, maxElo: 2000, accent: "#fc6c24" },
+  { level: 10, minElo: 2001, maxElo: 4000, accent: "#ec042c" },
 ] as const;
 
 export function faceitLevelData(level: number) {
