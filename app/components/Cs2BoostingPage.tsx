@@ -139,16 +139,26 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
       style={{ "--cs2-accent": "#f47b20" } as CSSProperties}
     >
       <section className="theme-preserve-media relative min-h-[540px] overflow-hidden border-b border-[var(--line)] bg-[#08090b] text-white">
-        <Image
-          src="/cs2/cs2-hero.webp"
-          alt="Tactical Counter-Strike 2 specialist at an industrial bombsite"
-          fill
-          loading="eager"
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover object-[70%_center] md:object-contain md:object-right"
-        />
-        <div className="absolute inset-0 bg-black/45 md:hidden" aria-hidden />
+        <div
+          className="absolute inset-y-0 -right-[52%] w-[152%] opacity-55 sm:-right-[18%] sm:w-[118%] sm:opacity-80 md:right-0 md:w-[960px] md:opacity-100"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+          }}
+        >
+          <Image
+            src="/cs2/cs2-hero.webp"
+            alt="Tactical Counter-Strike 2 specialist at an industrial bombsite"
+            fill
+            loading="eager"
+            fetchPriority="high"
+            sizes="(max-width: 639px) 152vw, (max-width: 767px) 118vw, 960px"
+            className="object-cover object-[70%_center] md:object-contain md:object-right"
+          />
+          <div aria-hidden className="absolute inset-0 bg-black/25 sm:bg-black/10" />
+        </div>
         <div className="relative mx-auto flex min-h-[540px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
           <div className="max-w-[560px] md:max-w-[48%]">
             <div className="inline-flex items-center gap-2.5">
