@@ -138,49 +138,61 @@ export default function OverwatchBoostingPage({
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
       style={{ "--overwatch-accent": "#f99e1a" } as CSSProperties}
     >
-      <section className="theme-preserve-media relative min-h-[560px] overflow-hidden border-b border-[var(--line)] bg-[#090a0c] text-white">
-        <div className="absolute inset-y-0 right-[-18%] w-[108%] opacity-25 sm:right-[-5%] sm:w-[68%] sm:opacity-50 lg:right-0 lg:w-[52%] lg:border-l lg:border-white/10 lg:opacity-100">
+      <section className="theme-preserve-media relative min-h-[520px] overflow-hidden border-b border-[var(--line)] bg-[#090a0c] text-white sm:min-h-[560px]">
+        <div
+          className="absolute inset-y-0 -right-[36%] w-[136%] opacity-50 sm:-right-[10%] sm:w-[88%] sm:opacity-85 lg:right-0 lg:w-[64%] lg:opacity-100"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+          }}
+        >
           <Image
             src="/homepage/overwatch-homepage.webp"
             alt="Overwatch 2 heroes entering a competitive match"
             fill
             loading="eager"
             fetchPriority="high"
-            sizes="(max-width: 639px) 108vw, (max-width: 1023px) 68vw, 52vw"
-            className="object-cover object-[50%_38%]"
+            sizes="(max-width: 639px) 136vw, (max-width: 1023px) 88vw, 64vw"
+            className="object-cover object-[48%_38%]"
           />
-          <div aria-hidden className="absolute inset-0 bg-black/45 lg:bg-black/12" />
+          <div aria-hidden className="absolute inset-0 bg-black/25 sm:bg-black/10" />
         </div>
 
-        <div className="relative mx-auto flex min-h-[560px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
-          <div className="max-w-[34rem] lg:max-w-[43%]">
-            <div className="inline-flex items-center gap-2.5 rounded-lg border border-white/20 bg-black/50 px-3 py-2">
-              <Image
-                src="/game-icons/overwatch-2-logo.webp"
-                alt=""
-                width={56}
-                height={40}
-                className="h-7 w-10 object-contain"
-              />
-              <span className="text-xs font-semibold uppercase text-white/88">
-                Overwatch 2
+        <div className="relative mx-auto flex min-h-[520px] max-w-[1280px] items-center px-5 py-12 sm:min-h-[560px] sm:px-8 sm:py-14 lg:px-10">
+          <div className="max-w-[31rem] lg:max-w-[43%]">
+            <div className="inline-flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white ring-1 ring-white/15">
+                <Image
+                  src="/game-icons/overwatch-2-logo.webp"
+                  alt=""
+                  width={56}
+                  height={40}
+                  className="h-7 w-9 object-contain"
+                />
               </span>
-              <span
-                aria-hidden
-                className="h-1.5 w-1.5 rounded-full bg-[var(--overwatch-accent)]"
-              />
-              <span className="text-xs font-medium text-white/62">
-                Live service
-              </span>
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-semibold uppercase text-white/88">
+                  Overwatch 2
+                </span>
+                <span
+                  aria-hidden
+                  className="h-1.5 w-1.5 rounded-full bg-[var(--overwatch-accent)]"
+                />
+                <span className="text-xs font-medium text-white/62">
+                  Live service
+                </span>
+              </div>
             </div>
 
-            <h1 className="mt-7 max-w-[11ch] text-5xl font-semibold leading-[0.98] sm:text-6xl">
-              Overwatch 2 boosting services
+            <h1 className="mt-7 max-w-[11ch] text-5xl font-semibold leading-[0.96] sm:text-6xl">
+              <span className="block">Overwatch 2</span>
+              <span className="block">Boosting</span>
             </h1>
             <p className="mt-5 max-w-[46ch] text-base leading-7 text-white/72 sm:text-lg">
-              Competitive services built around your exact role, rank,
-              platform, and region. Configure the outcome first, then get
-              matched with a verified specialist.
+              Rank progression, placements, wins, and coaching configured
+              around your role, platform, and region.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -207,7 +219,7 @@ export default function OverwatchBoostingPage({
           {HERO_POINTS.map((item, index) => (
             <div
               key={item.label}
-              className={`flex min-h-20 items-center gap-3 px-3 py-4 sm:px-5 ${
+              className={`flex min-h-[72px] items-center gap-3 px-3 py-3 sm:px-5 ${
                 index % 2 === 1 ? "border-l border-[var(--line)]" : ""
               } ${index > 1 ? "border-t border-[var(--line)] lg:border-t-0" : ""} ${
                 index > 1 ? "lg:border-l" : ""

@@ -709,21 +709,29 @@ export default function OverwatchServiceConfigurator({
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
       style={{ "--overwatch-accent": "#f99e1a" } as CSSProperties}
     >
-      <section className="theme-preserve-media relative min-h-[450px] overflow-hidden border-b border-[var(--line)] bg-[#090a0c] text-white">
-        <div className="absolute inset-y-0 right-[-18%] w-[104%] opacity-25 sm:right-[-5%] sm:w-[70%] sm:opacity-50 lg:right-0 lg:w-[52%] lg:border-l lg:border-white/10 lg:opacity-100">
+      <section className="theme-preserve-media relative min-h-[430px] overflow-hidden border-b border-[var(--line)] bg-[#090a0c] text-white">
+        <div
+          className="absolute inset-y-0 -right-[36%] w-[136%] opacity-45 sm:-right-[10%] sm:w-[88%] sm:opacity-80 lg:right-0 lg:w-[64%] lg:opacity-100"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+          }}
+        >
           <Image
             src="/homepage/overwatch-homepage.webp"
             alt="Overwatch 2 heroes in a competitive city arena"
             fill
             loading="eager"
             fetchPriority="high"
-            sizes="(max-width: 639px) 104vw, (max-width: 1023px) 70vw, 52vw"
-            className="object-cover object-[50%_38%]"
+            sizes="(max-width: 639px) 136vw, (max-width: 1023px) 88vw, 64vw"
+            className="object-cover object-[48%_38%]"
           />
-          <div aria-hidden className="absolute inset-0 bg-black/45 lg:bg-black/12" />
+          <div aria-hidden className="absolute inset-0 bg-black/25 sm:bg-black/10" />
         </div>
-        <div className="relative mx-auto flex min-h-[450px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
-          <div className="max-w-[34rem] lg:max-w-[44%]">
+        <div className="relative mx-auto flex min-h-[430px] max-w-[1280px] items-center px-5 py-12 sm:px-8 lg:px-10">
+          <div className="max-w-[32rem] lg:max-w-[44%]">
             <Link
               href={basePath}
               className="inline-flex items-center gap-2 text-sm font-semibold text-white/75 transition hover:text-white"
