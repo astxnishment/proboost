@@ -528,10 +528,10 @@ const gameCards: GameCard[] = [
   { name: "League of Legends", href: "#",                           bg: "/homepage/lol-homepage.webp",              logo: "/homepage/lol-text-homepage.webp",          live: false, glow: "#0fa2b7" },
   { name: "Marvel Rivals",     href: "#",                           bg: "/homepage/marvelrivals-homepage.webp",     logo: "/homepage/marvelrivals-text-homepage.webp", live: false, glow: "#fcd92d" },
   { name: "Apex Legends",      href: "#",                           bg: "/homepage/apex-homepage.webp",             logo: "/homepage/apex-text-homepage.webp",         live: false, glow: "#f75e34" },
-  { name: "World of Warcraft", href: "#",                           bg: "/homepage/wow-homepage.webp",              logo: "/game-icons/game_icon (1).webp",            live: false, glow: "#e4b74c", iconOnly: true, objectPosition: "50% 42%" },
-  { name: "Fortnite",          href: "#",                           bg: "/homepage/fortnite-homepage-v2.webp",      logo: "/game-icons/game_icon (8).webp",            live: false, glow: "#8b5cf6", iconOnly: true, objectPosition: "50% 39%" },
-  { name: "Call of Duty",      href: "#",                           bg: "/homepage/cod-homepage-v2.webp",           logo: "/game-icons/game_icon (10).webp",           live: false, glow: "#d4d4d8", iconOnly: true, objectPosition: "50% 43%" },
-  { name: "Dota 2",            href: "#",                           bg: "/homepage/dota2-homepage-v2.webp",         logo: "/game-icons/game_icon (6).webp",            live: false, glow: "#df493d", iconOnly: true, objectPosition: "50% 42%" },
+  { name: "World of Warcraft", href: "#",                           bg: "/homepage/wow-homepage-v2.webp",           logo: "/game-icons/game_icon (1).webp",            live: false, glow: "#e4b74c", iconOnly: true, objectPosition: "50% 42%" },
+  { name: "Fortnite",          href: "#",                           bg: "/homepage/fortnite-homepage-v3.webp",      logo: "/game-icons/game_icon (8).webp",            live: false, glow: "#8b5cf6", iconOnly: true, objectPosition: "50% 39%" },
+  { name: "Call of Duty",      href: "#",                           bg: "/homepage/cod-homepage-v3.webp",           logo: "/game-icons/game_icon (10).webp",           live: false, glow: "#d4d4d8", iconOnly: true, objectPosition: "50% 43%" },
+  { name: "Dota 2",            href: "#",                           bg: "/homepage/dota2-homepage-v3.webp",         logo: "/game-icons/game_icon (6).webp",            live: false, glow: "#df493d", iconOnly: true, objectPosition: "50% 42%" },
 ];
 
 const platformLogos = [
