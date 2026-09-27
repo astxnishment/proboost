@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
+import LocalizedAuthProvider from "./components/LocalizedAuthProvider";
 import "./globals.css";
 import { CurrencyProvider } from "./components/CurrencyProvider";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import LiveChatProvider from "./components/LiveChat";
 import { SITE_NAME, SITE_URL } from "./lib/site";
+import Localized, { LanguageProvider } from "./components/Localization";
+import { OrderDraftProvider } from "./components/OrderDraftProvider";
 
 const themeInitScript = `
   (function () {
@@ -55,12 +58,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-64.png", sizes: "64x64", type: "image/png" },
-      { url: "/favicon-256.png", sizes: "256x256", type: "image/png" },
+      { url: "/brand/proboost-favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/brand/proboost-favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/proboost-favicon-64.png", sizes: "64x64", type: "image/png" },
+      { url: "/brand/proboost-favicon-256.png", sizes: "256x256", type: "image/png" },
+      { url: "/brand/proboost-favicon.svg", sizes: "any", type: "image/svg+xml" },
     ],
-    apple: "/favicon-180.png",
+    apple: "/brand/proboost-favicon-180.png",
   },
 };
 
@@ -80,7 +84,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
       <html
         lang="en"
         data-scroll-behavior="smooth"
@@ -93,18 +96,25 @@ export default function RootLayout({
           <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         </head>
         <body className="flex min-h-full flex-col">
+          <LanguageProvider>
+          <LocalizedAuthProvider>
           <CurrencyProvider>
+            <OrderDraftProvider>
+            <LiveChatProvider>
             <a href="#main-content" className="skip-link">
-              Skip to content
+              <Localized>Skip to content</Localized>
             </a>
             <Navbar />
             <div id="main-content" className="flex min-h-0 flex-1 flex-col" tabIndex={-1}>
               {children}
             </div>
             <Footer />
+            </LiveChatProvider>
+            </OrderDraftProvider>
           </CurrencyProvider>
+          </LocalizedAuthProvider>
+          </LanguageProvider>
         </body>
       </html>
-    </ClerkProvider>
   );
 }

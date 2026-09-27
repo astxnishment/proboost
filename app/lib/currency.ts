@@ -47,6 +47,7 @@ export function convertFromGbp(
 }
 
 type FormatOptions = {
+  locale?: string;
   minimumFractionDigits?: number;
   maximumFractionDigits?: number;
 };
@@ -57,7 +58,7 @@ export function formatGbpPrice(
   options: FormatOptions = {}
 ): string {
   const definition = CURRENCY_DEFINITIONS[currency];
-  return new Intl.NumberFormat(definition.locale, {
+  return new Intl.NumberFormat(options.locale ?? definition.locale, {
     style: "currency",
     currency,
     currencyDisplay: "narrowSymbol",
@@ -72,7 +73,7 @@ export function formatNativePrice(
   options: FormatOptions = {}
 ): string {
   const definition = CURRENCY_DEFINITIONS[currency];
-  return new Intl.NumberFormat(definition.locale, {
+  return new Intl.NumberFormat(options.locale ?? definition.locale, {
     style: "currency",
     currency,
     currencyDisplay: "narrowSymbol",
@@ -83,10 +84,11 @@ export function formatNativePrice(
 
 export function formatGbpNumber(
   amountInGbp: number,
-  currency: CurrencyCode
+  currency: CurrencyCode,
+  locale?: string
 ): string {
   const definition = CURRENCY_DEFINITIONS[currency];
-  return new Intl.NumberFormat(definition.locale, {
+  return new Intl.NumberFormat(locale ?? definition.locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(convertFromGbp(amountInGbp, currency));

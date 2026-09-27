@@ -1,13 +1,11 @@
+import Localized from "./Localization";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowUpRight,
-  Check,
   Clock3,
-  Crosshair,
   Gamepad2,
-  GraduationCap,
   Headphones,
   LockKeyhole,
   MapPin,
@@ -15,11 +13,11 @@ import {
   Monitor,
   Settings2,
   ShieldCheck,
-  Target,
-  Trophy,
   UsersRound,
 } from "lucide-react";
 import FaqSection from "./FaqSection";
+import GameHero from "./GameHero";
+import GameServiceCatalog, { type GameService } from "./GameServiceCatalog";
 
 const SERVICES = [
   {
@@ -29,7 +27,9 @@ const SERVICES = [
     description:
       "Set your current rank, target rank, region, and preferred delivery window.",
     details: ["RR-based order scope", "Solo or duo options"],
-    icon: Crosshair,
+    icon: "rank",
+    group: "rank",
+    artwork: "/valorant/ranks/radiant.png",
   },
   {
     id: "placements",
@@ -38,7 +38,8 @@ const SERVICES = [
     description:
       "Complete your competitive placements with a verified specialist assigned to your region.",
     details: ["Match packages", "Progress updates"],
-    icon: Target,
+    icon: "placements",
+    group: "matches",
   },
   {
     id: "competitive-wins",
@@ -47,7 +48,8 @@ const SERVICES = [
     description:
       "Choose a fixed number of ranked wins without committing to a full rank target.",
     details: ["Clear win target", "Flexible scheduling"],
-    icon: Trophy,
+    icon: "wins",
+    group: "matches",
   },
   {
     id: "coaching",
@@ -56,7 +58,8 @@ const SERVICES = [
     description:
       "Work directly with a high-ranked player on mechanics, decision-making, and VOD review.",
     details: ["Live sessions", "Role-specific feedback"],
-    icon: GraduationCap,
+    icon: "coaching",
+    group: "coaching",
   },
 ] as const;
 
@@ -133,100 +136,29 @@ const HERO_POINTS = [
   { label: "Support throughout", icon: Headphones },
 ] as const;
 
-function requestHref(subject: string) {
-  return `mailto:support@proboost.gg?subject=${encodeURIComponent(subject)}`;
-}
-
 export default function ValorantBoostingPage({
   basePath,
 }: {
   basePath: string;
 }) {
   return (
-    <main
-      className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
-      style={{ "--valorant-accent": "#ff4655" } as CSSProperties}
+    <Localized><main
+      className="game-overview min-h-screen bg-[var(--background)] text-[var(--foreground)]"
+      style={{ "--game-accent": "#ff4655", "--valorant-accent": "#ff4655" } as CSSProperties}
     >
-      <section className="theme-preserve-media relative min-h-[610px] overflow-hidden border-b border-[var(--line)] bg-[#0b0c10] text-white">
-        <div className="absolute bottom-0 right-[-22%] top-16 w-[92%] opacity-20 sm:right-[-8%] sm:w-[76%] sm:opacity-45 md:right-[1%] md:w-[58%] md:opacity-100">
-          <Image
-            src="/valorant/omen-full-portrait.webp"
-            alt="Omen from Valorant"
-            fill
-            loading="eager"
-            fetchPriority="high"
-            sizes="(max-width: 767px) 92vw, 58vw"
-            className="object-contain object-right-bottom"
-          />
-        </div>
-
-        <div className="relative mx-auto flex min-h-[540px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
-          <div className="max-w-[650px] md:max-w-[52%]">
-            <div className="inline-flex items-center gap-2.5 rounded-lg border border-white/20 bg-black/35 px-2.5 py-2">
-              <Image
-                src="/game-icons/game_icon (2).webp"
-                alt=""
-                width={32}
-                height={32}
-                className="h-7 w-7 rounded-md"
-              />
-              <span className="text-xs font-semibold uppercase text-white/85">
-                Valorant
-              </span>
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ backgroundColor: "var(--valorant-accent)" }}
-              />
-              <span className="text-xs font-medium text-white/60">
-                Live service
-              </span>
-            </div>
-
-            <h1 className="sr-only">Valorant boosting services</h1>
-            <div aria-hidden="true" className="mt-7">
-              <Image
-                src="/homepage/valorant-text-homepage.webp"
-                alt=""
-                width={281}
-                height={84}
-                className="h-auto w-[min(330px,72vw)]"
-                style={{ height: "auto" }}
-              />
-              <span className="mt-3 block text-3xl font-semibold text-white sm:text-4xl">
-                Boosting services
-              </span>
-            </div>
-
-            <p className="mt-5 max-w-[54ch] text-base leading-7 text-white/70 sm:text-lg">
-              Competitive services built around your exact rank, RR, platform,
-              and schedule. Configure the goal first, then get matched with a
-              verified specialist.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a
-                href="#services"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white bg-white px-6 text-sm font-semibold text-black transition hover:opacity-85"
-              >
-                Choose a service
-                <ArrowUpRight aria-hidden className="h-4 w-4" />
-              </a>
-              <a
-                href={requestHref("Valorant Service Request")}
-                className="theme-media-secondary inline-flex h-12 items-center justify-center rounded-lg border px-6 text-sm font-semibold transition"
-              >
-                Ask support
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <GameHero
+        name="Valorant"
+        description="Your rank, your pace. Find support for your next climb, finish your placements, or sharpen your skills with personal coaching."
+        artwork="/valorant/valorant-hero-v2.webp"
+        icon="/game-icons/game_icon (2).webp"
+        language={basePath.split("/")[1]}
+        imagePosition="center"
+      />
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)] px-5 sm:px-8 lg:px-10">
         <div className="mx-auto grid max-w-[1280px] grid-cols-2 lg:grid-cols-4">
           {HERO_POINTS.map((item, index) => (
-            <div
+            <Localized key={item.label}><div
               key={item.label}
               className={`flex min-h-20 items-center gap-3 px-3 py-4 sm:px-5 ${
                 index % 2 === 1 ? "border-l border-[var(--line)]" : ""
@@ -242,81 +174,24 @@ export default function ValorantBoostingPage({
               <span className="text-xs font-semibold text-[var(--foreground-soft)] sm:text-sm">
                 {item.label}
               </span>
-            </div>
+            </div></Localized>
           ))}
         </div>
       </section>
 
-      <section
-        id="services"
-        className="scroll-mt-20 px-5 py-16 sm:px-8 sm:py-20 lg:px-10"
-      >
-        <div className="mx-auto max-w-[1280px]">
-          <div className="grid gap-5 md:grid-cols-[minmax(0,0.78fr)_minmax(360px,1fr)] md:items-end">
+      <section id="services" className="game-services-section">
+        <div className="page-container">
+          <div className="game-services-heading">
             <div>
-              <p className="text-xs font-semibold uppercase text-[var(--muted)]">
-                Valorant services
-              </p>
-              <h2 className="mt-3 max-w-[13ch] text-4xl font-semibold leading-[1.04] sm:text-5xl">
-                Choose the result you need.
-              </h2>
+              <p className="eyebrow">Valorant services</p>
+              <h2 className="section-title">What are you playing for?</h2>
             </div>
-            <p className="max-w-[58ch] text-base leading-7 text-[var(--muted)] md:justify-self-end">
-              Every request starts with a defined outcome. No generic package
-              language and no hidden service tier: choose the format, then
-              confirm the exact scope with support.
-            </p>
+            <p>A higher rank, a fresh start, or more confidence in every round. Choose your goal, then tailor the service to your account.</p>
           </div>
-
-          <div className="mt-10 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {SERVICES.map((service) => (
-              <Link
-                key={service.id}
-                href={`${basePath}/${service.slug}`}
-                className="group flex min-h-[320px] flex-col rounded-lg border border-[var(--line)] bg-[var(--surface)] p-6 transition hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)]"
-              >
-                <span
-                  className="flex h-11 w-11 items-center justify-center rounded-lg"
-                  style={{
-                    backgroundColor:
-                      "color-mix(in srgb, var(--valorant-accent) 13%, var(--surface))",
-                    color: "var(--valorant-accent)",
-                  }}
-                >
-                  <service.icon
-                    aria-hidden
-                    className="h-5 w-5"
-                    strokeWidth={1.8}
-                  />
-                </span>
-                <h3 className="mt-7 text-xl font-semibold">{service.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-                  {service.description}
-                </p>
-                <div className="mt-5 space-y-2">
-                  {service.details.map((detail) => (
-                    <p
-                      key={detail}
-                      className="flex items-center gap-2 text-sm text-[var(--foreground-soft)]"
-                    >
-                      <Check
-                        aria-hidden
-                        className="h-3.5 w-3.5 shrink-0 text-[var(--muted)]"
-                      />
-                      {detail}
-                    </p>
-                  ))}
-                </div>
-                <span className="mt-auto flex items-center justify-between pt-7 text-sm font-semibold">
-                  Configure service
-                  <ArrowUpRight
-                    aria-hidden
-                    className="h-4 w-4 text-[var(--muted)] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--foreground)]"
-                  />
-                </span>
-              </Link>
-            ))}
-          </div>
+          <GameServiceCatalog
+            language={basePath.split("/")[1]}
+            services={SERVICES.map(service => ({ ...service, href: `${basePath}/${service.slug}` })) satisfies GameService[]}
+          />
         </div>
       </section>
 
@@ -341,7 +216,7 @@ export default function ValorantBoostingPage({
 
           <div className="grid sm:grid-cols-2">
             {ORDER_CONTROLS.map((item, index) => (
-              <div
+              <Localized key={item.title}><div
                 key={item.title}
                 className={`border-t border-[var(--line)] py-6 sm:px-6 ${
                   index % 2 === 1 ? "sm:border-l" : ""
@@ -358,7 +233,7 @@ export default function ValorantBoostingPage({
                 <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
                   {item.description}
                 </p>
-              </div>
+              </div></Localized>
             ))}
           </div>
         </div>
@@ -377,7 +252,7 @@ export default function ValorantBoostingPage({
 
           <div className="mt-10 grid border-y border-[var(--line)] lg:grid-cols-3">
             {PROCESS.map((item, index) => (
-              <div
+              <Localized key={item.label}><div
                 key={item.label}
                 className={`px-1 py-8 sm:px-6 ${
                   index > 0
@@ -399,7 +274,7 @@ export default function ValorantBoostingPage({
                 <p className="mt-3 max-w-[42ch] text-sm leading-6 text-[var(--muted)]">
                   {item.description}
                 </p>
-              </div>
+              </div></Localized>
             ))}
           </div>
         </div>
@@ -458,6 +333,6 @@ export default function ValorantBoostingPage({
           </div>
         </div>
       </section>
-    </main>
+    </main></Localized>
   );
 }

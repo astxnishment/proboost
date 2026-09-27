@@ -1,5 +1,9 @@
 "use client";
 
+import { useOrderState } from "../OrderDraftProvider";
+
+import Localized, { useLanguage } from "../Localization";
+import { translate } from "../../lib/localization";
 import type { CSSProperties } from "react";
 import React from "react";
 import Image from "next/image";
@@ -110,7 +114,7 @@ function OverwatchRankBadge({
   const wingCount = Math.min(4, Math.max(1, tier + 1));
 
   return (
-    <span
+    <Localized><span
       aria-hidden
       className={`inline-flex shrink-0 items-center justify-center ${
         large ? "h-16 w-16" : "h-11 w-11"
@@ -140,7 +144,7 @@ function OverwatchRankBadge({
           const y = 23 + index * 7;
           const extension = 2 + index * 1.5;
           return (
-            <React.Fragment key={y}>
+            <Localized key={y}><React.Fragment key={y}>
               <path
                 d={`M${18 - extension} ${y}h-7l-4 4h9`}
                 stroke={color}
@@ -153,7 +157,7 @@ function OverwatchRankBadge({
                 strokeWidth="2"
                 strokeLinecap="square"
               />
-            </React.Fragment>
+            </React.Fragment></Localized>
           );
         })}
         {tier >= 5 ? (
@@ -165,7 +169,7 @@ function OverwatchRankBadge({
           />
         ) : null}
       </svg>
-    </span>
+    </span></Localized>
   );
 }
 
@@ -179,7 +183,7 @@ function Toggle({
   label: string;
 }) {
   return (
-    <button
+    <Localized><button
       type="button"
       role="switch"
       aria-checked={checked}
@@ -196,7 +200,7 @@ function Toggle({
           checked ? "translate-x-[22px]" : "translate-x-[3px]"
         }`}
       />
-    </button>
+    </button></Localized>
   );
 }
 
@@ -223,13 +227,13 @@ function QuantityStepper({
         : `${suffix}s`;
 
   return (
-    <section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+    <Localized><section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <h2 className="text-sm font-semibold">{label}</h2>
       <div className="mt-4 grid grid-cols-[44px_1fr_44px] items-center gap-3">
         <button
           type="button"
-          aria-label={`Decrease ${label.toLowerCase()}`}
-          title={`Decrease ${label.toLowerCase()}`}
+          aria-label={`Decrease ${label}`}
+          title={`Decrease ${label}`}
           disabled={value <= min}
           onClick={() => onChange(Math.max(min, value - 1))}
           className="theme-button-secondary flex h-11 w-11 items-center justify-center rounded-lg border transition disabled:opacity-35"
@@ -237,13 +241,12 @@ function QuantityStepper({
           <Minus aria-hidden className="h-4 w-4" />
         </button>
         <div className="text-center">
-          <span className="text-3xl font-semibold">{value}</span>
-          <span className="ml-2 text-sm text-[var(--muted)]">{plural}</span>
+          <span className="text-2xl font-semibold">{`${value} ${plural}`}</span>
         </div>
         <button
           type="button"
-          aria-label={`Increase ${label.toLowerCase()}`}
-          title={`Increase ${label.toLowerCase()}`}
+          aria-label={`Increase ${label}`}
+          title={`Increase ${label}`}
           disabled={value >= max}
           onClick={() => onChange(Math.min(max, value + 1))}
           className="theme-button-secondary flex h-11 w-11 items-center justify-center rounded-lg border transition disabled:opacity-35"
@@ -251,7 +254,7 @@ function QuantityStepper({
           <Plus aria-hidden className="h-4 w-4" />
         </button>
       </div>
-    </section>
+    </section></Localized>
   );
 }
 
@@ -277,12 +280,12 @@ function RankPicker({
   const color = rankColor(rank);
 
   return (
-    <section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+    <Localized><section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <div className="flex min-h-16 items-center gap-3">
         <OverwatchRankBadge rank={rank} size="large" />
         <div className="min-w-0">
           <h2 className="text-base font-semibold">{label}</h2>
-          <p className="mt-0.5 truncate text-sm font-semibold" style={{ color }}>
+          <p className="game-rank-label mt-0.5 break-words text-sm font-semibold" style={{ "--rank-label-accent": color } as CSSProperties}>
             {rank}{showDivision ? ` ${division}` : ""}
           </p>
         </div>
@@ -298,7 +301,7 @@ function RankPicker({
           const disabled = isRankDisabled?.(item) ?? false;
           const itemColor = rankColor(item);
           return (
-            <button
+            <Localized key={item}><button
               key={item}
               type="button"
               role="radio"
@@ -327,7 +330,7 @@ function RankPicker({
               <span className="mt-1 w-full text-[10px] font-semibold leading-[1.15] text-[var(--foreground-soft)]">
                 {item}
               </span>
-            </button>
+            </button></Localized>
           );
         })}
       </div>
@@ -342,7 +345,7 @@ function RankPicker({
             const selected = item === division;
             const disabled = isDivisionDisabled?.(item) ?? false;
             return (
-              <button
+              <Localized key={item}><button
                 key={item}
                 type="button"
                 role="radio"
@@ -367,12 +370,12 @@ function RankPicker({
                 }
               >
                 {item}
-              </button>
+              </button></Localized>
             );
           })}
         </div>
       ) : null}
-    </section>
+    </section></Localized>
   );
 }
 
@@ -384,7 +387,7 @@ function RoleSelector({
   onChange: (next: (typeof OVERWATCH_ROLES)[number]) => void;
 }) {
   return (
-    <div
+    <Localized><div
       role="radiogroup"
       aria-label="Competitive role"
       className="grid grid-cols-2 gap-2 sm:grid-cols-4"
@@ -393,7 +396,7 @@ function RoleSelector({
         const selected = role === value;
         const Icon = ROLE_ICONS[role];
         return (
-          <button
+          <Localized key={role}><button
             key={role}
             type="button"
             role="radio"
@@ -416,10 +419,10 @@ function RoleSelector({
           >
             <Icon aria-hidden className="h-4 w-4" />
             <span>{role}</span>
-          </button>
+          </button></Localized>
         );
       })}
-    </div>
+    </div></Localized>
   );
 }
 
@@ -431,7 +434,7 @@ function QueueSelector({
   onChange: (next: QueueType) => void;
 }) {
   return (
-    <div
+    <Localized><div
       role="group"
       aria-label="Queue format"
       className="grid grid-cols-2 gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-1.5"
@@ -439,7 +442,7 @@ function QueueSelector({
       {(["Solo", "Duo"] as const).map((item) => {
         const selected = item === value;
         return (
-          <button
+          <Localized key={item}><button
             key={item}
             type="button"
             aria-pressed={selected}
@@ -460,10 +463,10 @@ function QueueSelector({
             }
           >
             {item}
-          </button>
+          </button></Localized>
         );
       })}
-    </div>
+    </div></Localized>
   );
 }
 
@@ -483,7 +486,7 @@ function OptionRow({
   onChange: (next: boolean) => void;
 }) {
   return (
-    <div className="flex items-center gap-4 border-t border-[var(--line)] py-4 first:border-t-0 first:pt-0 last:pb-0">
+    <Localized><div className="flex items-center gap-4 border-t border-[var(--line)] py-4 first:border-t-0 first:pt-0 last:pb-0">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-muted)]">
         <Icon aria-hidden className="h-4 w-4" />
       </span>
@@ -497,7 +500,7 @@ function OptionRow({
         </p>
       </div>
       <Toggle checked={checked} onChange={onChange} label={title} />
-    </div>
+    </div></Localized>
   );
 }
 
@@ -508,32 +511,33 @@ export default function OverwatchServiceConfigurator({
   service: OverwatchServiceSlug;
   basePath: string;
 }) {
+  const language = useLanguage();
   const config = OVERWATCH_SERVICE_CONFIG[service];
   const ServiceIcon = SERVICE_ICONS[service];
   const { currency, formatPrice } = useCurrency();
 
-  const [currentRank, setCurrentRank] = React.useState("Silver");
-  const [currentDivision, setCurrentDivision] = React.useState("3");
-  const [desiredRank, setDesiredRank] = React.useState("Diamond");
-  const [desiredDivision, setDesiredDivision] = React.useState("5");
-  const [currentProgress, setCurrentProgress] = React.useState(42);
-  const [previousRank, setPreviousRank] = React.useState("Gold");
-  const [matches, setMatches] = React.useState(10);
-  const [wins, setWins] = React.useState(3);
-  const [hours, setHours] = React.useState(2);
+  const [currentRank, setCurrentRank] = useOrderState(`overwatch/${service}:currentRank`, "Silver");
+  const [currentDivision, setCurrentDivision] = useOrderState(`overwatch/${service}:currentDivision`, "3");
+  const [desiredRank, setDesiredRank] = useOrderState(`overwatch/${service}:desiredRank`, "Diamond");
+  const [desiredDivision, setDesiredDivision] = useOrderState(`overwatch/${service}:desiredDivision`, "5");
+  const [currentProgress, setCurrentProgress] = useOrderState(`overwatch/${service}:currentProgress`, 42);
+  const [previousRank, setPreviousRank] = useOrderState(`overwatch/${service}:previousRank`, "Gold");
+  const [matches, setMatches] = useOrderState(`overwatch/${service}:matches`, 10);
+  const [wins, setWins] = useOrderState(`overwatch/${service}:wins`, 3);
+  const [hours, setHours] = useOrderState(`overwatch/${service}:hours`, 2);
   const [focus, setFocus] =
-    React.useState<(typeof OVERWATCH_COACHING_FOCUS)[number]>("Positioning");
+    useOrderState<(typeof OVERWATCH_COACHING_FOCUS)[number]>(`overwatch/${service}:focus`, "Positioning");
   const [role, setRole] =
-    React.useState<(typeof OVERWATCH_ROLES)[number]>("Damage");
-  const [platform, setPlatform] = React.useState("PC");
-  const [server, setServer] = React.useState("Europe");
-  const [queueType, setQueueType] = React.useState<QueueType>("Solo");
-  const [express, setExpress] = React.useState(false);
-  const [specificBooster, setSpecificBooster] = React.useState(false);
-  const [recordedSession, setRecordedSession] = React.useState(false);
-  const [customFocus, setCustomFocus] = React.useState(false);
-  const [promoCode, setPromoCode] = React.useState("");
-  const [appliedPromo, setAppliedPromo] = React.useState("");
+    useOrderState<(typeof OVERWATCH_ROLES)[number]>(`overwatch/${service}:role`, "Damage");
+  const [platform, setPlatform] = useOrderState(`overwatch/${service}:platform`, "PC");
+  const [server, setServer] = useOrderState(`overwatch/${service}:server`, "Europe");
+  const [queueType, setQueueType] = useOrderState<QueueType>(`overwatch/${service}:queueType`, "Solo");
+  const [express, setExpress] = useOrderState(`overwatch/${service}:express`, false);
+  const [specificBooster, setSpecificBooster] = useOrderState(`overwatch/${service}:specificBooster`, false);
+  const [recordedSession, setRecordedSession] = useOrderState(`overwatch/${service}:recordedSession`, false);
+  const [customFocus, setCustomFocus] = useOrderState(`overwatch/${service}:customFocus`, false);
+  const [promoCode, setPromoCode] = useOrderState(`overwatch/${service}:promoCode`, "");
+  const [appliedPromo, setAppliedPromo] = useOrderState(`overwatch/${service}:appliedPromo`, "");
   const [message, setMessage] = React.useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
 
@@ -685,7 +689,7 @@ export default function OverwatchServiceConfigurator({
       ? [
           [
             "Route",
-            `${currentRank} ${currentDivision} to ${desiredRank} ${desiredDivision}`,
+            `${translate(language, `${currentRank} ${currentDivision}`)} → ${translate(language, `${desiredRank} ${desiredDivision}`)}`,
           ],
           ["Progress", `${currentProgress}%`],
         ]
@@ -705,7 +709,7 @@ export default function OverwatchServiceConfigurator({
             ];
 
   return (
-    <main
+    <Localized><main
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
       style={{ "--overwatch-accent": "#f99e1a" } as CSSProperties}
     >
@@ -765,7 +769,7 @@ export default function OverwatchServiceConfigurator({
             { label: "Private handling", Icon: LockKeyhole },
             { label: "Support throughout", Icon: Headphones },
           ].map(({ label, Icon }, index) => (
-            <div
+            <Localized key={label}><div
               key={label}
               className={`flex min-h-18 items-center gap-3 px-2 py-4 sm:px-4 ${
                 index % 2 === 1 ? "border-l border-[var(--line)]" : ""
@@ -777,7 +781,7 @@ export default function OverwatchServiceConfigurator({
               <span className="text-xs font-semibold text-[var(--foreground-soft)] sm:text-sm">
                 {label}
               </span>
-            </div>
+            </div></Localized>
           ))}
         </div>
       </section>
@@ -790,7 +794,7 @@ export default function OverwatchServiceConfigurator({
           {OVERWATCH_SERVICE_SLUGS.map((slug) => {
             const active = slug === service;
             return (
-              <Link
+              <Localized key={slug}><Link
                 key={slug}
                 href={`${basePath}/${slug}`}
                 aria-current={active ? "page" : undefined}
@@ -807,7 +811,7 @@ export default function OverwatchServiceConfigurator({
                     className="absolute inset-x-4 -bottom-[13px] h-0.5 bg-[var(--overwatch-accent)]"
                   />
                 ) : null}
-              </Link>
+              </Link></Localized>
             );
           })}
         </nav>
@@ -910,7 +914,7 @@ export default function OverwatchServiceConfigurator({
                       <span className="mt-2">Unranked</span>
                     </button>
                     {OVERWATCH_RANKS.map((rank) => (
-                      <button
+                      <Localized key={rank}><button
                         key={rank}
                         type="button"
                         role="radio"
@@ -928,7 +932,7 @@ export default function OverwatchServiceConfigurator({
                       >
                         <OverwatchRankBadge rank={rank} />
                         <span className="mt-1 w-full text-[10px] leading-tight">{rank}</span>
-                      </button>
+                      </button></Localized>
                     ))}
                   </div>
                 </section>
@@ -992,7 +996,7 @@ export default function OverwatchServiceConfigurator({
                       {OVERWATCH_COACHING_FOCUS.map((item) => {
                         const selected = focus === item;
                         return (
-                          <button
+                          <Localized key={item}><button
                             key={item}
                             type="button"
                             role="radio"
@@ -1014,7 +1018,7 @@ export default function OverwatchServiceConfigurator({
                             }
                           >
                             {item}
-                          </button>
+                          </button></Localized>
                         );
                       })}
                     </div>
@@ -1051,9 +1055,9 @@ export default function OverwatchServiceConfigurator({
                     className="h-12 w-full appearance-none rounded-lg border px-4 outline-none transition hover:border-[var(--line-strong)]"
                   >
                     {ORDER_SERVERS.map((region) => (
-                      <option key={region} value={region}>
+                      <Localized key={region}><option key={region} value={region}>
                         {region}
-                      </option>
+                      </option></Localized>
                     ))}
                   </select>
                 </div>
@@ -1137,10 +1141,10 @@ export default function OverwatchServiceConfigurator({
 
             <div className="mt-6 space-y-3 border-y border-[var(--line)] py-5">
               {summaryRows.map(([label, value]) => (
-                <div key={label} className="grid grid-cols-[96px_1fr] gap-3 text-sm">
+                <Localized key={label}><div key={label} className="grid grid-cols-[96px_1fr] gap-3 text-sm">
                   <span className="text-[var(--muted)]">{label}</span>
                   <span className="min-w-0 text-right font-medium">{value}</span>
-                </div>
+                </div></Localized>
               ))}
               <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
                 <span className="text-[var(--muted)]">Role</span>
@@ -1271,6 +1275,6 @@ export default function OverwatchServiceConfigurator({
           </Link>
         </div>
       </section>
-    </main>
+    </main></Localized>
   );
 }

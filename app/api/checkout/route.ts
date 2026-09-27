@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { isLocale, translate } from "@/app/lib/localization";
+import { parseCatalogGameOrder } from "@/app/lib/additional-pricing";
 import {
   computeOrderPrice,
   describeOrder,
@@ -59,6 +61,7 @@ function parseOrder(body: unknown): Order | null {
   const b = body as Record<string, unknown>;
 
   const serviceType = b.serviceType;
+  if (serviceType === "catalog-game") return parseCatalogGameOrder(body);
   if (
     typeof serviceType !== "string" ||
     !SERVICE_TYPES.includes(serviceType as (typeof SERVICE_TYPES)[number])
@@ -550,6 +553,7 @@ export async function POST(req: NextRequest) {
     if (!order) {
       return NextResponse.json({ error: "Invalid order" }, { status: 400 });
     }
+    const language = isLocale(body.language) ? body.language : 'en';
 
     const requestedCurrency =
       typeof body === "object" && body !== null
@@ -576,7 +580,7 @@ export async function POST(req: NextRequest) {
     const secretKey = process.env.STRIPE_SECRET_KEY;
     if (!secretKey || secretKey === "sk_test_XXXXXXXX") {
       return NextResponse.json(
-        { error: "Stripe secret key not configured. Update STRIPE_SECRET_KEY in .env.local" },
+        { error: "Checkout is temporarily unavailable. Please try again." },
         { status: 500 }
       );
     }
@@ -584,13 +588,15 @@ export async function POST(req: NextRequest) {
     const stripe = new Stripe(secretKey);
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      // Stripe does not currently offer Ukrainian checkout chrome.
+      locale: language === 'uk' ? 'auto' : language,
       line_items: [
         {
           price_data: {
             currency: currency.toLowerCase(),
             product_data: {
-              name,
-              description: description || undefined,
+              name: translate(language, name).slice(0, 250),
+              description: description ? description.split(' | ').map(part => translate(language, part)).join(' | ').slice(0, 500) : undefined,
             },
             unit_amount: amount,
           },
@@ -601,9 +607,10 @@ export async function POST(req: NextRequest) {
         base_currency: "GBP",
         display_currency: currency,
         base_total: total.toFixed(2),
+        language,
       },
       success_url: `${req.nextUrl.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.nextUrl.origin}/`,
+      cancel_url: `${req.nextUrl.origin}/${language}`,
     });
 
     return NextResponse.json({ url: session.url });

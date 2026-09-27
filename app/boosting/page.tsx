@@ -1,8 +1,9 @@
-import Image from "next/image";
-import Link from "next/link";
+import Localized from "../components/Localization";
+import type { CSSProperties } from "react";
+import GameHero from "../components/GameHero";
+import GameServiceCatalog, { type GameService } from "../components/GameServiceCatalog";
 import FaqSection from "../components/FaqSection";
 import {
-  ArrowUpRight,
   Check,
   Headphones,
   LockKeyhole,
@@ -355,7 +356,7 @@ export default function SiegeBoostingPage({
   defaultLang?: LangCode;
 }) {
   const SERVICE_CARDS_BASE = buildServiceCards(basePath);
-  const t = PAGE_I18N[defaultLang];
+  const t = PAGE_I18N.en;
 
   const SERVICE_CARDS = SERVICE_CARDS_BASE.map((card, i) => ({
     ...card,
@@ -364,94 +365,48 @@ export default function SiegeBoostingPage({
   }));
 
   return (
-    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <section id="overview" className="relative min-h-[470px] overflow-hidden border-b border-[var(--line)] bg-[var(--background)] text-[var(--foreground)]">
-        <Image
-          src="/homepage/r6-homepage.webp"
-          alt="Rainbow Six Siege operator"
-          width={440}
-          height={440}
-          loading="eager"
-          className="pointer-events-none absolute bottom-0 right-[-90px] h-[360px] w-auto object-contain opacity-25 sm:right-[-20px] md:right-[6%] md:h-[440px] md:opacity-100"
-        />
-        <div className="relative mx-auto flex min-h-[470px] max-w-[1280px] items-center px-5 pb-12 pt-24 sm:px-8 lg:px-10">
-          <div className="w-full max-w-2xl md:max-w-[48%] xl:max-w-2xl">
-            <h1 className="sr-only">Tom Clancy&apos;s Rainbow Six Siege boosting services</h1>
-            <div aria-hidden="true">
-              <Image
-                src="/homepage/r6-text-homepage.png"
-                alt=""
-                width={281}
-                height={84}
-                className="r6-hero-wordmark h-auto w-[min(360px,80vw)] max-w-full"
-                style={{ height: "auto" }}
-              />
-              <span className="mt-4 block text-2xl font-semibold text-[var(--muted)] sm:text-3xl">Boosting services</span>
-            </div>
-            <p className="mt-5 max-w-lg text-base leading-7 text-[var(--muted)]">
-              Reach your target rank with verified players across every platform and region.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link href={`${basePath}/rainbow-six-siege-rank-boost`} className="inline-flex h-12 items-center gap-2 rounded-xl bg-[var(--foreground)] px-6 text-sm font-semibold text-[var(--background)] transition hover:opacity-85">
-                Configure rank boost
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-              <a href="#boosting" className="inline-flex h-12 items-center rounded-xl border border-[var(--line-strong)] px-6 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)]">
-                View all services
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+    <Localized><main className="game-overview min-h-screen bg-[var(--background)] text-[var(--foreground)]" style={{ "--game-accent": "#a78bfa" } as CSSProperties}>
+      <GameHero
+        name="Rainbow Six Siege"
+        description="Build your next ranked climb, team up for more wins, or refine your game with a coach. Choose a service that fits your next Siege goal."
+        artwork="/homepage/r6-homepage.webp"
+        icon="/game-icons/r6-icon.webp"
+        language={defaultLang}
+        servicesId="boosting"
+        imagePosition="center 30%"
+      />
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)] px-5 py-4 sm:px-8 lg:px-10">
         <div className="mx-auto grid max-w-[1280px] grid-cols-2 gap-3 sm:grid-cols-4">
           {["PC, Xbox & PlayStation", "All regions", "Verified boosters", "24/7 support"].map((item) => (
-            <div key={item} className="flex min-h-14 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 text-xs font-medium text-[var(--muted)] sm:text-sm">
+            <Localized key={item}><div key={item} className="flex min-h-14 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 text-xs font-medium text-[var(--muted)] sm:text-sm">
               <Check className="h-4 w-4 shrink-0" />
               {item}
-            </div>
+            </div></Localized>
           ))}
         </div>
       </section>
 
-      <section id="boosting" className="px-5 py-12 sm:px-8 sm:py-14 lg:px-10">
-        <div className="mx-auto max-w-[1280px]">
+      <section id="boosting" className="game-services-section">
+        <div className="page-container">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase text-[var(--muted)]">{t.boostingLabel}</p>
             <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">Choose your service</h2>
             <p className="mt-3 text-[var(--muted)]">Select a goal and configure the order around your rank, platform, and region.</p>
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-            {SERVICE_CARDS.map((service, index) => (
-              <Link
-                key={service.id}
-                href={service.href}
-                className={`group flex min-h-[260px] flex-col rounded-[20px] border border-[var(--line)] bg-[var(--surface)] p-6 transition hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)] ${index < 3 ? "xl:col-span-2" : "xl:col-span-3"}`}
-              >
-                <div className="relative h-[72px] w-[72px] overflow-hidden rounded-xl border border-[var(--line)] bg-black">
-                  <Image
-                    src={SERVICE_ARTWORK[index]}
-                    alt=""
-                    fill
-                    sizes="72px"
-                    className="object-cover"
-                  />
-                </div>
-                <h3 className="mt-6 text-xl font-semibold">{service.title}</h3>
-                <div className="mt-4 space-y-2">
-                  {service.bullets.slice(0, 2).map((bullet) => (
-                    <p key={bullet} className="flex items-center gap-2 text-sm text-[var(--muted)]"><Check className="h-4 w-4 shrink-0" />{bullet}</p>
-                  ))}
-                </div>
-                <span className="mt-auto flex items-center justify-between pt-6 text-sm font-semibold">
-                  Configure service
-                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:text-[var(--foreground)]" />
-                </span>
-              </Link>
-            ))}
-          </div>
+          <GameServiceCatalog
+            language={defaultLang}
+            services={SERVICE_CARDS.map((service, index): GameService => ({
+              href: service.href,
+              title: service.title,
+              description: service.bullets[0],
+              details: service.bullets.slice(1),
+              group: index < 2 ? "rank" : index < 4 ? "matches" : "coaching",
+              icon: index < 2 ? "rank" : index === 2 ? "wins" : index === 3 ? "placements" : "coaching",
+              artwork: SERVICE_ARTWORK[index],
+            }))}
+          />
         </div>
       </section>
 
@@ -460,11 +415,11 @@ export default function SiegeBoostingPage({
           {t.trust.map((item, i) => {
             const TrustIcon = TRUST_ICONS[i];
             return (
-              <div key={item.title} className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-6">
+              <Localized key={item.title}><div key={item.title} className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-6">
                 <TrustIcon aria-hidden className="mb-5 h-6 w-6 text-[var(--muted)]" />
                 <h3 className="text-base font-semibold">{item.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.desc}</p>
-              </div>
+              </div></Localized>
             );
           })}
         </div>
@@ -484,11 +439,11 @@ export default function SiegeBoostingPage({
 
           <div className="mt-10 grid gap-3 lg:grid-cols-3">
             {t.steps.map((item) => (
-              <div key={item.step} className="rounded-[20px] border border-[var(--line)] bg-[var(--surface)] p-6">
+              <Localized key={item.step}><div key={item.step} className="rounded-[20px] border border-[var(--line)] bg-[var(--surface)] p-6">
                 <p className="text-sm font-medium text-[var(--muted-soft)]">{item.step}</p>
                 <h3 className="mt-8 text-xl font-semibold">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{item.description}</p>
-              </div>
+              </div></Localized>
             ))}
           </div>
         </div>
@@ -499,6 +454,6 @@ export default function SiegeBoostingPage({
         <FaqSection copy={{ label: t.faqLabel, items: t.faq }} />
       </section>
 
-    </main>
+    </main></Localized>
   );
 }

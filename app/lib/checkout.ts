@@ -1,5 +1,6 @@
 import { DEFAULT_CURRENCY, type CurrencyCode } from "./currency";
 import type { Order } from "./pricing";
+import { isLocale, localeFromPath } from "./localization";
 
 type CheckoutResponse = {
   url?: string;
@@ -19,12 +20,16 @@ export async function createCheckoutSession(
   );
 
   try {
+    let language = localeFromPath(window.location.pathname);
+    if (!language) {
+      try { const saved = window.localStorage.getItem('proboost_lang'); if (isLocale(saved)) language = saved; } catch { /* Use English when storage is unavailable. */ }
+    }
     const response = await fetch("/api/checkout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ...order, currency }),
+      body: JSON.stringify({ ...order, currency, language: language ?? 'en' }),
       signal: controller.signal,
     });
 
@@ -53,6 +58,7 @@ export async function createCheckoutSession(
 }
 
 export function getCheckoutErrorMessage(error: unknown): string {
+  if (error instanceof TypeError) return "Checkout could not be started. Please try again.";
   return error instanceof Error
     ? error.message
     : "Checkout could not be started. Please try again.";

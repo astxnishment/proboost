@@ -6,12 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:catalog": "node --test tests/catalog-pricing.test.cjs",
+    "test:chat": "node --test tests/live-chat.test.cjs",
+    "test:localization": "node --test tests/localization.test.cjs"
   },
   "dependencies": {
+    "@clerk/localizations": "^4.20.0",
     "@clerk/nextjs": "^7.2.5",
     "lucide-react": "^1.8.0",
-    "next": "16.2.4",
+    "next": "^16.3.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "stripe": "^22.0.2"
@@ -22,8 +26,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
-    "sharp": "^0.34.5",
+    "eslint-config-next": "^16.3.6",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

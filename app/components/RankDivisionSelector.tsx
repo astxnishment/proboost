@@ -1,3 +1,4 @@
+import Localized from "./Localization";
 import type { CSSProperties } from "react";
 
 export default function RankDivisionSelector({
@@ -18,7 +19,7 @@ export default function RankDivisionSelector({
   className?: string;
 }) {
   return (
-    <div
+    <Localized><div
       role="group"
       aria-label={ariaLabel}
       className={`grid grid-cols-5 gap-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-muted)] p-1.5 ${className}`}
@@ -40,7 +41,7 @@ export default function RankDivisionSelector({
         } as CSSProperties;
 
         return (
-          <button
+          <Localized key={division}><button
             key={division}
             type="button"
             disabled={disabled}
@@ -63,9 +64,9 @@ export default function RankDivisionSelector({
               }`}
               style={{ backgroundColor: accent }}
             />
-          </button>
+          </button></Localized>
         );
       })}
-    </div>
+    </div></Localized>
   );
 }

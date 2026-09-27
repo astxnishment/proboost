@@ -1,20 +1,27 @@
 "use client";
 
+import Localized, { useLanguage } from "../../components/Localization";
 import React from "react";
+import { authErrorMessage } from "../../lib/auth-errors";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { MailCheck } from "lucide-react";
 
 export default function VerifyPage() {
   const router = useRouter();
+  const language = useLanguage();
   const clerk = useClerk();
 
   const [code, setCode] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [resent, setResent] = React.useState(false);
+  const submitting = React.useRef(false);
+  const [resending, setResending] = React.useState(false);
 
   const submitCode = React.useCallback(async (codeToSubmit: string) => {
+    if (submitting.current || !/^\d{6}$/.test(codeToSubmit)) return;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
@@ -22,27 +29,26 @@ export default function VerifyPage() {
       const res = await signUp.attemptEmailAddressVerification({ code: codeToSubmit });
       if (res.status === "complete") {
         await clerk.setActive({ session: res.createdSessionId });
-        router.push("/");
+        router.push(`/${language}`);
       } else if (res.createdSessionId) {
         await clerk.setActive({ session: res.createdSessionId });
-        router.push("/");
+        router.push(`/${language}`);
       } else {
         const session = clerk.client!.signedInSessions?.[0];
         if (session) {
           await clerk.setActive({ session: session.id });
-          router.push("/");
+          router.push(`/${language}`);
         } else {
-          setError(`Unexpected status: ${res.status}. Please try again.`);
+          setError("We could not finish creating your account. Please try again or contact support.");
         }
       }
     } catch (err: unknown) {
-      const clerkErr = err as { errors?: { message: string; code: string }[] };
-      const errCode = clerkErr?.errors?.[0]?.code;
-      setError(errCode === "form_code_incorrect" ? "Code is incorrect." : (clerkErr?.errors?.[0]?.message ?? "Something went wrong. Please try again."));
+      setError(authErrorMessage(err));
     } finally {
+      submitting.current = false;
       setLoading(false);
     }
-  }, [clerk, router]);
+  }, [clerk, router, language]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,14 +56,17 @@ export default function VerifyPage() {
   };
 
   const handleResend = async () => {
+    if (resending) return;
+    setResending(true);
     setError("");
     setResent(false);
     try {
       await clerk.client!.signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setResent(true);
     } catch (err: unknown) {
-      const clerkErr = err as { errors?: { message: string }[] };
-      setError(clerkErr?.errors?.[0]?.message ?? "Failed to resend code.");
+      setError(authErrorMessage(err));
+    } finally {
+      setResending(false);
     }
   };
 
@@ -95,7 +104,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <main className="auth-shell flex min-h-[calc(100svh-var(--header-height))] items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
+    <Localized><main className="auth-shell flex min-h-[calc(100svh-var(--header-height))] items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
       <div id="clerk-captcha" />
 
       <div className="surface w-full max-w-md p-6 sm:p-8">
@@ -115,7 +124,7 @@ export default function VerifyPage() {
         <form className="mt-7" onSubmit={handleSubmit}>
           <div className="grid grid-cols-6 gap-2" onPaste={handlePaste}>
             {digits.map((d, i) => (
-              <input
+              <Localized key={i}><input
                 key={i}
                 ref={(el) => { inputRefs.current[i] = el; }}
                 type="text"
@@ -127,7 +136,7 @@ export default function VerifyPage() {
                 onChange={(e) => handleDigit(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
                 className="field-control h-13 min-w-0 px-0 text-center text-lg font-semibold tabular-nums sm:h-14 sm:text-xl"
-              />
+              /></Localized>
             ))}
           </div>
 
@@ -144,7 +153,7 @@ export default function VerifyPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || code.length !== 6}
             className="button-base button-primary mt-5 w-full"
           >
             {loading ? "Verifying..." : "Verify email"}
@@ -155,6 +164,7 @@ export default function VerifyPage() {
           Didn&apos;t receive it?{" "}
           <button
             type="button"
+            disabled={resending || loading}
             onClick={handleResend}
             className="font-semibold text-[var(--foreground)] underline decoration-[var(--line-strong)] transition hover:decoration-[var(--foreground)]"
           >
@@ -162,6 +172,6 @@ export default function VerifyPage() {
           </button>
         </p>
       </div>
-    </main>
+    </main></Localized>
   );
 }

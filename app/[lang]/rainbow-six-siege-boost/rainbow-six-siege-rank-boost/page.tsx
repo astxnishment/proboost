@@ -1,3 +1,4 @@
+import { localizeMetadata } from "../../../lib/localized-metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProBoostCalculator from "../../../boosting/rank-up/page";
@@ -19,7 +20,7 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!isSupportedLanguage(lang)) notFound();
 
-  return {
+  return localizeMetadata({
     title: "Rainbow Six Siege Rank Boost",
     description:
       "Climb from any rank to Champion with verified Rainbow Six Siege boosters. Transparent pricing, solo or duo queue, all platforms and regions.",
@@ -29,7 +30,7 @@ export async function generateMetadata({
         "rainbow-six-siege-boost/rainbow-six-siege-rank-boost"
       ),
     },
-  };
+  }, lang);
 }
 
 export default async function LangRainbowSixSiegeRankBoostPage({
@@ -40,5 +41,5 @@ export default async function LangRainbowSixSiegeRankBoostPage({
   const { lang } = await params;
   if (!isSupportedLanguage(lang)) notFound();
 
-  return <ProBoostCalculator defaultLang={lang} />;
+  return <ProBoostCalculator />;
 }

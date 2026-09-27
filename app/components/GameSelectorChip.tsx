@@ -1,124 +1,37 @@
 "use client";
 
-import React from "react";
+import Localized from "./Localization";
 import Image from "next/image";
-import { Dropdown, type DropdownItem } from "./Dropdown";
-import type { LanguageCode } from "./Dropdown";
+import { Dropdown, type DropdownItem, type LanguageCode } from "./Dropdown";
+import { GAME_DIRECTORY, GAME_CATEGORY_LABELS, isPveGame } from "../lib/games";
 
-type GameMenuItem = {
-  id: string;
-  label: string;
-  chipLabel?: string;
-  iconSrc?: string;
-  shortLabel: string;
-  fallbackClass: string;
-  comingSoon?: boolean;
-  href: string;
-};
-
-const GAMES: GameMenuItem[] = [
-  { id: "r6", label: "Rainbow Six Siege", iconSrc: "/game-icons/r6-icon.webp", shortLabel: "R6", fallbackClass: "bg-cyan-400 text-black", href: "/en/rainbow-six-siege-boost" },
-  { id: "valorant", label: "Valorant", iconSrc: "/game-icons/game_icon (2).webp", shortLabel: "V", fallbackClass: "bg-[#ff5468] text-black", href: "/en/valorant-boost" },
-  { id: "cs2", label: "Counter-Strike 2", iconSrc: "/game-icons/game_icon (5).webp", shortLabel: "CS2", fallbackClass: "bg-[#f97316] text-black", href: "/en/counter-strike-2-boost" },
-  { id: "overwatch-2", label: "Overwatch 2", iconSrc: "/game-icons/overwatch-2-logo.webp", shortLabel: "OW2", fallbackClass: "bg-[#f56600] text-white", href: "/en/overwatch-2-boost" },
-  { id: "rocket-league", label: "Rocket League", iconSrc: "/game-icons/game_icon (3).webp", shortLabel: "RL", fallbackClass: "bg-[#3d6ef7] text-white", href: "#", comingSoon: true },
-  { id: "lol", label: "League of Legends", iconSrc: "/homepage/lol-homepage.webp", shortLabel: "L", fallbackClass: "bg-[#0e5a68] text-[#d4af37]", href: "#", comingSoon: true },
-  { id: "marvel-rivals", label: "Marvel Rivals", iconSrc: "/game-icons/game_icon (14).webp", shortLabel: "MR", fallbackClass: "bg-zinc-700 text-white", href: "#", comingSoon: true },
-  { id: "apex", label: "Apex Legends", iconSrc: "/game-icons/game_icon (7).webp", shortLabel: "A", fallbackClass: "bg-[#93333b] text-white", href: "#", comingSoon: true },
-  { id: "wow", label: "World of Warcraft", iconSrc: "/game-icons/game_icon (1).webp", shortLabel: "WoW", fallbackClass: "bg-[#183251] text-[#e4b74c]", href: "#", comingSoon: true },
-  { id: "fortnite", label: "Fortnite", iconSrc: "/game-icons/game_icon (8).webp", shortLabel: "FN", fallbackClass: "bg-[#5b35a7] text-white", href: "#", comingSoon: true },
-  { id: "call-of-duty", label: "Call of Duty", iconSrc: "/game-icons/game_icon (10).webp", shortLabel: "COD", fallbackClass: "bg-zinc-800 text-white", href: "#", comingSoon: true },
-  { id: "dota-2", label: "Dota 2", iconSrc: "/game-icons/game_icon (6).webp", shortLabel: "D2", fallbackClass: "bg-[#7d231f] text-white", href: "#", comingSoon: true },
-];
-
-function GameIcon({ item }: { item: GameMenuItem }) {
-  if (item.iconSrc) {
-    return (
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--surface-subtle)]">
-        <Image src={item.iconSrc} alt="" width={36} height={36} className="h-full w-full object-cover" />
-      </span>
-    );
-  }
-  return (
-    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[9px] font-bold ${item.fallbackClass}`}>
-      {item.shortLabel}
-    </span>
-  );
-}
-
-export default function GameSelectorChip({
-  activeGameId,
-  language = "en",
-}: {
-  activeGameId?: string;
-  language?: LanguageCode;
-} = {}) {
-  const activeGame = activeGameId ? GAMES.find((g) => g.id === activeGameId) : null;
-
-  const items: DropdownItem[] = GAMES.map((game, i) => ({
+export default function GameSelectorChip({ activeGameId, language = "en" }: { activeGameId?: string; language?: LanguageCode } = {}) {
+  const activeGame = GAME_DIRECTORY.find(game => game.id === activeGameId);
+  const booking = GAME_CATEGORY_LABELS[language] ?? GAME_CATEGORY_LABELS.en;
+  const items: DropdownItem[] = GAME_DIRECTORY.map(game => ({
     id: game.id,
-    label: game.label,
-    description: game.comingSoon
-      ? "Service in preparation"
-        : game.id === "overwatch-2"
-          ? "Role-based competitive services available"
-        : game.id === "valorant"
-        ? "Competitive services available"
-        : "Rank boosting available",
-    icon: <GameIcon item={game} />,
-    meta: game.comingSoon ? "Soon" : "Open",
-    disabled: game.comingSoon,
-    href:
-      game.comingSoon
-        ? undefined
-        : game.id === "r6"
-          ? `/${language}/rainbow-six-siege-boost`
-          : game.id === "valorant"
-            ? `/${language}/valorant-boost`
-            : game.id === "cs2"
-              ? `/${language}/counter-strike-2-boost`
-            : game.id === "overwatch-2"
-              ? `/${language}/overwatch-2-boost`
-            : game.href,
+    label: game.name,
+    description: isPveGame(game) ? booking.pve : booking.competitive,
+    icon: <span className="game-brand-tile flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--line)]"><Image src={game.icon} alt="" width={36} height={36} className="h-full w-full object-contain" /></span>,
+    href: `/${language}/${game.slug}`,
     selected: game.id === activeGameId,
-    // Hairline between the live catalogue and upcoming titles
-    separatorAfter: !game.comingSoon && GAMES[i + 1]?.comingSoon,
   }));
 
   return (
-    <Dropdown
+    <Localized><Dropdown
       ariaLabel="Select your game"
       align="start"
       className="block"
       items={items}
       menuClassName="w-[292px]"
-      menuHeader={
-        <div>
-          <p className="text-xs font-semibold text-[var(--foreground)]">Choose a game</p>
-          <p className="mt-0.5 text-[11px] text-[var(--muted-soft)]">Available and upcoming services</p>
-        </div>
-      }
-      triggerClassName={`dd-trigger game-picker-trigger !h-10 w-full justify-between gap-3 sm:w-[220px] ${
-        activeGame ? "!pl-1.5" : ""
-      }`}
+      menuHeader={<div><p className="text-xs font-semibold text-[var(--foreground)]">Choose a game</p><p className="mt-0.5 text-[11px] text-[var(--muted-soft)]">Explore all {GAME_DIRECTORY.length} games</p></div>}
+      triggerClassName={`dd-trigger game-picker-trigger !h-10 w-full justify-between gap-3 sm:w-[220px] ${activeGame ? "!pl-1.5" : ""}`}
       trigger={
         <span className="flex min-w-0 items-center gap-2.5">
-          {activeGame ? (
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--surface-subtle)]">
-              <Image
-                src={activeGame.iconSrc!}
-                alt=""
-                width={40}
-                height={40}
-                className="h-full w-full scale-[1.18] object-cover"
-              />
-            </span>
-          ) : null}
-          <span className="truncate text-[13px] font-medium">
-            {activeGame ? (activeGame.chipLabel ?? activeGame.label) : "Select your game"}
-          </span>
+          {activeGame && <span className="game-brand-tile flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--line)]"><Image src={activeGame.icon} alt="" width={40} height={40} className="h-full w-full object-contain" /></span>}
+          <span className="truncate text-[13px] font-medium">{activeGame?.name ?? "Select your game"}</span>
         </span>
       }
-    />
+    /></Localized>
   );
 }

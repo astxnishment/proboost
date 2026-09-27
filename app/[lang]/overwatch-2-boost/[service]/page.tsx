@@ -1,3 +1,4 @@
+import { localizeMetadata } from "../../../lib/localized-metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import OverwatchServiceConfigurator from "@/app/components/overwatch/OverwatchServiceConfigurator";
@@ -31,7 +32,7 @@ export async function generateMetadata({
   const config = OVERWATCH_SERVICE_CONFIG[service];
   const path = `overwatch-2-boost/${service}`;
 
-  return {
+  return localizeMetadata({
     title: config.title,
     description: config.metadataDescription,
     alternates: {
@@ -50,7 +51,7 @@ export async function generateMetadata({
         },
       ],
     },
-  };
+  }, lang);
 }
 
 export default async function LocalizedOverwatchServicePage({

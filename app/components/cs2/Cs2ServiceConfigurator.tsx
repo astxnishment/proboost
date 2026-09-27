@@ -1,5 +1,9 @@
 "use client";
 
+import { useOrderState } from "../OrderDraftProvider";
+
+import Localized, { useLanguage } from "../Localization";
+import { translate, LANGUAGE_LOCALES } from "../../lib/localization";
 import type { CSSProperties } from "react";
 import React from "react";
 import Image from "next/image";
@@ -112,7 +116,7 @@ function Toggle({
   label: string;
 }) {
   return (
-    <button
+    <Localized><button
       type="button"
       role="switch"
       aria-checked={checked}
@@ -129,7 +133,7 @@ function Toggle({
           checked ? "translate-x-[22px]" : "translate-x-[3px]"
         }`}
       />
-    </button>
+    </button></Localized>
   );
 }
 
@@ -149,12 +153,12 @@ function QuantityStepper({
   onChange: (next: number) => void;
 }) {
   return (
-    <section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+    <Localized><section className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <h2 className="text-sm font-semibold">{label}</h2>
       <div className="mt-4 grid grid-cols-[44px_1fr_44px] items-center gap-3">
         <button
           type="button"
-          aria-label={`Decrease ${label.toLowerCase()}`}
+          aria-label={`Decrease ${label}`}
           disabled={value <= min}
           onClick={() => onChange(Math.max(min, value - 1))}
           className="theme-button-secondary flex h-11 w-11 items-center justify-center rounded-lg border transition disabled:opacity-35"
@@ -162,14 +166,13 @@ function QuantityStepper({
           <Minus aria-hidden className="h-4 w-4" />
         </button>
         <div className="text-center">
-          <span className="text-3xl font-semibold">{value}</span>
-          <span className="ml-2 text-sm text-[var(--muted)]">
-            {value === 1 ? suffix : `${suffix}s`}
+          <span className="text-2xl font-semibold">
+            {`${value} ${value === 1 ? suffix : `${suffix}s`}`}
           </span>
         </div>
         <button
           type="button"
-          aria-label={`Increase ${label.toLowerCase()}`}
+          aria-label={`Increase ${label}`}
           disabled={value >= max}
           onClick={() => onChange(Math.min(max, value + 1))}
           className="theme-button-secondary flex h-11 w-11 items-center justify-center rounded-lg border transition disabled:opacity-35"
@@ -177,7 +180,7 @@ function QuantityStepper({
           <Plus aria-hidden className="h-4 w-4" />
         </button>
       </div>
-    </section>
+    </section></Localized>
   );
 }
 
@@ -206,7 +209,7 @@ function RangeControl({
       : Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
 
   return (
-    <div className="relative mt-6 h-5">
+    <Localized><div className="relative mt-6 h-5">
       <span
         aria-hidden
         className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[var(--surface-strong)]"
@@ -228,7 +231,7 @@ function RangeControl({
         className="cs2-range absolute inset-0 h-5 w-full"
         style={{ "--range-accent": accent } as CSSProperties}
       />
-    </div>
+    </div></Localized>
   );
 }
 
@@ -240,7 +243,7 @@ function QueueSelector({
   onChange: (next: QueueType) => void;
 }) {
   return (
-    <div
+    <Localized><div
       role="group"
       aria-label="Queue format"
       className="grid grid-cols-2 gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-1.5"
@@ -248,7 +251,7 @@ function QueueSelector({
       {(["Solo", "Duo"] as const).map((item) => {
         const selected = value === item;
         return (
-          <button
+          <Localized key={item}><button
             key={item}
             type="button"
             aria-pressed={selected}
@@ -269,10 +272,10 @@ function QueueSelector({
             }
           >
             {item}
-          </button>
+          </button></Localized>
         );
       })}
-    </div>
+    </div></Localized>
   );
 }
 
@@ -290,7 +293,7 @@ function SelectField({
   onChange: (next: string) => void;
 }) {
   return (
-    <div className="min-w-0">
+    <Localized><div className="min-w-0">
       <label htmlFor={id} className="mb-2 block text-sm font-semibold">
         {label}
       </label>
@@ -302,9 +305,9 @@ function SelectField({
           className="h-12 w-full appearance-none rounded-lg border px-4 pr-10 outline-none transition hover:border-[var(--line-strong)]"
         >
           {options.map((option) => (
-            <option key={option} value={option}>
+            <Localized key={option}><option key={option} value={option}>
               {option}
-            </option>
+            </option></Localized>
           ))}
         </select>
         <ChevronDown
@@ -312,7 +315,7 @@ function SelectField({
           className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]"
         />
       </div>
-    </div>
+    </div></Localized>
   );
 }
 
@@ -332,7 +335,7 @@ function RankPicker({
   const accent = rankAccent(value);
 
   return (
-    <section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+    <Localized><section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <div className="flex min-h-14 items-center gap-4">
         <span className="flex h-12 w-24 shrink-0 items-center justify-center rounded-lg border border-[var(--line)] bg-[#101216] px-2">
           <Image
@@ -346,10 +349,8 @@ function RankPicker({
         <div className="min-w-0">
           <h2 className="text-sm font-semibold">{label}</h2>
           <p
-            className="mt-1 truncate text-base font-semibold"
-            style={{
-              color: `color-mix(in srgb, ${accent} 78%, var(--foreground))`,
-            }}
+            className="game-rank-label mt-1 break-words text-base font-semibold"
+            style={{ "--rank-label-accent": accent } as CSSProperties}
           >
             {value}
           </p>
@@ -368,7 +369,7 @@ function RankPicker({
           const disabled = isDisabled?.(rank) ?? false;
           const itemAccent = rankAccent(rank);
           return (
-            <button
+            <Localized key={rank}><button
               key={rank}
               type="button"
               role="radio"
@@ -404,11 +405,11 @@ function RankPicker({
               <span className="mt-2 text-[10px] font-semibold text-[var(--foreground-soft)]">
                 {CS2_RANK_SHORT_NAMES[rank]}
               </span>
-            </button>
+            </button></Localized>
           );
         })}
       </div>
-    </section>
+    </section></Localized>
   );
 }
 
@@ -426,7 +427,7 @@ function FaceitPicker({
   const selected = faceitLevelData(value);
 
   return (
-    <section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+    <Localized><section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <div className="flex min-h-14 items-center gap-3">
         <FaceitLevelBadge
           level={value}
@@ -436,10 +437,8 @@ function FaceitPicker({
         <div>
           <h2 className="text-sm font-semibold">{label}</h2>
           <p
-            className="mt-1 text-base font-semibold"
-            style={{
-              color: `color-mix(in srgb, ${selected.accent} 76%, var(--foreground))`,
-            }}
+            className="game-rank-label mt-1 text-base font-semibold"
+            style={{ "--rank-label-accent": selected.accent } as CSSProperties}
           >
             FACEIT Level {value}
           </p>
@@ -455,7 +454,7 @@ function FaceitPicker({
           const active = value === item.level;
           const disabled = isDisabled?.(item.level) ?? false;
           return (
-            <button
+            <Localized key={item.level}><button
               key={item.level}
               type="button"
               role="radio"
@@ -482,11 +481,11 @@ function FaceitPicker({
               <span className="mt-1 text-[10px] font-semibold">
                 LVL {item.level}
               </span>
-            </button>
+            </button></Localized>
           );
         })}
       </div>
-    </section>
+    </section></Localized>
   );
 }
 
@@ -506,7 +505,7 @@ function FaceitLevelBadge({
   const progressLength = trackLength * (level / 10);
 
   return (
-    <span
+    <Localized><span
       aria-hidden
       className={`relative inline-flex shrink-0 items-center justify-center ${
         large ? "h-12 w-12" : "h-9 w-9"
@@ -553,7 +552,7 @@ function FaceitLevelBadge({
           {level}
         </text>
       </svg>
-    </span>
+    </span></Localized>
   );
 }
 
@@ -573,7 +572,7 @@ function OptionRow({
   onChange: (next: boolean) => void;
 }) {
   return (
-    <div className="flex items-center gap-4 border-t border-[var(--line)] py-4 first:border-t-0 first:pt-0 last:pb-0">
+    <Localized><div className="flex items-center gap-4 border-t border-[var(--line)] py-4 first:border-t-0 first:pt-0 last:pb-0">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-muted)]">
         <Icon aria-hidden className="h-4 w-4" />
       </span>
@@ -587,7 +586,7 @@ function OptionRow({
         </p>
       </div>
       <Toggle checked={checked} onChange={onChange} label={title} />
-    </div>
+    </div></Localized>
   );
 }
 
@@ -603,23 +602,25 @@ export default function Cs2ServiceConfigurator({
   const isFaceit = service === "faceit-leveling";
   const serviceNavRef = React.useRef<HTMLElement>(null);
   const activeServiceLinkRef = React.useRef<HTMLAnchorElement>(null);
+  const language = useLanguage();
+  const locale = LANGUAGE_LOCALES[language];
   const { currency, formatPrice } = useCurrency();
 
-  const [currentRank, setCurrentRank] = React.useState("Silver II");
-  const [desiredRank, setDesiredRank] = React.useState("Gold Nova II");
-  const [currentRating, setCurrentRating] = React.useState(8000);
-  const [desiredRating, setDesiredRating] = React.useState(15000);
-  const [wins, setWins] = React.useState(3);
-  const [map, setMap] = React.useState("Any map");
-  const [currentLevel, setCurrentLevel] = React.useState(3);
-  const [desiredLevel, setDesiredLevel] = React.useState(7);
-  const [currentElo, setCurrentElo] = React.useState(825);
-  const [server, setServer] = React.useState("Europe");
-  const [queueType, setQueueType] = React.useState<QueueType>("Solo");
-  const [express, setExpress] = React.useState(false);
-  const [specificBooster, setSpecificBooster] = React.useState(false);
-  const [promoCode, setPromoCode] = React.useState("");
-  const [appliedPromo, setAppliedPromo] = React.useState("");
+  const [currentRank, setCurrentRank] = useOrderState(`cs2/${service}:currentRank`, "Silver II");
+  const [desiredRank, setDesiredRank] = useOrderState(`cs2/${service}:desiredRank`, "Gold Nova II");
+  const [currentRating, setCurrentRating] = useOrderState(`cs2/${service}:currentRating`, 8000);
+  const [desiredRating, setDesiredRating] = useOrderState(`cs2/${service}:desiredRating`, 15000);
+  const [wins, setWins] = useOrderState(`cs2/${service}:wins`, 3);
+  const [map, setMap] = useOrderState(`cs2/${service}:map`, "Any map");
+  const [currentLevel, setCurrentLevel] = useOrderState(`cs2/${service}:currentLevel`, 3);
+  const [desiredLevel, setDesiredLevel] = useOrderState(`cs2/${service}:desiredLevel`, 7);
+  const [currentElo, setCurrentElo] = useOrderState(`cs2/${service}:currentElo`, 825);
+  const [server, setServer] = useOrderState(`cs2/${service}:server`, "Europe");
+  const [queueType, setQueueType] = useOrderState<QueueType>(`cs2/${service}:queueType`, "Solo");
+  const [express, setExpress] = useOrderState(`cs2/${service}:express`, false);
+  const [specificBooster, setSpecificBooster] = useOrderState(`cs2/${service}:specificBooster`, false);
+  const [promoCode, setPromoCode] = useOrderState(`cs2/${service}:promoCode`, "");
+  const [appliedPromo, setAppliedPromo] = useOrderState(`cs2/${service}:appliedPromo`, "");
   const [message, setMessage] = React.useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
 
@@ -762,13 +763,13 @@ export default function Cs2ServiceConfigurator({
   const summaryRows =
     service === "cs2-rank-boost"
       ? [
-          ["Route", `${currentRank} to ${desiredRank}`],
+          ["Route", `${translate(language, currentRank)} → ${translate(language, desiredRank)}`],
           ["Map", map],
         ]
       : service === "premier-rating"
         ? [
-            ["Current", currentRating.toLocaleString("en-GB")],
-            ["Target", desiredRating.toLocaleString("en-GB")],
+            ["Current", currentRating.toLocaleString(locale)],
+            ["Target", desiredRating.toLocaleString(locale)],
           ]
         : service === "competitive-wins"
           ? [
@@ -777,11 +778,11 @@ export default function Cs2ServiceConfigurator({
               ["Map", map],
             ]
           : [
-              ["Route", `Level ${currentLevel} to Level ${desiredLevel}`],
-              ["Current Elo", currentElo.toLocaleString("en-GB")],
+              ["Route", `${translate(language, `Level ${currentLevel}`)} → ${translate(language, `Level ${desiredLevel}`)}`],
+              ["Current Elo", currentElo.toLocaleString(locale)],
               [
                 "Target Elo",
-                `${faceitLevelData(desiredLevel).minElo.toLocaleString("en-GB")}+`,
+                `${faceitLevelData(desiredLevel).minElo.toLocaleString(locale)}+`,
               ],
             ];
 
@@ -812,7 +813,7 @@ export default function Cs2ServiceConfigurator({
   };
 
   return (
-    <main
+    <Localized><main
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
       style={{ "--cs2-accent": CS2_ACCENT } as CSSProperties}
     >
@@ -882,7 +883,7 @@ export default function Cs2ServiceConfigurator({
             { label: "Region matched", Icon: Crosshair },
             { label: "Support throughout", Icon: Headphones },
           ].map(({ label, Icon }, index) => (
-            <div
+            <Localized key={label}><div
               key={label}
               className={`flex min-h-18 items-center gap-3 px-2 py-4 sm:px-4 ${
                 index % 2 === 1 ? "border-l border-[var(--line)]" : ""
@@ -897,7 +898,7 @@ export default function Cs2ServiceConfigurator({
               <span className="text-xs font-semibold text-[var(--foreground-soft)] sm:text-sm">
                 {label}
               </span>
-            </div>
+            </div></Localized>
           ))}
         </div>
       </section>
@@ -911,7 +912,7 @@ export default function Cs2ServiceConfigurator({
           {CS2_SERVICE_SLUGS.map((slug) => {
             const active = slug === service;
             return (
-              <Link
+              <Localized key={slug}><Link
                 key={slug}
                 ref={active ? activeServiceLinkRef : undefined}
                 href={`${basePath}/${slug}`}
@@ -933,7 +934,7 @@ export default function Cs2ServiceConfigurator({
                     style={{ backgroundColor: "var(--cs2-accent)" }}
                   />
                 )}
-              </Link>
+              </Link></Localized>
             );
           })}
         </nav>
@@ -979,7 +980,7 @@ export default function Cs2ServiceConfigurator({
                           )} 78%, var(--foreground))`,
                         }}
                       >
-                        {currentRating.toLocaleString("en-GB")}
+                        {currentRating.toLocaleString(locale)}
                       </output>
                     </div>
                     <RangeControl
@@ -1014,7 +1015,7 @@ export default function Cs2ServiceConfigurator({
                           )} 78%, var(--foreground))`,
                         }}
                       >
-                        {desiredRating.toLocaleString("en-GB")}
+                        {desiredRating.toLocaleString(locale)}
                       </output>
                     </div>
                     <RangeControl
@@ -1028,7 +1029,7 @@ export default function Cs2ServiceConfigurator({
                       accent={premierRatingAccent(desiredRating)}
                     />
                     <div className="mt-2 flex justify-between text-xs text-[var(--muted)]">
-                      <span>{(currentRating + 500).toLocaleString("en-GB")}</span>
+                      <span>{(currentRating + 500).toLocaleString(locale)}</span>
                       <span>40,000</span>
                     </div>
                   </div>
@@ -1087,7 +1088,7 @@ export default function Cs2ServiceConfigurator({
                         } 76%, var(--foreground))`,
                       }}
                     >
-                      {currentElo.toLocaleString("en-GB")} Elo
+                      {currentElo.toLocaleString(locale)} Elo
                     </output>
                   </div>
                   <RangeControl
@@ -1194,13 +1195,13 @@ export default function Cs2ServiceConfigurator({
 
             <div className="mt-6 space-y-3 border-y border-[var(--line)] py-5">
               {summaryRows.map(([label, value]) => (
-                <div
+                <Localized key={label}><div
                   key={label}
                   className="grid grid-cols-[96px_1fr] gap-3 text-sm"
                 >
                   <span className="text-[var(--muted)]">{label}</span>
                   <span className="min-w-0 text-right font-medium">{value}</span>
-                </div>
+                </div></Localized>
               ))}
               <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
                 <span className="text-[var(--muted)]">Region</span>
@@ -1333,6 +1334,6 @@ export default function Cs2ServiceConfigurator({
           </Link>
         </div>
       </section>
-    </main>
+    </main></Localized>
   );
 }

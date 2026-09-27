@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import React from "react";
+import Localized from "../components/Localization";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { LanguageCode } from "../components/Dropdown";
 import { ButtonLink, StatusBadge } from "../components/ui";
@@ -21,29 +21,10 @@ const i18n: Record<LanguageCode, {
 };
 
 export default function SuccessPage() {
-  const [selectedLang, setSelectedLang] = React.useState<LanguageCode>("en");
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem("proboost_lang");
-    const id = window.setTimeout(() => {
-      if (saved && saved in i18n) {
-        setSelectedLang(saved as LanguageCode);
-      }
-    }, 0);
-    const handleLanguageChange = (event: Event) => {
-      const language = (event as CustomEvent<LanguageCode>).detail;
-      if (language && language in i18n) setSelectedLang(language);
-    };
-    window.addEventListener("proboost:language-change", handleLanguageChange);
-    return () => {
-      window.clearTimeout(id);
-      window.removeEventListener("proboost:language-change", handleLanguageChange);
-    };
-  }, []);
-  const t = i18n[selectedLang];
+  const t = i18n.en;
 
   return (
-    <main className="auth-shell flex min-h-[calc(100svh-var(--header-height))] items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
+    <Localized><main className="auth-shell flex min-h-[calc(100svh-var(--header-height))] items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
       <div className="surface w-full max-w-lg p-6 text-center sm:p-9">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg border border-[var(--success-line)] bg-[var(--success-surface)] text-[var(--success)]">
           <CheckCircle2 aria-hidden="true" className="h-7 w-7" />
@@ -63,10 +44,10 @@ export default function SuccessPage() {
           <p className="font-semibold text-[var(--foreground)]">{t.nextLabel}</p>
           <ul className="mt-4 space-y-3 text-[var(--muted)]">
             {t.steps.map((step, i) => (
-              <li key={i} className="flex items-start gap-2.5">
+              <Localized key={i}><li key={i} className="flex items-start gap-2.5">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[var(--surface-strong)] text-[10px] font-bold text-[var(--foreground)]">{i + 1}</span>
                 {step}
-              </li>
+              </li></Localized>
             ))}
           </ul>
         </div>
@@ -79,6 +60,6 @@ export default function SuccessPage() {
           <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </ButtonLink>
       </div>
-    </main>
+    </main></Localized>
   );
 }

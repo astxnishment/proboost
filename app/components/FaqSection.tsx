@@ -1,5 +1,6 @@
 "use client";
 
+import Localized from "./Localization";
 import React from "react";
 import { ChevronDown } from "lucide-react";
 
@@ -13,7 +14,7 @@ export default function FaqSection({ copy }: { copy: FaqCopy }) {
   const idPrefix = React.useId();
 
   return (
-    <section className="mt-10">
+    <Localized><section className="mt-10">
       <p className="eyebrow mb-4">
         {copy.label}
       </p>
@@ -22,7 +23,7 @@ export default function FaqSection({ copy }: { copy: FaqCopy }) {
         {copy.items.map((faq, i) => {
           const isOpen = open === i;
           return (
-            <div
+            <Localized key={faq.q}><div
               key={faq.q}
               className={`border-b border-[var(--line)] transition-colors last:border-b-0 ${
                 isOpen ? "bg-[var(--surface-muted)]" : "hover:bg-[var(--surface-raised)]"
@@ -61,10 +62,10 @@ export default function FaqSection({ copy }: { copy: FaqCopy }) {
                   </div>
                 </div>
               </div>
-            </div>
+            </div></Localized>
           );
         })}
       </div>
-    </section>
+    </section></Localized>
   );
 }

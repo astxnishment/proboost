@@ -1,24 +1,22 @@
+import Localized from "./Localization";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowUpRight,
-  Check,
   Clock3,
-  Crosshair,
   Gamepad2,
-  GraduationCap,
   Headphones,
   LockKeyhole,
   MapPin,
   MessageCircle,
   Settings2,
   ShieldCheck,
-  Target,
-  Trophy,
   UsersRound,
 } from "lucide-react";
 import FaqSection from "./FaqSection";
+import GameHero from "./GameHero";
+import GameServiceCatalog, { type GameService } from "./GameServiceCatalog";
 
 const SERVICES = [
   {
@@ -27,7 +25,8 @@ const SERVICES = [
     description:
       "Choose a role, current division, target rank, platform, and region.",
     details: ["Bronze to Champion", "Role or Open Queue"],
-    icon: Crosshair,
+    icon: "rank",
+    group: "rank",
   },
   {
     slug: "placements",
@@ -35,7 +34,8 @@ const SERVICES = [
     description:
       "Complete up to ten calibration matches with a region-matched specialist.",
     details: ["Predicted-rank path", "Flexible match packages"],
-    icon: Target,
+    icon: "placements",
+    group: "matches",
   },
   {
     slug: "competitive-wins",
@@ -43,7 +43,8 @@ const SERVICES = [
     description:
       "Choose a fixed win target at your current rank and preferred role.",
     details: ["Clear win target", "Live order updates"],
-    icon: Trophy,
+    icon: "wins",
+    group: "matches",
   },
   {
     slug: "coaching",
@@ -51,7 +52,8 @@ const SERVICES = [
     description:
       "Improve positioning, hero mastery, team play, or review a complete VOD.",
     details: ["Private sessions", "Role-specific feedback"],
-    icon: GraduationCap,
+    icon: "coaching",
+    group: "coaching",
   },
 ] as const;
 
@@ -134,90 +136,23 @@ export default function OverwatchBoostingPage({
   basePath: string;
 }) {
   return (
-    <main
-      className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
-      style={{ "--overwatch-accent": "#f99e1a" } as CSSProperties}
+    <Localized><main
+      className="game-overview min-h-screen bg-[var(--background)] text-[var(--foreground)]"
+      style={{ "--game-accent": "#f99e1a", "--overwatch-accent": "#f99e1a" } as CSSProperties}
     >
-      <section className="theme-preserve-media relative min-h-[520px] overflow-hidden border-b border-[var(--line)] bg-[#090a0c] text-white sm:min-h-[560px]">
-        <div
-          className="absolute inset-y-0 -right-[36%] w-[136%] opacity-50 sm:-right-[10%] sm:w-[88%] sm:opacity-85 lg:right-0 lg:w-[64%] lg:opacity-100"
-          style={{
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
-            maskImage:
-              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
-          }}
-        >
-          <Image
-            src="/homepage/overwatch-homepage.webp"
-            alt="Overwatch 2 heroes entering a competitive match"
-            fill
-            loading="eager"
-            fetchPriority="high"
-            sizes="(max-width: 639px) 136vw, (max-width: 1023px) 88vw, 64vw"
-            className="object-cover object-[48%_38%]"
-          />
-          <div aria-hidden className="absolute inset-0 bg-black/25 sm:bg-black/10" />
-        </div>
-
-        <div className="relative mx-auto flex min-h-[520px] max-w-[1280px] items-center px-5 py-12 sm:min-h-[560px] sm:px-8 sm:py-14 lg:px-10">
-          <div className="max-w-[31rem] lg:max-w-[43%]">
-            <div className="inline-flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white ring-1 ring-white/15">
-                <Image
-                  src="/game-icons/overwatch-2-logo.webp"
-                  alt=""
-                  width={56}
-                  height={40}
-                  className="h-7 w-9 object-contain"
-                />
-              </span>
-              <div className="flex items-center gap-2.5">
-                <span className="text-xs font-semibold uppercase text-white/88">
-                  Overwatch 2
-                </span>
-                <span
-                  aria-hidden
-                  className="h-1.5 w-1.5 rounded-full bg-[var(--overwatch-accent)]"
-                />
-                <span className="text-xs font-medium text-white/62">
-                  Live service
-                </span>
-              </div>
-            </div>
-
-            <h1 className="mt-7 max-w-[11ch] text-5xl font-semibold leading-[0.96] sm:text-6xl">
-              <span className="block">Overwatch 2</span>
-              <span className="block">Boosting</span>
-            </h1>
-            <p className="mt-5 max-w-[46ch] text-base leading-7 text-white/72 sm:text-lg">
-              Rank progression, placements, wins, and coaching configured
-              around your role, platform, and region.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a
-                href="#services"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white bg-white px-6 text-sm font-semibold text-black transition hover:opacity-85"
-              >
-                Choose a service
-                <ArrowUpRight aria-hidden className="h-4 w-4" />
-              </a>
-              <Link
-                href="/contact"
-                className="theme-media-secondary inline-flex h-12 items-center justify-center rounded-lg border px-6 text-sm font-semibold transition"
-              >
-                Ask support
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <GameHero
+        name="Overwatch 2"
+        description="Make your next role your best role. Explore rank boosts, placements, wins, and coaching built around the way you play."
+        artwork="/homepage/overwatch-homepage-v2.webp"
+        icon="/game-icons/overwatch-2-logo.webp"
+        language={basePath.split("/")[1]}
+        imagePosition="center 35%"
+      />
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)] px-5 sm:px-8 lg:px-10">
         <div className="mx-auto grid max-w-[1280px] grid-cols-2 lg:grid-cols-4">
           {HERO_POINTS.map((item, index) => (
-            <div
+            <Localized key={item.label}><div
               key={item.label}
               className={`flex min-h-[72px] items-center gap-3 px-3 py-3 sm:px-5 ${
                 index % 2 === 1 ? "border-l border-[var(--line)]" : ""
@@ -233,64 +168,24 @@ export default function OverwatchBoostingPage({
               <span className="text-xs font-semibold text-[var(--foreground-soft)] sm:text-sm">
                 {item.label}
               </span>
-            </div>
+            </div></Localized>
           ))}
         </div>
       </section>
 
-      <section
-        id="services"
-        className="scroll-mt-20 px-5 py-16 sm:px-8 sm:py-20 lg:px-10"
-      >
-        <div className="mx-auto max-w-[1280px]">
-          <div className="grid gap-5 md:grid-cols-[minmax(0,0.78fr)_minmax(360px,1fr)] md:items-end">
+      <section id="services" className="game-services-section">
+        <div className="page-container">
+          <div className="game-services-heading">
             <div>
-              <p className="text-xs font-semibold uppercase text-[var(--muted)]">
-                Overwatch 2 services
-              </p>
-              <h2 className="mt-3 max-w-[12ch] text-4xl font-semibold leading-[1.04] sm:text-5xl">
-                Choose your competitive goal.
-              </h2>
+              <p className="eyebrow">Overwatch 2 services</p>
+              <h2 className="section-title">One goal. Your way to get there.</h2>
             </div>
-            <p className="max-w-[58ch] text-base leading-7 text-[var(--muted)] md:justify-self-end">
-              Each route has its own calculator and selection logic. Start with
-              the outcome you need, then define the role, rank, and delivery
-              preferences.
-            </p>
+            <p>Climb in your main role, complete your placements, or work on your play with a coach. Every service starts with your platform and preferences.</p>
           </div>
-
-          <div className="mt-10 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {SERVICES.map((service) => (
-              <Link
-                key={service.slug}
-                href={`${basePath}/${service.slug}`}
-                className="group flex min-h-[320px] flex-col rounded-lg border border-[var(--line)] bg-[var(--surface)] p-6 transition hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)]"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--overwatch-accent)_13%,var(--surface))] text-[var(--overwatch-accent)]">
-                  <service.icon aria-hidden className="h-5 w-5" strokeWidth={1.8} />
-                </span>
-                <h3 className="mt-7 text-xl font-semibold">{service.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-                  {service.description}
-                </p>
-                <div className="mt-5 space-y-2">
-                  {service.details.map((detail) => (
-                    <p
-                      key={detail}
-                      className="flex items-center gap-2 text-sm text-[var(--foreground-soft)]"
-                    >
-                      <Check aria-hidden className="h-3.5 w-3.5 shrink-0 text-[var(--muted)]" />
-                      {detail}
-                    </p>
-                  ))}
-                </div>
-                <span className="mt-auto flex items-center justify-between pt-7 text-sm font-semibold">
-                  Configure service
-                  <ArrowUpRight aria-hidden className="h-4 w-4 text-[var(--muted)] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--foreground)]" />
-                </span>
-              </Link>
-            ))}
-          </div>
+          <GameServiceCatalog
+            language={basePath.split("/")[1]}
+            services={SERVICES.map(service => ({ ...service, href: `${basePath}/${service.slug}` })) satisfies GameService[]}
+          />
         </div>
       </section>
 
@@ -311,7 +206,7 @@ export default function OverwatchBoostingPage({
 
           <div className="grid sm:grid-cols-2">
             {ORDER_CONTROLS.map((item, index) => (
-              <div
+              <Localized key={item.title}><div
                 key={item.title}
                 className={`border-t border-[var(--line)] py-6 sm:px-6 ${
                   index % 2 === 1 ? "sm:border-l" : ""
@@ -324,7 +219,7 @@ export default function OverwatchBoostingPage({
                 <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
                   {item.description}
                 </p>
-              </div>
+              </div></Localized>
             ))}
           </div>
         </div>
@@ -341,7 +236,7 @@ export default function OverwatchBoostingPage({
 
           <div className="mt-10 grid border-y border-[var(--line)] lg:grid-cols-3">
             {PROCESS.map((item, index) => (
-              <div
+              <Localized key={item.label}><div
                 key={item.label}
                 className={`px-1 py-8 sm:px-6 ${
                   index > 0
@@ -359,13 +254,13 @@ export default function OverwatchBoostingPage({
                 <p className="mt-3 max-w-[42ch] text-sm leading-6 text-[var(--muted)]">
                   {item.description}
                 </p>
-              </div>
+              </div></Localized>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
+      <section id="faq" className="border-t border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
         <div className="mx-auto max-w-[1280px]">
           <div className="mb-8">
             <p className="text-xs font-semibold uppercase text-[var(--muted)]">
@@ -416,6 +311,6 @@ export default function OverwatchBoostingPage({
           </div>
         </div>
       </section>
-    </main>
+    </main></Localized>
   );
 }

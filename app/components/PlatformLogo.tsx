@@ -1,3 +1,4 @@
+import Localized from "./Localization";
 import Image from "next/image";
 import {
   getPlatformIcon,
@@ -26,19 +27,19 @@ export default function PlatformLogo({
 
   if (!color) {
     return (
-      <Image
+      <Localized><Image
         src={icon}
         alt=""
         aria-hidden="true"
         width={size}
         height={size}
         className={`shrink-0 object-contain ${className}`}
-      />
+      /></Localized>
     );
   }
 
   return (
-    <span
+    <Localized><span
       aria-hidden="true"
       className={`inline-block shrink-0 ${className}`}
       style={{
@@ -54,6 +55,6 @@ export default function PlatformLogo({
         WebkitMaskSize: "contain",
         maskSize: "contain",
       }}
-    />
+    /></Localized>
   );
 }

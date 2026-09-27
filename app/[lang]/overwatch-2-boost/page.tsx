@@ -1,3 +1,4 @@
+import { localizeMetadata } from "../../lib/localized-metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import OverwatchBoostingPage from "../../components/OverwatchBoostingPage";
@@ -19,7 +20,7 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!isSupportedLanguage(lang)) notFound();
 
-  return {
+  return localizeMetadata({
     title: "Overwatch 2 Boosting Services",
     description:
       "Configure Overwatch 2 rank boosting, placements, competitive wins, and private coaching by role, platform, and region.",
@@ -27,7 +28,7 @@ export async function generateMetadata({
       canonical: `/${lang}/overwatch-2-boost`,
       languages: langAlternates("overwatch-2-boost"),
     },
-  };
+  }, lang);
 }
 
 export default async function LangOverwatchBoostPage({

@@ -1,5 +1,6 @@
 "use client";
 
+import Localized from "./Localization";
 import React from "react";
 import Link from "next/link";
 import {
@@ -167,7 +168,7 @@ export function Dropdown({
   const itemRole = selectable ? "menuitemradio" : "menuitem";
 
   return (
-    <div ref={rootRef} className={`relative ${className ?? "inline-block"}`}>
+    <Localized><div ref={rootRef} className={`relative ${className ?? "inline-block"}`}>
       <button
         ref={triggerRef}
         type="button"
@@ -264,17 +265,17 @@ export function Dropdown({
               );
 
             return (
-              <React.Fragment key={item.id}>
+              <Localized key={item.id}><React.Fragment key={item.id}>
                 {node}
                 {item.separatorAfter && i < items.length - 1 && (
                   <div className="dd-separator" role="separator" />
                 )}
-              </React.Fragment>
+              </React.Fragment></Localized>
             );
           })}
         </div>
       )}
-    </div>
+    </div></Localized>
   );
 }
 
@@ -323,7 +324,7 @@ export function LanguageDropdown({
   align?: "start" | "end";
 }) {
   return (
-    <Dropdown
+    <Localized><Dropdown
       ariaLabel="Select language"
       align={align}
       selectable
@@ -346,7 +347,7 @@ export function LanguageDropdown({
           onChange(lang.code);
         },
       }))}
-    />
+    /></Localized>
   );
 }
 
@@ -358,7 +359,7 @@ export function CurrencyDropdown({
   const { currency, setCurrency, symbol } = useCurrency();
 
   return (
-    <Dropdown
+    <Localized><Dropdown
       ariaLabel="Select currency"
       align={align}
       className="currency-picker inline-block"
@@ -390,6 +391,6 @@ export function CurrencyDropdown({
           if (isCurrencyCode(id)) setCurrency(id);
         },
       }))}
-    />
+    /></Localized>
   );
 }

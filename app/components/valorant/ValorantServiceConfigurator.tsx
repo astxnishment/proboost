@@ -1,5 +1,9 @@
 "use client";
 
+import { useOrderState } from "../OrderDraftProvider";
+
+import Localized, { useLanguage } from "../Localization";
+import { translate } from "../../lib/localization";
 import type { CSSProperties } from "react";
 import React from "react";
 import Image from "next/image";
@@ -139,7 +143,7 @@ function Toggle({
   label: string;
 }) {
   return (
-    <button
+    <Localized><button
       type="button"
       role="switch"
       aria-checked={checked}
@@ -156,7 +160,7 @@ function Toggle({
           checked ? "translate-x-[22px]" : "translate-x-[3px]"
         }`}
       />
-    </button>
+    </button></Localized>
   );
 }
 
@@ -176,13 +180,13 @@ function QuantityStepper({
   onChange: (next: number) => void;
 }) {
   return (
-    <div className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+    <Localized><div className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <p className="text-sm font-semibold">{label}</p>
       <div className="mt-4 grid grid-cols-[44px_1fr_44px] items-center gap-3">
         <button
           type="button"
-          aria-label={`Decrease ${label.toLowerCase()}`}
-          title={`Decrease ${label.toLowerCase()}`}
+          aria-label={`Decrease ${label}`}
+          title={`Decrease ${label}`}
           disabled={value <= min}
           onClick={() => onChange(Math.max(min, value - 1))}
           className="theme-button-secondary flex h-11 w-11 items-center justify-center rounded-lg border transition disabled:opacity-35"
@@ -190,20 +194,14 @@ function QuantityStepper({
           <Minus aria-hidden className="h-4 w-4" />
         </button>
         <div className="text-center">
-          <span className="text-3xl font-semibold">{value}</span>
-          {" "}
-          <span className="ml-2 text-sm text-[var(--muted)]">
-            {value === 1
-              ? suffix
-              : suffix === "match"
-                ? "matches"
-                : `${suffix}s`}
+          <span className="text-2xl font-semibold">
+            {`${value} ${value === 1 ? suffix : suffix === "match" ? "matches" : `${suffix}s`}`}
           </span>
         </div>
         <button
           type="button"
-          aria-label={`Increase ${label.toLowerCase()}`}
-          title={`Increase ${label.toLowerCase()}`}
+          aria-label={`Increase ${label}`}
+          title={`Increase ${label}`}
           disabled={value >= max}
           onClick={() => onChange(Math.min(max, value + 1))}
           className="theme-button-secondary flex h-11 w-11 items-center justify-center rounded-lg border transition disabled:opacity-35"
@@ -211,7 +209,7 @@ function QuantityStepper({
           <Plus aria-hidden className="h-4 w-4" />
         </button>
       </div>
-    </div>
+    </div></Localized>
   );
 }
 
@@ -238,7 +236,7 @@ function RankPicker({
   const hasDivisions = showDivision && value !== "Radiant";
 
   return (
-    <section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
+    <Localized><section className="min-w-0 rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5">
       <div className="flex min-h-16 items-center gap-3">
         <Image
           src={selectedRank.icon}
@@ -249,8 +247,8 @@ function RankPicker({
         />
         <div className="min-w-0">
           <h2 className="text-base font-semibold">{label}</h2>
-          <p className="mt-0.5 truncate text-sm font-semibold">
-            <span style={{ color: selectedRank.accent }}>{value}</span>
+          <p className="mt-0.5 break-words text-sm font-semibold">
+            <span className="game-rank-label" style={{ "--rank-label-accent": selectedRank.accent } as CSSProperties}>{value}</span>
             {hasDivisions ? ` ${division}` : ""}
           </p>
         </div>
@@ -265,7 +263,7 @@ function RankPicker({
           const selected = value === rank.name;
           const disabled = isRankDisabled?.(rank.name) ?? false;
           return (
-            <button
+            <Localized key={rank.name}><button
               key={rank.name}
               type="button"
               role="radio"
@@ -299,7 +297,7 @@ function RankPicker({
               <span className="mt-1 w-full truncate text-[11px] font-semibold text-[var(--foreground-soft)]">
                 {rank.name}
               </span>
-            </button>
+            </button></Localized>
           );
         })}
       </div>
@@ -314,7 +312,7 @@ function RankPicker({
             const selected = division === item;
             const disabled = isDivisionDisabled?.(item) ?? false;
             return (
-              <button
+              <Localized key={item}><button
                 key={item}
                 type="button"
                 role="radio"
@@ -338,12 +336,12 @@ function RankPicker({
                 }
               >
                 {item}
-              </button>
+              </button></Localized>
             );
           })}
         </div>
       )}
-    </section>
+    </section></Localized>
   );
 }
 
@@ -355,7 +353,7 @@ function QueueSelector({
   onChange: (next: QueueType) => void;
 }) {
   return (
-    <div
+    <Localized><div
       role="group"
       aria-label="Queue format"
       className="grid grid-cols-2 gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-1.5"
@@ -363,7 +361,7 @@ function QueueSelector({
       {(["Solo", "Duo"] as const).map((item) => {
         const selected = value === item;
         return (
-          <button
+          <Localized key={item}><button
             key={item}
             type="button"
             aria-pressed={selected}
@@ -384,10 +382,10 @@ function QueueSelector({
             }
           >
             {item}
-          </button>
+          </button></Localized>
         );
       })}
-    </div>
+    </div></Localized>
   );
 }
 
@@ -407,7 +405,7 @@ function OptionRow({
   onChange: (next: boolean) => void;
 }) {
   return (
-    <div className="flex items-center gap-4 border-t border-[var(--line)] py-4 first:border-t-0 first:pt-0 last:pb-0">
+    <Localized><div className="flex items-center gap-4 border-t border-[var(--line)] py-4 first:border-t-0 first:pt-0 last:pb-0">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface-muted)]">
         <Icon aria-hidden className="h-4 w-4" />
       </span>
@@ -421,7 +419,7 @@ function OptionRow({
         </p>
       </div>
       <Toggle checked={checked} onChange={onChange} label={title} />
-    </div>
+    </div></Localized>
   );
 }
 
@@ -432,30 +430,31 @@ export default function ValorantServiceConfigurator({
   service: ValorantServiceSlug;
   basePath: string;
 }) {
+  const language = useLanguage();
   const config = VALORANT_SERVICE_CONFIG[service];
   const ServiceIcon = SERVICE_ICONS[service];
   const { currency, formatPrice } = useCurrency();
 
-  const [currentRank, setCurrentRank] = React.useState("Silver");
-  const [currentDivision, setCurrentDivision] = React.useState("II");
-  const [desiredRank, setDesiredRank] = React.useState("Ascendant");
-  const [desiredDivision, setDesiredDivision] = React.useState("I");
-  const [currentRr, setCurrentRr] = React.useState(48);
-  const [previousRank, setPreviousRank] = React.useState("Gold");
-  const [matches, setMatches] = React.useState(5);
-  const [wins, setWins] = React.useState(3);
-  const [hours, setHours] = React.useState(2);
+  const [currentRank, setCurrentRank] = useOrderState(`valorant/${service}:currentRank`, "Silver");
+  const [currentDivision, setCurrentDivision] = useOrderState(`valorant/${service}:currentDivision`, "II");
+  const [desiredRank, setDesiredRank] = useOrderState(`valorant/${service}:desiredRank`, "Ascendant");
+  const [desiredDivision, setDesiredDivision] = useOrderState(`valorant/${service}:desiredDivision`, "I");
+  const [currentRr, setCurrentRr] = useOrderState(`valorant/${service}:currentRr`, 48);
+  const [previousRank, setPreviousRank] = useOrderState(`valorant/${service}:previousRank`, "Gold");
+  const [matches, setMatches] = useOrderState(`valorant/${service}:matches`, 5);
+  const [wins, setWins] = useOrderState(`valorant/${service}:wins`, 3);
+  const [hours, setHours] = useOrderState(`valorant/${service}:hours`, 2);
   const [focus, setFocus] =
-    React.useState<(typeof VALORANT_COACHING_FOCUS)[number]>("Mechanics");
-  const [platform, setPlatform] = React.useState("PC");
-  const [server, setServer] = React.useState("Europe");
-  const [queueType, setQueueType] = React.useState<QueueType>("Solo");
-  const [express, setExpress] = React.useState(false);
-  const [specificBooster, setSpecificBooster] = React.useState(false);
-  const [recordedSession, setRecordedSession] = React.useState(false);
-  const [customFocus, setCustomFocus] = React.useState(false);
-  const [promoCode, setPromoCode] = React.useState("");
-  const [appliedPromo, setAppliedPromo] = React.useState("");
+    useOrderState<(typeof VALORANT_COACHING_FOCUS)[number]>(`valorant/${service}:focus`, "Mechanics");
+  const [platform, setPlatform] = useOrderState(`valorant/${service}:platform`, "PC");
+  const [server, setServer] = useOrderState(`valorant/${service}:server`, "Europe");
+  const [queueType, setQueueType] = useOrderState<QueueType>(`valorant/${service}:queueType`, "Solo");
+  const [express, setExpress] = useOrderState(`valorant/${service}:express`, false);
+  const [specificBooster, setSpecificBooster] = useOrderState(`valorant/${service}:specificBooster`, false);
+  const [recordedSession, setRecordedSession] = useOrderState(`valorant/${service}:recordedSession`, false);
+  const [customFocus, setCustomFocus] = useOrderState(`valorant/${service}:customFocus`, false);
+  const [promoCode, setPromoCode] = useOrderState(`valorant/${service}:promoCode`, "");
+  const [appliedPromo, setAppliedPromo] = useOrderState(`valorant/${service}:appliedPromo`, "");
   const [message, setMessage] = React.useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
 
@@ -614,9 +613,7 @@ export default function ValorantServiceConfigurator({
       ? [
           [
             "Route",
-            `${currentRank} ${currentDivision} to ${desiredRank} ${
-              desiredRank === "Radiant" ? "" : desiredDivision
-            }`.trim(),
+            `${translate(language, `${currentRank} ${currentDivision}`)} → ${translate(language, `${desiredRank}${desiredRank === "Radiant" ? "" : ` ${desiredDivision}`}`)}`,
           ],
           ["Current RR", `${currentRr} RR`],
         ]
@@ -639,7 +636,7 @@ export default function ValorantServiceConfigurator({
             ];
 
   return (
-    <main
+    <Localized><main
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
       style={{ "--valorant-accent": "#ff4655" } as CSSProperties}
     >
@@ -695,7 +692,7 @@ export default function ValorantServiceConfigurator({
             { label: "Region matched", Icon: Target },
             { label: "Support throughout", Icon: Headphones },
           ].map(({ label, Icon }, index) => (
-            <div
+            <Localized key={label}><div
               key={label}
               className={`flex min-h-18 items-center gap-3 px-2 py-4 sm:px-4 ${
                 index % 2 === 1 ? "border-l border-[var(--line)]" : ""
@@ -710,7 +707,7 @@ export default function ValorantServiceConfigurator({
               <span className="text-xs font-semibold text-[var(--foreground-soft)] sm:text-sm">
                 {label}
               </span>
-            </div>
+            </div></Localized>
           ))}
         </div>
       </section>
@@ -723,7 +720,7 @@ export default function ValorantServiceConfigurator({
           {VALORANT_SERVICE_SLUGS.map((slug) => {
             const active = slug === service;
             return (
-              <Link
+              <Localized key={slug}><Link
                 key={slug}
                 href={`${basePath}/${slug}`}
                 aria-current={active ? "page" : undefined}
@@ -741,7 +738,7 @@ export default function ValorantServiceConfigurator({
                     style={{ backgroundColor: "var(--valorant-accent)" }}
                   />
                 )}
-              </Link>
+              </Link></Localized>
             );
           })}
         </nav>
@@ -860,7 +857,7 @@ export default function ValorantServiceConfigurator({
                       <span className="mt-2">Unranked</span>
                     </button>
                     {RANKS.map((rank) => (
-                      <button
+                      <Localized key={rank.name}><button
                         key={rank.name}
                         type="button"
                         role="radio"
@@ -887,7 +884,7 @@ export default function ValorantServiceConfigurator({
                         <span className="mt-1 w-full truncate">
                           {rank.name}
                         </span>
-                      </button>
+                      </button></Localized>
                     ))}
                   </div>
                 </section>
@@ -951,7 +948,7 @@ export default function ValorantServiceConfigurator({
                       {VALORANT_COACHING_FOCUS.map((item) => {
                         const selected = focus === item;
                         return (
-                          <button
+                          <Localized key={item}><button
                             key={item}
                             type="button"
                             role="radio"
@@ -974,7 +971,7 @@ export default function ValorantServiceConfigurator({
                             }
                           >
                             {item}
-                          </button>
+                          </button></Localized>
                         );
                       })}
                     </div>
@@ -1008,9 +1005,9 @@ export default function ValorantServiceConfigurator({
                     className="h-12 w-full appearance-none rounded-lg border px-4 outline-none transition hover:border-[var(--line-strong)]"
                   >
                     {ORDER_SERVERS.map((region) => (
-                      <option key={region} value={region}>
+                      <Localized key={region}><option key={region} value={region}>
                         {region}
-                      </option>
+                      </option></Localized>
                     ))}
                   </select>
                 </div>
@@ -1098,13 +1095,13 @@ export default function ValorantServiceConfigurator({
 
             <div className="mt-6 space-y-3 border-y border-[var(--line)] py-5">
               {summaryRows.map(([label, value]) => (
-                <div
+                <Localized key={label}><div
                   key={label}
                   className="grid grid-cols-[96px_1fr] gap-3 text-sm"
                 >
                   <span className="text-[var(--muted)]">{label}</span>
                   <span className="min-w-0 text-right font-medium">{value}</span>
-                </div>
+                </div></Localized>
               ))}
               <div className="grid grid-cols-[96px_1fr] gap-3 text-sm">
                 <span className="text-[var(--muted)]">Platform</span>
@@ -1243,6 +1240,6 @@ export default function ValorantServiceConfigurator({
           </Link>
         </div>
       </section>
-    </main>
+    </main></Localized>
   );
 }

@@ -1,5 +1,8 @@
-﻿"use client";
+"use client";
 
+import { useOrderState } from "../../components/OrderDraftProvider";
+
+import Localized from "../../components/Localization";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -43,18 +46,20 @@ type Rank = {
 };
 
 function Toggle({
+  label,
   enabled,
   setEnabled,
 }: {
+  label: string;
   enabled: boolean;
   setEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <button
+    <Localized><button
       type="button"
       role="switch"
       aria-checked={enabled}
-      aria-label={enabled ? "Disable option" : "Enable option"}
+      aria-label={label}
       onClick={() => setEnabled(!enabled)}
       className={`keep-pill flex h-6 w-11 items-center rounded-full border p-0.5 transition-colors duration-200 ${
         enabled ? "border-[var(--foreground)] bg-[var(--foreground)]" : "border-[var(--line-strong)] bg-[var(--surface-muted)]"
@@ -65,7 +70,7 @@ function Toggle({
           enabled ? "translate-x-5 bg-[var(--background)]" : "bg-[var(--muted)]"
         }`}
       />
-    </button>
+    </button></Localized>
   );
 }
 
@@ -147,7 +152,7 @@ const addOnDescsByLang: Record<string, { playOffline: string; express: string; r
   ru: { playOffline: "Бустер будет отображаться офлайн во время выполнения заказа для максимальной безопасности.", express: "Ваш заказ получит приоритет и будет выполнен быстрее стандартной доставки.", rankInsurance: "Оставайтесь в безопасности на новом ранге. Буст завершается с дополнительными победами в запасе, чтобы вы не упали сразу.", eliteTier: "Ваш буст будет обрабатывать один из наших лучших бустеров из топ 0,01%.", specificOperators: "Выберите, каких операторов бустер будет использовать во время вашей буст-сессии.", highKillCount: "Бустер сосредоточится на достижении высокого числа убийств в каждой игре для лучшей статистики.", vipPriority: "Ваш заказ переходит в начало очереди и сразу назначается бустеру.", streaming: "Смотрите ваш буст вживую через приватную ссылку на стрим, чтобы следить за каждой игрой в реальном времени.", oneTrickPony: "Бустер будет играть только одним выбранным вами оператором на протяжении всего буста.", insaneClipDrop: "Получите клипы с лучшими моментами и убийствами из ваших буст-сессий." },
 };
 
-export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang?: string }) {
+export default function ProBoostCalculator() {
   const { currency, formatPrice } = useCurrency();
   const ranks: Rank[] = [
     {
@@ -214,29 +219,29 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
     return rankIndex * divisions.length + divisionIndex;
   };
 
-  const [queueType, setQueueType] = React.useState<"Solo" | "Duo">("Solo");
-  const [duoBoosterCount, setDuoBoosterCount] = React.useState(1);
-  const [currentRank, setCurrentRank] = React.useState("Copper");
-  const [currentDivision, setCurrentDivision] = React.useState<string>("V");
-  const [desiredRank, setDesiredRank] = React.useState("Diamond");
-  const [desiredDivision, setDesiredDivision] = React.useState<string>("V");
-  const [platform, setPlatform] = React.useState<string>("PC");
-  const [server, setServer] = React.useState<string>("Europe");
-  const [rpGain, setRpGain] = React.useState<string>("71/80 RP");
+  const [queueType, setQueueType] = useOrderState<"Solo" | "Duo">(`boosting/rank-up:queueType`, "Solo");
+  const [duoBoosterCount, setDuoBoosterCount] = useOrderState(`boosting/rank-up:duoBoosterCount`, 1);
+  const [currentRank, setCurrentRank] = useOrderState(`boosting/rank-up:currentRank`, "Copper");
+  const [currentDivision, setCurrentDivision] = useOrderState<string>(`boosting/rank-up:currentDivision`, "V");
+  const [desiredRank, setDesiredRank] = useOrderState(`boosting/rank-up:desiredRank`, "Diamond");
+  const [desiredDivision, setDesiredDivision] = useOrderState<string>(`boosting/rank-up:desiredDivision`, "V");
+  const [platform, setPlatform] = useOrderState<string>(`boosting/rank-up:platform`, "PC");
+  const [server, setServer] = useOrderState<string>(`boosting/rank-up:server`, "Europe");
+  const [rpGain, setRpGain] = useOrderState<string>(`boosting/rank-up:rpGain`, "71/80 RP");
 
-  const [specificBooster, setSpecificBooster] = React.useState(false);
-  const [playOffline, setPlayOffline] = React.useState(false);
-  const [specificOperators, setSpecificOperators] = React.useState(false);
-  const [streaming, setStreaming] = React.useState(false);
-  const [express, setExpress] = React.useState(false);
-  const [highKillCount, setHighKillCount] = React.useState(false);
-  const [oneTrickPony, setOneTrickPony] = React.useState(false);
-  const [rankInsurance, setRankInsurance] = React.useState(false);
-  const [vipPriority, setVipPriority] = React.useState(false);
-  const [insaneClipDrop, setInsaneClipDrop] = React.useState(false);
-  const [eliteTier, setEliteTier] = React.useState(false);
+  const [specificBooster, setSpecificBooster] = useOrderState(`boosting/rank-up:specificBooster`, false);
+  const [playOffline, setPlayOffline] = useOrderState(`boosting/rank-up:playOffline`, false);
+  const [specificOperators, setSpecificOperators] = useOrderState(`boosting/rank-up:specificOperators`, false);
+  const [streaming, setStreaming] = useOrderState(`boosting/rank-up:streaming`, false);
+  const [express, setExpress] = useOrderState(`boosting/rank-up:express`, false);
+  const [highKillCount, setHighKillCount] = useOrderState(`boosting/rank-up:highKillCount`, false);
+  const [oneTrickPony, setOneTrickPony] = useOrderState(`boosting/rank-up:oneTrickPony`, false);
+  const [rankInsurance, setRankInsurance] = useOrderState(`boosting/rank-up:rankInsurance`, false);
+  const [vipPriority, setVipPriority] = useOrderState(`boosting/rank-up:vipPriority`, false);
+  const [insaneClipDrop, setInsaneClipDrop] = useOrderState(`boosting/rank-up:insaneClipDrop`, false);
+  const [eliteTier, setEliteTier] = useOrderState(`boosting/rank-up:eliteTier`, false);
 
-  const [promoCode, setPromoCode] = React.useState("");
+  const [promoCode, setPromoCode] = useOrderState(`boosting/rank-up:promoCode`, "");
   const [promoExpanded, setPromoExpanded] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
   const [toastType, setToastType] = React.useState<"error" | "success">("error");
@@ -351,7 +356,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
     setEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     description?: string
   ) => (
-    <div className={`relative rounded-lg border p-4 transition-colors duration-150 ${
+    <Localized><div className={`relative rounded-lg border p-4 transition-colors duration-150 ${
       enabled
         ? "border-[var(--foreground)] bg-[var(--surface-strong)]"
         : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"
@@ -373,9 +378,9 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
             {tag}
           </span>
         </div>
-        <Toggle enabled={enabled} setEnabled={setEnabled} />
+        <Toggle label={title} enabled={enabled} setEnabled={setEnabled} />
       </div>
-    </div>
+    </div></Localized>
   );
 
   const currentRankData = ranks.find((r) => r.name === currentRank);
@@ -383,16 +388,6 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
 
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
   const [showDetails, setShowDetails] = React.useState(false);
-
-  const [selectedLang, setSelectedLang] = React.useState(defaultLang);
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem("proboost_lang");
-    const id = window.setTimeout(() => {
-      if (saved && saved !== defaultLang) setSelectedLang(saved);
-    }, 0);
-    return () => window.clearTimeout(id);
-  }, [defaultLang]);
 
   const englishAddOns = {
     playOffline: { title: "Play Offline", desc: addOnDescsByLang.en.playOffline },
@@ -531,34 +526,34 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
     uk: { languageMenuTitle: "\u041e\u0431\u0435\u0440\u0456\u0442\u044c \u043c\u043e\u0432\u0443", free: "\u0411\u0415\u0417\u041a\u041e\u0428\u0422\u041e\u0412\u041d\u041e", details: "\u0414\u0435\u0442\u0430\u043b\u0456", day: "\u0434\u0435\u043d\u044c", days: "\u0434\u043d\u0456", customize: "\u041d\u0430\u043b\u0430\u0448\u0442\u0443\u0432\u0430\u043d\u043d\u044f", competitorIntro: "\u0426\u0435\u0439 \u0431\u0443\u0441\u0442 \u043a\u043e\u0448\u0442\u0443\u0432\u0430\u0432 \u0431\u0438 \u043f\u0440\u0438\u0431\u043b\u0438\u0437\u043d\u043e", competitorSuffix: "\u0431\u0456\u043b\u044c\u0448\u0435 \u043d\u0430 \u0441\u0430\u0439\u0442\u0456 \u043a\u043e\u043d\u043a\u0443\u0440\u0435\u043d\u0442\u0430.", couponAppliedTitle: "\u041a\u0443\u043f\u043e\u043d \u0437\u0430\u0441\u0442\u043e\u0441\u043e\u0432\u0430\u043d\u043e", couponAppliedDesc: "\u041a\u0443\u043f\u043e\u043d \u0443\u0441\u043f\u0456\u0448\u043d\u043e \u0437\u0430\u0441\u0442\u043e\u0441\u043e\u0432\u0430\u043d\u043e! \u0412\u0438 \u043e\u0442\u0440\u0438\u043c\u0430\u043b\u0438 \u0437\u043d\u0438\u0436\u043a\u0443 6%.", couponMissingTitle: "\u041a\u0443\u043f\u043e\u043d \u043d\u0435 \u0437\u043d\u0430\u0439\u0434\u0435\u043d\u043e", couponMissingDesc: "\u041a\u0443\u043f\u043e\u043d \u043d\u0435 \u0437\u043d\u0430\u0439\u0434\u0435\u043d\u043e, \u0437\u0432\u0435\u0440\u043d\u0456\u0442\u044c\u0441\u044f \u0434\u043e \u043f\u0456\u0434\u0442\u0440\u0438\u043c\u043a\u0438.", seasonTooltip: "\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0454\u043c\u043e \u043d\u0435 \u0447\u0435\u043a\u0430\u0442\u0438 \u0434\u043e \u043e\u0441\u0442\u0430\u043d\u043d\u044c\u043e\u0433\u043e \u043c\u043e\u043c\u0435\u043d\u0442\u0443 \u0441\u0435\u0437\u043e\u043d\u0443, \u0430\u0434\u0436\u0435 \u043e\u0441\u0442\u0430\u043d\u043d\u0456 2-5 \u0434\u043d\u0456\u0432 \u0437\u0430\u0437\u0432\u0438\u0447\u0430\u0439 \u0431\u0456\u043b\u044c\u0448 \u0437\u0430\u0432\u0430\u043d\u0442\u0430\u0436\u0435\u043d\u0456.", extraBooster: "\u0414\u043e\u0434\u0430\u0442\u043a\u043e\u0432\u0438\u0439 \u0431\u0443\u0441\u0442\u0435\u0440", increaseBoosters: "\u0417\u0431\u0456\u043b\u044c\u0448\u0442\u0435 \u0447\u0438\u0441\u043b\u043e, \u0449\u043e\u0431 \u0434\u043e\u0434\u0430\u0442\u0438 \u0431\u0456\u043b\u044c\u0448\u0435 \u0431\u0443\u0441\u0442\u0435\u0440\u0456\u0432", extraBoosterTooltip: "\u0426\u044f \u043e\u043f\u0446\u0456\u044f \u0434\u043e\u0437\u0432\u043e\u043b\u044f\u0454 \u0437\u0431\u0456\u043b\u044c\u0448\u0438\u0442\u0438 \u043a\u0456\u043b\u044c\u043a\u0456\u0441\u0442\u044c \u0431\u0443\u0441\u0442\u0435\u0440\u0456\u0432, \u044f\u043a\u0456 \u043f\u0440\u0438\u0454\u0434\u043d\u0430\u044e\u0442\u044c\u0441\u044f \u0434\u043e \u0432\u0430\u0448\u043e\u0433\u043e \u0437\u0430\u043c\u043e\u0432\u043b\u0435\u043d\u043d\u044f \u0432 DUO. \u041a\u043e\u0436\u0435\u043d \u0434\u043e\u0434\u0430\u0442\u043a\u043e\u0432\u0438\u0439 \u0431\u0443\u0441\u0442\u0435\u0440 \u043a\u043e\u0448\u0442\u0443\u0454 \u043d\u0430 75% \u0431\u0456\u043b\u044c\u0448\u0435.", playWithBooster: "\u0413\u0440\u0430\u0442\u0438 \u0437 \u0431\u0443\u0441\u0442\u0435\u0440\u043e\u043c", oneBooster: "1 \u0411\u0443\u0441\u0442\u0435\u0440", extraBoosterSuffix: "\u0414\u043e\u0434\u0430\u0442\u043a\u043e\u0432\u0438\u0439 \u0431\u0443\u0441\u0442\u0435\u0440", extraBoosterPlural: "\u0414\u043e\u0434\u0430\u0442\u043a\u043e\u0432\u0456 \u0431\u0443\u0441\u0442\u0435\u0440\u0438", rpGainLabel: "RP \u0437\u0430 \u043f\u0435\u0440\u0435\u043c\u043e\u0433\u0443", serverLabel: "\u0421\u0435\u0440\u0432\u0435\u0440", extraDiscountUnlocked: "\u0414\u043e\u0434\u0430\u0442\u043a\u043e\u0432\u0430 \u0437\u043d\u0438\u0436\u043a\u0430 3% \u0440\u043e\u0437\u0431\u043b\u043e\u043a\u043e\u0432\u0430\u043d\u0430", extraDiscountAdd: "\u0414\u043e\u0434\u0430\u0439\u0442\u0435 \u00a3{amount} \u0431\u0456\u043b\u044c\u0448\u0435, \u0449\u043e\u0431 \u0437\u0430\u043e\u0449\u0430\u0434\u0438\u0442\u0438 \u0434\u043e\u0434\u0430\u0442\u043a\u043e\u0432\u0456 3%", extraDiscountLabel: "\u0414\u043e\u0434\u0430\u0442\u043a\u043e\u0432\u0430 \u0437\u043d\u0438\u0436\u043a\u0430", totalAmountLabel: "\u0417\u0430\u0433\u0430\u043b\u044c\u043d\u0430 \u0441\u0443\u043c\u0430", cashbackLabel: "\u041a\u0435\u0448\u0431\u0435\u043a", checkoutButton: "\u041e\u0444\u043e\u0440\u043c\u0438\u0442\u0438 \u0437\u0430\u043c\u043e\u0432\u043b\u0435\u043d\u043d\u044f", redirectingLabel: "\u041f\u0435\u0440\u0435\u043d\u0430\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u043d\u044f...", safePaymentsTitle: "\u0411\u0435\u0437\u043f\u0435\u0447\u043d\u0456 \u043f\u043b\u0430\u0442\u0435\u0436\u0456", safePaymentsDesc: "100% \u0431\u0435\u0437\u043f\u0435\u0447\u043d\u0430 \u043e\u043f\u043b\u0430\u0442\u0430 \u0447\u0435\u0440\u0435\u0437 Stripe \u0456 PayPal", policyAnd: "\u0442\u0430", modalTitle: "\u0427\u043e\u043c\u0443 \u043c\u0438 \u0434\u0435\u0448\u0435\u0432\u0448\u0456", modalSubtitle: "\u0414\u0435\u0442\u0430\u043b\u0456 \u0446\u0456\u043d\u0438", modalFeeTitle: "\u041d\u0430\u0448\u0430 \u043a\u043e\u043c\u0456\u0441\u0456\u044f", modalFeeDesc: "\u0411\u0443\u0441\u0442\u0435\u0440\u0438 \u043e\u0442\u0440\u0438\u043c\u0443\u044e\u0442\u044c 90% \u0437\u0430\u0440\u043e\u0431\u0456\u0442\u043a\u0443 \u2014 \u0432\u043e\u043d\u0438 \u043c\u043e\u0442\u0438\u0432\u043e\u0432\u0430\u043d\u0456 \u0432\u0456\u0434\u0434\u0430\u0432\u0430\u0442\u0438 \u043d\u0430\u0439\u043a\u0440\u0430\u0449\u0435 \u0437 \u043a\u043e\u0436\u043d\u0438\u043c \u0437\u0430\u043c\u043e\u0432\u043b\u0435\u043d\u043d\u044f\u043c.", modalQualityTitle: "\u0422\u0456\u043b\u044c\u043a\u0438 \u0435\u043b\u0456\u0442\u043d\u0456 \u0431\u0443\u0441\u0442\u0435\u0440\u0438", modalQualityDesc: "94% \u043f\u0435\u0440\u0435\u043c\u043e\u0433 \u00b7 99% \u0432\u0447\u0430\u0441\u043d\u043e \u00b7 \u043a\u043e\u0436\u0435\u043d \u0431\u0443\u0441\u0442\u0435\u0440 \u043e\u0446\u0456\u043d\u0435\u043d\u0438\u0439 \u0456 \u043f\u0435\u0440\u0435\u0432\u0456\u0440\u0435\u043d\u0438\u0439 \u0440\u0435\u0430\u043b\u044c\u043d\u0438\u043c\u0438 \u043a\u043b\u0456\u0454\u043d\u0442\u0430\u043c\u0438.", modalSavingsTitle: "\u0414\u0435\u0448\u0435\u0432\u0448\u0435 \u0437\u0430 \u0456\u043d\u0448\u0438\u0445", modalSavingsDesc: "\u0412\u0438 \u0435\u043a\u043e\u043d\u043e\u043c\u0438\u0442\u0435 \u00a3{amount} \u043d\u0430 \u0446\u044c\u043e\u043c\u0443 \u0437\u0430\u043c\u043e\u0432\u043b\u0435\u043d\u043d\u0456 \u043f\u043e\u0440\u0456\u0432\u043d\u044f\u043d\u043e \u0437 \u0456\u043d\u0448\u0438\u043c\u0438 \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430\u043c\u0438 \u2014 \u0442\u0430 \u0441\u0430\u043c\u0430 \u044f\u043a\u0456\u0441\u0442\u044c, \u043d\u0438\u0436\u0447\u0430 \u0446\u0456\u043d\u0430.", modalClose: "\u0417\u0430\u043a\u0440\u0438\u0442\u0438", addOns: { playOffline: { title: "\u0413\u0440\u0430\u0442\u0438 \u043e\u0444\u043b\u0430\u0439\u043d", desc: addOnDescsByLang.uk.playOffline }, express: { title: "\u0415\u043a\u0441\u043f\u0440\u0435\u0441-\u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0430", desc: addOnDescsByLang.uk.express }, rankInsurance: { title: "\u0421\u0442\u0440\u0430\u0445\u0443\u0432\u0430\u043d\u043d\u044f \u0440\u0430\u043d\u0433\u0443", desc: addOnDescsByLang.uk.rankInsurance }, eliteTier: { title: "\u0415\u043b\u0456\u0442\u043d\u0438\u0439 Tier 0.01%", desc: addOnDescsByLang.uk.eliteTier }, specificOperators: { title: "\u041a\u043e\u043d\u043a\u0440\u0435\u0442\u043d\u0456 \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u0438", desc: addOnDescsByLang.uk.specificOperators }, highKillCount: { title: "\u0411\u0430\u0433\u0430\u0442\u043e \u0432\u0431\u0438\u0432\u0441\u0442\u0432", desc: addOnDescsByLang.uk.highKillCount }, vipPriority: { title: "VIP-\u043f\u0440\u0456\u043e\u0440\u0438\u0442\u0435\u0442", desc: addOnDescsByLang.uk.vipPriority }, streaming: { title: "\u0421\u0442\u0440\u0456\u043c", desc: addOnDescsByLang.uk.streaming }, oneTrickPony: { title: "One Trick Pony", desc: addOnDescsByLang.uk.oneTrickPony }, insaneClipDrop: { title: "\u0415\u043f\u0456\u0447\u043d\u0456 \u043a\u043b\u0456\u043f\u0438", desc: addOnDescsByLang.uk.insaneClipDrop } }, trustFeatures: [{ title: "\u0413\u0430\u0440\u0430\u043d\u0442\u0456\u044f \u043f\u043e\u0432\u0435\u0440\u043d\u0435\u043d\u043d\u044f", desc: englishTrustFeatures[0].desc }, { title: "\u0417\u0430\u0445\u0438\u0441\u0442 \u0432\u0456\u0434 \u0431\u0430\u043d\u0443", desc: englishTrustFeatures[1].desc }, { title: "\u041f\u0440\u043e\u0437\u043e\u0440\u0456 \u0446\u0456\u043d\u0438", desc: englishTrustFeatures[2].desc }, { title: "\u041d\u0430\u0439\u0441\u0438\u043b\u044c\u043d\u0456\u0448\u0456 \u0433\u0440\u0430\u0432\u0446\u0456", desc: englishTrustFeatures[3].desc }, { title: "\u041f\u0456\u0434\u0442\u0440\u0438\u043c\u043a\u0430 24/7", desc: englishTrustFeatures[4].desc }] },
     ru: { languageMenuTitle: "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u044f\u0437\u044b\u043a", free: "\u0411\u0415\u0421\u041f\u041b\u0410\u0422\u041d\u041e", details: "\u041f\u043e\u0434\u0440\u043e\u0431\u043d\u0435\u0435", day: "\u0434\u0435\u043d\u044c", days: "\u0434\u043d\u0435\u0439", customize: "\u041d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c", competitorIntro: "\u042d\u0442\u043e\u0442 \u0431\u0443\u0441\u0442 \u043e\u0431\u043e\u0448\u0451\u043b\u0441\u044f \u0431\u044b \u043f\u0440\u0438\u043c\u0435\u0440\u043d\u043e \u043d\u0430", competitorSuffix: "\u0434\u043e\u0440\u043e\u0436\u0435 \u043d\u0430 \u0441\u0430\u0439\u0442\u0435 \u043a\u043e\u043d\u043a\u0443\u0440\u0435\u043d\u0442\u0430.", couponAppliedTitle: "\u041a\u0443\u043f\u043e\u043d \u043f\u0440\u0438\u043c\u0435\u043d\u0435\u043d", couponAppliedDesc: "\u041a\u0443\u043f\u043e\u043d \u0443\u0441\u043f\u0435\u0448\u043d\u043e \u043f\u0440\u0438\u043c\u0435\u043d\u0435\u043d! \u0412\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u043b\u0438 \u0441\u043a\u0438\u0434\u043a\u0443 6%.", couponMissingTitle: "\u041a\u0443\u043f\u043e\u043d \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d", couponMissingDesc: "\u041a\u0443\u043f\u043e\u043d \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d, \u043e\u0431\u0440\u0430\u0442\u0438\u0442\u0435\u0441\u044c \u0432 \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0443.", seasonTooltip: "\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u043c \u043d\u0435 \u0436\u0434\u0430\u0442\u044c \u0434\u043e \u0441\u0430\u043c\u043e\u0433\u043e \u043a\u043e\u043d\u0446\u0430 \u0441\u0435\u0437\u043e\u043d\u0430, \u043f\u043e\u0442\u043e\u043c\u0443 \u0447\u0442\u043e \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 2-5 \u0434\u043d\u0435\u0439 \u043e\u0431\u044b\u0447\u043d\u043e \u0431\u043e\u043b\u0435\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043d\u044b.", extraBooster: "\u0414\u043e\u043f. \u0431\u0443\u0441\u0442\u0435\u0440", increaseBoosters: "\u0423\u0432\u0435\u043b\u0438\u0447\u044c\u0442\u0435 \u0447\u0438\u0441\u043b\u043e, \u0447\u0442\u043e\u0431\u044b \u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435 \u0431\u0443\u0441\u0442\u0435\u0440\u043e\u0432", extraBoosterTooltip: "\u0421 \u044d\u0442\u043e\u0439 \u043e\u043f\u0446\u0438\u0435\u0439 \u0432\u044b \u043c\u043e\u0436\u0435\u0442\u0435 \u0443\u0432\u0435\u043b\u0438\u0447\u0438\u0442\u044c \u043a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0431\u0443\u0441\u0442\u0435\u0440\u043e\u0432, \u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u043f\u0440\u0438\u0441\u043e\u0435\u0434\u0438\u043d\u044f\u0442\u0441\u044f \u043a \u0432\u0430\u0448\u0435\u043c\u0443 \u0437\u0430\u043a\u0430\u0437\u0443 \u0432 DUO. \u041a\u0430\u0436\u0434\u044b\u0439 \u0434\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0439 \u0431\u0443\u0441\u0442\u0435\u0440 \u0441\u0442\u043e\u0438\u0442 \u043d\u0430 75% \u0434\u043e\u0440\u043e\u0436\u0435.", playWithBooster: "\u0418\u0433\u0440\u0430\u0442\u044c \u0441 \u0431\u0443\u0441\u0442\u0435\u0440\u043e\u043c", oneBooster: "1 \u0411\u0443\u0441\u0442\u0435\u0440", extraBoosterSuffix: "\u0414\u043e\u043f. \u0431\u0443\u0441\u0442\u0435\u0440", extraBoosterPlural: "\u0414\u043e\u043f. \u0431\u0443\u0441\u0442\u0435\u0440\u044b", rpGainLabel: "RP \u0437\u0430 \u043f\u043e\u0431\u0435\u0434\u0443", serverLabel: "\u0421\u0435\u0440\u0432\u0435\u0440", extraDiscountUnlocked: "\u0414\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u0430\u044f \u0441\u043a\u0438\u0434\u043a\u0430 3% \u0440\u0430\u0437\u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u0430\u043d\u0430", extraDiscountAdd: "\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u00a3{amount} \u0447\u0442\u043e\u0431\u044b \u0441\u044d\u043a\u043e\u043d\u043e\u043c\u0438\u0442\u044c \u0434\u043e\u043f. 3%", extraDiscountLabel: "\u0414\u043e\u043f. \u0441\u043a\u0438\u0434\u043a\u0430", totalAmountLabel: "\u0418\u0442\u043e\u0433\u043e", cashbackLabel: "\u041a\u044d\u0448\u0431\u044d\u043a", checkoutButton: "\u041e\u0444\u043e\u0440\u043c\u0438\u0442\u044c \u0437\u0430\u043a\u0430\u0437", redirectingLabel: "\u041f\u0435\u0440\u0435\u043d\u0430\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435...", safePaymentsTitle: "\u0411\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u044b\u0435 \u043f\u043b\u0430\u0442\u0435\u0436\u0438", safePaymentsDesc: "100% \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u0430\u044f \u043e\u043f\u043b\u0430\u0442\u0430 \u0447\u0435\u0440\u0435\u0437 Stripe \u0438 PayPal", policyAnd: "\u0438", modalTitle: "\u041f\u043e\u0447\u0435\u043c\u0443 \u043c\u044b \u0434\u0435\u0448\u0435\u0432\u043b\u0435", modalSubtitle: "\u0414\u0435\u0442\u0430\u043b\u0438 \u0446\u0435\u043d\u044b", modalFeeTitle: "\u041d\u0430\u0448\u0430 \u043a\u043e\u043c\u0438\u0441\u0441\u0438\u044f", modalFeeDesc: "\u0411\u0443\u0441\u0442\u0435\u0440\u044b \u043f\u043e\u043b\u0443\u0447\u0430\u044e\u0442 90% \u0437\u0430\u0440\u0430\u0431\u043e\u0442\u043a\u0430 \u2014 \u043e\u043d\u0438 \u043c\u043e\u0442\u0438\u0432\u0438\u0440\u043e\u0432\u0430\u043d\u044b \u0434\u0430\u0432\u0430\u0442\u044c \u043b\u0443\u0447\u0448\u0435\u0435 \u0441 \u043a\u0430\u0436\u0434\u044b\u043c \u0437\u0430\u043a\u0430\u0437\u043e\u043c.", modalQualityTitle: "\u0422\u043e\u043b\u044c\u043a\u043e \u044d\u043b\u0438\u0442\u043d\u044b\u0435 \u0431\u0443\u0441\u0442\u0435\u0440\u044b", modalQualityDesc: "94% \u043f\u043e\u0431\u0435\u0434 \u00b7 99% \u0432\u043e\u0432\u0440\u0435\u043c\u044f \u00b7 \u043a\u0430\u0436\u0434\u044b\u0439 \u0431\u0443\u0441\u0442\u0435\u0440 \u043e\u0446\u0435\u043d\u0451\u043d \u0438 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d \u0440\u0435\u0430\u043b\u044c\u043d\u044b\u043c\u0438 \u043a\u043b\u0438\u0435\u043d\u0442\u0430\u043c\u0438.", modalSavingsTitle: "\u0414\u0435\u0448\u0435\u0432\u043b\u0435 \u043e\u0441\u0442\u0430\u043b\u044c\u043d\u044b\u0445", modalSavingsDesc: "\u0412\u044b \u044d\u043a\u043e\u043d\u043e\u043c\u0438\u0442\u0435 \u00a3{amount} \u043d\u0430 \u044d\u0442\u043e\u043c \u0437\u0430\u043a\u0430\u0437\u0435 \u043f\u043e \u0441\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u044e \u0441 \u0434\u0440\u0443\u0433\u0438\u043c\u0438 \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0430\u043c\u0438 \u2014 \u0442\u043e \u0436\u0435 \u043a\u0430\u0447\u0435\u0441\u0442\u0432\u043e, \u043d\u0438\u0436\u0435 \u0446\u0435\u043d\u0430.", modalClose: "\u0417\u0430\u043a\u0440\u044b\u0442\u044c", addOns: { playOffline: { title: "\u0418\u0433\u0440\u0430\u0442\u044c \u043e\u0444\u043b\u0430\u0439\u043d", desc: addOnDescsByLang.ru.playOffline }, express: { title: "\u042d\u043a\u0441\u043f\u0440\u0435\u0441\u0441-\u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0430", desc: addOnDescsByLang.ru.express }, rankInsurance: { title: "\u0421\u0442\u0440\u0430\u0445\u043e\u0432\u043a\u0430 \u0440\u0430\u043d\u0433\u0430", desc: addOnDescsByLang.ru.rankInsurance }, eliteTier: { title: "\u042d\u043b\u0438\u0442\u043d\u044b\u0439 Tier 0.01%", desc: addOnDescsByLang.ru.eliteTier }, specificOperators: { title: "\u041a\u043e\u043d\u043a\u0440\u0435\u0442\u043d\u044b\u0435 \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u044b", desc: addOnDescsByLang.ru.specificOperators }, highKillCount: { title: "\u0412\u044b\u0441\u043e\u043a\u0438\u0439 K/D", desc: addOnDescsByLang.ru.highKillCount }, vipPriority: { title: "VIP-\u043f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442", desc: addOnDescsByLang.ru.vipPriority }, streaming: { title: "\u0421\u0442\u0440\u0438\u043c", desc: addOnDescsByLang.ru.streaming }, oneTrickPony: { title: "One Trick Pony", desc: addOnDescsByLang.ru.oneTrickPony }, insaneClipDrop: { title: "\u042d\u043f\u0438\u0447\u043d\u044b\u0435 \u043a\u043b\u0438\u043f\u044b", desc: addOnDescsByLang.ru.insaneClipDrop } }, trustFeatures: [{ title: "\u0413\u0430\u0440\u0430\u043d\u0442\u0438\u044f \u0432\u043e\u0437\u0432\u0440\u0430\u0442\u0430", desc: englishTrustFeatures[0].desc }, { title: "\u0417\u0430\u0449\u0438\u0442\u0430 \u043e\u0442 \u0431\u0430\u043d\u0430", desc: englishTrustFeatures[1].desc }, { title: "\u041f\u0440\u043e\u0437\u0440\u0430\u0447\u043d\u044b\u0435 \u0446\u0435\u043d\u044b", desc: englishTrustFeatures[2].desc }, { title: "\u0421\u0438\u043b\u044c\u043d\u0435\u0439\u0448\u0438\u0435 \u0438\u0433\u0440\u043e\u043a\u0438", desc: englishTrustFeatures[3].desc }, { title: "\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0430 24/7", desc: englishTrustFeatures[4].desc }] },
   } as const;
-  const ui = { ...localizedUi.en, ...(localizedUi[selectedLang as keyof typeof localizedUi] ?? {}) };
-  const annotations = { ...localizedAnnotations.en, ...(localizedAnnotations[selectedLang as keyof typeof localizedAnnotations] ?? {}) };
+  const ui = localizedUi.en;
+  const annotations = localizedAnnotations.en;
   const trustCopy = {
     heading: ui.trustHeading,
     features: [...(annotations.trustFeatures ?? localizedAnnotations.en.trustFeatures)],
   };
-  const faqAnswers = faqAnswersByLang[selectedLang] ?? faqAnswersByLang.en;
+  const faqAnswers = faqAnswersByLang.en;
   const faqCopy = {
     label: ui.faqLabel,
     items: [
       {
-        q: selectedLang === "en" ? "What is Rainbow Six Siege Boosting?" : ui.heroTitle,
+        q: "What is Rainbow Six Siege Boosting?",
         a: faqAnswers[0],
       },
       {
-        q: selectedLang === "en" ? "Do I need to share my account for a Rainbow Six Siege Rank Boost?" : ui.specificBooster,
+        q: "Do I need to share my account for a Rainbow Six Siege Rank Boost?",
         a: faqAnswers[1],
       },
       {
-        q: selectedLang === "en" ? "Will you speak to my friends/use voice chat?" : ui.contact,
+        q: "Will you speak to my friends/use voice chat?",
         a: faqAnswers[2],
       },
       {
-        q: selectedLang === "en" ? "How much time it takes to deliver my Rank Boost?" : ui.policyTitle,
+        q: "How much time it takes to deliver my Rank Boost?",
         a: faqAnswers[3],
       },
       {
-        q: selectedLang === "en" ? "Is Rainbow Six Siege Boosting safe?" : ui.badges[2],
+        q: "Is Rainbow Six Siege Boosting safe?",
         a: faqAnswers[4],
       },
     ],
@@ -585,7 +580,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
   };
 
   return (
-    <div className="service-configurator relative min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)]">
+    <Localized><div className="service-configurator relative min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)]">
       {toastMessage && (
         <div
           role={toastType === "error" ? "alert" : "status"}
@@ -628,10 +623,10 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
               { text: ui.badges[3], Icon: Headphones },
               { text: "Fast delivery", Icon: Clock3 },
             ].map(({ text, Icon }) => (
-              <span key={text} className="flex items-center gap-2">
+              <Localized key={text}><span key={text} className="flex items-center gap-2">
                 <Icon aria-hidden="true" className="h-4 w-4" />
                 {text}
-              </span>
+              </span></Localized>
             ))}
           </div>
         </header>
@@ -664,7 +659,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
 
                 <div className="grid grid-cols-4 gap-3">
                   {ranks.map((rank) => (
-                    <button
+                    <Localized key={rank.name}><button
                       key={rank.name}
                       type="button"
                       aria-label={`Set current rank to ${rank.name}`}
@@ -681,7 +676,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                           className="mx-auto h-auto w-[38px] object-contain"
                         />
                       </div>
-                    </button>
+                    </button></Localized>
                   ))}
                 </div>
 
@@ -722,7 +717,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                   {ranks.map((rank) => {
                     const disabled = isDesiredRankDisabled(rank.name);
                     return (
-                      <button
+                      <Localized key={rank.name}><button
                         key={rank.name}
                         type="button"
                         aria-label={`Set desired rank to ${rank.name}`}
@@ -740,7 +735,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                             className="mx-auto h-auto w-[38px] object-contain"
                           />
                         </div>
-                      </button>
+                      </button></Localized>
                     );
                   })}
                 </div>
@@ -779,15 +774,15 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                   {annotations.rpGainLabel}
                 </label>
                 <div className="relative">
-                  <select
+                  <select aria-label="RP gain per win"
                     value={rpGain}
                     onChange={(e) => setRpGain(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 pr-12 text-[var(--foreground)] outline-none transition hover:border-[var(--line-strong)] focus:border-[var(--foreground)] cursor-pointer"
                   >
                     {rpOptions.map((option) => (
-                      <option key={option} value={option}>
+                      <Localized key={option}><option key={option} value={option}>
                         {option}
-                      </option>
+                      </option></Localized>
                     ))}
                   </select>
                   <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[var(--muted)]">
@@ -801,15 +796,15 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                   {annotations.serverLabel}
                 </label>
                 <div className="relative">
-                  <select
+                  <select aria-label="Server"
                     value={server}
                     onChange={(e) => setServer(e.target.value)}
                     className="w-full appearance-none rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 pr-12 text-[var(--foreground)] outline-none transition hover:border-[var(--line-strong)] focus:border-[var(--foreground)] cursor-pointer"
                   >
                     {servers.map((option) => (
-                      <option key={option} value={option}>
+                      <Localized key={option}><option key={option} value={option}>
                         {option}
-                      </option>
+                      </option></Localized>
                     ))}
                   </select>
                   <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[var(--muted)]">
@@ -1086,14 +1081,14 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
                 </div>
                 <div className="flex items-center gap-2">
                   {paymentMethods.map((method) => (
-                    <Image
+                    <Localized key={method.name}><Image
                       key={method.name}
                       src={method.icon}
                       alt={method.name}
                       width={28}
                       height={28}
                       className="h-6 w-auto object-contain"
-                    />
+                    /></Localized>
                   ))}
                 </div>
               </div>
@@ -1138,7 +1133,7 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
               <div className="flex flex-col rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-5">
                 <div className="mb-4 flex gap-0.5">
                   {[0,1,2,3,4].map(i => (
-                    <Star key={i} aria-hidden="true" className="h-4 w-4 fill-[var(--foreground)] text-[var(--foreground)]" />
+                    <Localized key={i}><Star key={i} aria-hidden="true" className="h-4 w-4 fill-[var(--foreground)] text-[var(--foreground)]" /></Localized>
                   ))}
                 </div>
                 <div className="mb-1 text-3xl font-semibold">4.9<span className="text-lg text-[var(--muted)]">/5</span></div>
@@ -1169,6 +1164,6 @@ export default function ProBoostCalculator({ defaultLang = "en" }: { defaultLang
           </div>
         </div>
       )}
-    </div>
+    </div></Localized>
   );
 }

@@ -1,3 +1,4 @@
+import { catalogGameSubtotal, describeCatalogGameOrder, isCatalogCoachingOrder, type CatalogGameOrder } from "./additional-pricing";
 import { CS2_RANKS, faceitLevelData } from "./cs2";
 import {
   OVERWATCH_DIVISIONS,
@@ -270,7 +271,8 @@ export type Order =
   | Cs2RankOrder
   | Cs2PremierOrder
   | Cs2WinsOrder
-  | Cs2FaceitOrder;
+  | Cs2FaceitOrder
+  | CatalogGameOrder;
 
 export type PriceBreakdown = {
   subtotal: number;
@@ -343,7 +345,8 @@ function addOnMultiplier(order: Order): number {
   if (
     order.serviceType === "elearning" ||
     order.serviceType === "valorant-coaching" ||
-    order.serviceType === "overwatch-coaching"
+    order.serviceType === "overwatch-coaching" ||
+    (order.serviceType === "catalog-game" && isCatalogCoachingOrder(order))
   ) {
     if (order.recordedSession) multiplier += 0.15;
     if (order.customFocus) multiplier += 0.1;
@@ -362,6 +365,7 @@ function baseSubtotal(order: Order): number {
   const boosterFee = order.specificBooster ? SPECIFIC_BOOSTER_FEE : 0;
 
   switch (order.serviceType) {
+    case "catalog-game": return catalogGameSubtotal(order);
     case "rank-up": {
       const currentValue = flattenRank(order.currentRank, order.currentDivision);
       const desiredValue = flattenRank(order.desiredRank, order.desiredDivision);
@@ -689,6 +693,7 @@ export function describeOrder(order: Order): {
   if (order.queueType === "Duo") parts.push("Duo");
 
   switch (order.serviceType) {
+    case "catalog-game": return describeCatalogGameOrder(order);
     case "rank-up":
       if ("rpGain" in order && order.rpGain) parts.push(`RP: ${order.rpGain}`);
       return {

@@ -1,3 +1,4 @@
+import Localized from "./Localization";
 import {
   Headphones,
   LockKeyhole,
@@ -21,7 +22,7 @@ export default function ServiceIntro({
   description: string;
 }) {
   return (
-    <header className="mb-7 max-w-4xl">
+    <Localized><header className="mb-7 max-w-4xl">
       <h1 className="max-w-3xl text-3xl font-semibold tracking-normal text-[var(--foreground)] sm:text-4xl">
         {title}
       </h1>
@@ -33,12 +34,12 @@ export default function ServiceIntro({
         aria-label="Service assurances"
       >
         {assurances.map(({ label, icon: Icon }) => (
-          <li key={label} className="flex items-center gap-2">
+          <Localized key={label}><li key={label} className="flex items-center gap-2">
             <Icon className="h-4 w-4 shrink-0" strokeWidth={1.8} />
             {label}
-          </li>
+          </li></Localized>
         ))}
       </ul>
-    </header>
+    </header></Localized>
   );
 }

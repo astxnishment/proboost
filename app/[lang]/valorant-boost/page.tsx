@@ -1,3 +1,4 @@
+import { localizeMetadata } from "../../lib/localized-metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ValorantBoostingPage from "../../components/ValorantBoostingPage";
@@ -19,7 +20,7 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!isSupportedLanguage(lang)) notFound();
 
-  return {
+  return localizeMetadata({
     title: "Valorant Boosting Services",
     description:
       "Professional Valorant rank boosting, placement matches, competitive wins, and coaching from verified specialists.",
@@ -27,7 +28,7 @@ export async function generateMetadata({
       canonical: `/${lang}/valorant-boost`,
       languages: langAlternates("valorant-boost"),
     },
-  };
+  }, lang);
 }
 
 export default async function LangValorantBoostPage({

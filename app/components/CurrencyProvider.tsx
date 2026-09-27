@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import { useLanguage } from "./Localization";
+import { LANGUAGE_LOCALES } from "../lib/localization";
 import {
   CURRENCY_DEFINITIONS,
   DEFAULT_CURRENCY,
@@ -45,8 +47,10 @@ function inferCurrency(): CurrencyCode {
 }
 
 function getCurrencySnapshot(): CurrencyCode {
-  const savedCurrency = window.localStorage.getItem(STORAGE_KEY);
-  return isCurrencyCode(savedCurrency) ? savedCurrency : inferCurrency();
+  try {
+    const savedCurrency = window.localStorage.getItem(STORAGE_KEY);
+    return isCurrencyCode(savedCurrency) ? savedCurrency : inferCurrency();
+  } catch { return DEFAULT_CURRENCY; }
 }
 
 function subscribeToCurrency(onStoreChange: () => void) {
@@ -87,6 +91,7 @@ type CurrencyContextValue = {
 const CurrencyContext = React.createContext<CurrencyContextValue | null>(null);
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
+  const locale = LANGUAGE_LOCALES[useLanguage()];
   const currency = React.useSyncExternalStore(
     subscribeToCurrency,
     getCurrencySnapshot,
@@ -109,13 +114,13 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       symbol: CURRENCY_DEFINITIONS[currency].symbol,
       setCurrency,
       formatPrice: (amountInGbp, options) =>
-        formatGbpPrice(amountInGbp, currency, options),
+        formatGbpPrice(amountInGbp, currency, { ...options, locale }),
       formatNativePrice: (amount, options) =>
-        formatCurrencyAmount(amount, currency, options),
+        formatCurrencyAmount(amount, currency, { ...options, locale }),
       formatPriceNumber: (amountInGbp) =>
-        formatGbpNumber(amountInGbp, currency),
+        formatGbpNumber(amountInGbp, currency, locale),
     }),
-    [currency, setCurrency]
+    [currency, locale, setCurrency]
   );
 
   return (

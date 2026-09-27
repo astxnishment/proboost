@@ -1,3 +1,4 @@
+import { localizeMetadata } from "../../../lib/localized-metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Cs2ServiceConfigurator from "@/app/components/cs2/Cs2ServiceConfigurator";
@@ -29,7 +30,7 @@ export async function generateMetadata({
   const config = CS2_SERVICE_CONFIG[service];
   const path = `counter-strike-2-boost/${service}`;
 
-  return {
+  return localizeMetadata({
     title: config.title,
     description: config.metadataDescription,
     alternates: {
@@ -48,7 +49,7 @@ export async function generateMetadata({
         },
       ],
     },
-  };
+  }, lang);
 }
 
 export default async function LocalizedCs2ServicePage({

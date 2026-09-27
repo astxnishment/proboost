@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <title>ProBoost</title>
+  <rect width="64" height="64" rx="15" fill="#8b5cf6" />
+  <path d="M39 15h16L45.5 25.5h-16ZM24.5 29.5h18L25.5 49h-18Z" fill="#fff" />
+</svg>

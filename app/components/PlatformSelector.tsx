@@ -1,3 +1,4 @@
+import Localized from "./Localization";
 import type { CSSProperties } from "react";
 import PlatformLogo from "./PlatformLogo";
 
@@ -6,6 +7,9 @@ const PLATFORM_ACCENTS: Record<string, string> = {
   Xbox: "#107c10",
   PlayStation: "#006fcd",
   "Nintendo Switch": "#e60012",
+  "Nintendo Switch 2": "#e60012",
+  Mac: "#aab9ca",
+  Mobile: "#8b5cf6",
 };
 
 export default function PlatformSelector({
@@ -20,7 +24,7 @@ export default function PlatformSelector({
   ariaLabel?: string;
 }) {
   return (
-    <div
+    <Localized><div
       role="group"
       aria-label={ariaLabel}
       className={`grid gap-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-muted)] p-1.5 ${
@@ -43,7 +47,7 @@ export default function PlatformSelector({
         } as CSSProperties;
 
         return (
-          <button
+          <Localized key={platform}><button
             key={platform}
             type="button"
             aria-pressed={selected}
@@ -68,9 +72,9 @@ export default function PlatformSelector({
               }`}
               style={{ backgroundColor: accent }}
             />
-          </button>
+          </button></Localized>
         );
       })}
-    </div>
+    </div></Localized>
   );
 }

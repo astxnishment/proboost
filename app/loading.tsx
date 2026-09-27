@@ -1,6 +1,7 @@
+import Localized from "./components/Localization";
 export default function Loading() {
   return (
-    <main
+    <Localized><main
       aria-label="Loading page"
       aria-busy="true"
       className="page-container min-h-[calc(100svh-var(--header-height))] py-10 sm:py-14"
@@ -24,6 +25,6 @@ export default function Loading() {
         <div className="skeleton h-40" />
       </div>
       <span className="sr-only">Loading ProBoost</span>
-    </main>
+    </main></Localized>
   );
 }

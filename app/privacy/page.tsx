@@ -1,3 +1,4 @@
+import Localized from "../components/Localization";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -324,7 +325,7 @@ const sections = [
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[var(--background)] text-[var(--muted)]">
+    <Localized><main className="min-h-screen bg-[var(--background)] text-[var(--muted)]">
       {/* Hero */}
       <div className="relative overflow-hidden border-b border-[var(--line)]">
         <div className="relative mx-auto max-w-[var(--reading-max-width)] px-5 py-14 text-center sm:px-8 sm:py-16">
@@ -347,7 +348,7 @@ export default function PrivacyPage() {
           <p className="eyebrow mb-4">Contents</p>
           <ol className="grid gap-1 sm:grid-cols-2">
             {sections.map((s) => (
-              <li key={s.id}>
+              <Localized key={s.id}><li key={s.id}>
                 <a
                   href={`#${s.id}`}
                   className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-[var(--muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
@@ -355,7 +356,7 @@ export default function PrivacyPage() {
                   <span className="font-mono text-xs text-[var(--muted-soft)]">{s.number}</span>
                   {s.title}
                 </a>
-              </li>
+              </li></Localized>
             ))}
           </ol>
         </nav>
@@ -363,7 +364,7 @@ export default function PrivacyPage() {
         {/* Sections */}
         <div className="flex flex-col gap-10">
           {sections.map((s) => (
-            <section
+            <Localized key={s.id}><section
               key={s.id}
               id={s.id}
               className="theme-surface scroll-mt-24 rounded-lg border p-7"
@@ -373,7 +374,7 @@ export default function PrivacyPage() {
                 <h2 className="text-lg font-extrabold text-[var(--foreground)]">{s.title}</h2>
               </div>
               <div className="prose-terms">{s.content}</div>
-            </section>
+            </section></Localized>
           ))}
         </div>
 
@@ -428,6 +429,6 @@ export default function PrivacyPage() {
           line-height: 1.75;
         }
       `}</style>
-    </main>
+    </main></Localized>
   );
 }

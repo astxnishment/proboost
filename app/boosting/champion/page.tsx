@@ -1,5 +1,8 @@
-﻿"use client";
+"use client";
 
+import { useOrderState } from "../../components/OrderDraftProvider";
+
+import Localized from "../../components/Localization";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,18 +27,20 @@ import {
 import { useCurrency } from "@/app/components/CurrencyProvider";
 
 function Toggle({
+  label,
   enabled,
   setEnabled,
 }: {
+  label: string;
   enabled: boolean;
   setEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <button
+    <Localized><button
       type="button"
       role="switch"
       aria-checked={enabled}
-      aria-label={enabled ? "Disable option" : "Enable option"}
+      aria-label={label}
       onClick={() => setEnabled(!enabled)}
       className={`keep-pill flex h-6 w-10 items-center rounded-full border p-0.5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] ${
         enabled
@@ -48,7 +53,7 @@ function Toggle({
           enabled ? "translate-x-5 bg-[var(--background)]" : "bg-[var(--muted)]"
         }`}
       />
-    </button>
+    </button></Localized>
   );
 }
 
@@ -58,8 +63,8 @@ export default function ChampionRankBoost() {
   const MIN_POINTS = 1;
   const MAX_POINTS = 100;
 
-  const [currentPoints, setCurrentPoints] = React.useState(1);
-  const [desiredPoints, setDesiredPoints] = React.useState(50);
+  const [currentPoints, setCurrentPoints] = useOrderState(`boosting/champion:currentPoints`, 1);
+  const [desiredPoints, setDesiredPoints] = useOrderState(`boosting/champion:desiredPoints`, 50);
 
   const safeDesiredPoints = Math.min(MAX_POINTS, Math.max(desiredPoints, currentPoints + 1, 15));
   const pointSpread = safeDesiredPoints - currentPoints;
@@ -83,25 +88,25 @@ export default function ChampionRankBoost() {
   const rpOptions = RP_OPTIONS;
   const paymentMethods = ORDER_PAYMENT_METHODS;
 
-  const [queueType, setQueueType] = React.useState<"Solo" | "Duo">("Solo");
-  const [duoBoosterCount, setDuoBoosterCount] = React.useState(1);
-  const [platform, setPlatform] = React.useState("PC");
-  const [server, setServer] = React.useState("Europe");
-  const [rpGain, setRpGain] = React.useState("90+ RP");
+  const [queueType, setQueueType] = useOrderState<"Solo" | "Duo">(`boosting/champion:queueType`, "Solo");
+  const [duoBoosterCount, setDuoBoosterCount] = useOrderState(`boosting/champion:duoBoosterCount`, 1);
+  const [platform, setPlatform] = useOrderState(`boosting/champion:platform`, "PC");
+  const [server, setServer] = useOrderState(`boosting/champion:server`, "Europe");
+  const [rpGain, setRpGain] = useOrderState(`boosting/champion:rpGain`, "90+ RP");
 
-  const [specificBooster, setSpecificBooster] = React.useState(false);
-  const [playOffline, setPlayOffline] = React.useState(false);
-  const [specificOperators, setSpecificOperators] = React.useState(false);
-  const [streaming, setStreaming] = React.useState(false);
-  const [express, setExpress] = React.useState(false);
-  const [highKillCount, setHighKillCount] = React.useState(false);
-  const [oneTrickPony, setOneTrickPony] = React.useState(false);
-  const [rankInsurance, setRankInsurance] = React.useState(false);
-  const [vipPriority, setVipPriority] = React.useState(false);
-  const [insaneClipDrop, setInsaneClipDrop] = React.useState(false);
-  const [eliteTier, setEliteTier] = React.useState(false);
+  const [specificBooster, setSpecificBooster] = useOrderState(`boosting/champion:specificBooster`, false);
+  const [playOffline, setPlayOffline] = useOrderState(`boosting/champion:playOffline`, false);
+  const [specificOperators, setSpecificOperators] = useOrderState(`boosting/champion:specificOperators`, false);
+  const [streaming, setStreaming] = useOrderState(`boosting/champion:streaming`, false);
+  const [express, setExpress] = useOrderState(`boosting/champion:express`, false);
+  const [highKillCount, setHighKillCount] = useOrderState(`boosting/champion:highKillCount`, false);
+  const [oneTrickPony, setOneTrickPony] = useOrderState(`boosting/champion:oneTrickPony`, false);
+  const [rankInsurance, setRankInsurance] = useOrderState(`boosting/champion:rankInsurance`, false);
+  const [vipPriority, setVipPriority] = useOrderState(`boosting/champion:vipPriority`, false);
+  const [insaneClipDrop, setInsaneClipDrop] = useOrderState(`boosting/champion:insaneClipDrop`, false);
+  const [eliteTier, setEliteTier] = useOrderState(`boosting/champion:eliteTier`, false);
 
-  const [promoCode, setPromoCode] = React.useState("");
+  const [promoCode, setPromoCode] = useOrderState(`boosting/champion:promoCode`, "");
   const [promoExpanded, setPromoExpanded] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
   const [toastType, setToastType] = React.useState<"error" | "success">("error");
@@ -170,7 +175,7 @@ export default function ChampionRankBoost() {
     setEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     description?: string
   ) => (
-    <div className={`relative rounded-2xl border p-4 transition-all duration-200 ease-out ${
+    <Localized><div className={`relative rounded-2xl border p-4 transition-all duration-200 ease-out ${
       enabled
         ? "border-cyan-400/40 bg-cyan-400/10 shadow-lg shadow-cyan-500/20"
         : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
@@ -198,9 +203,9 @@ export default function ChampionRankBoost() {
             {tag}
           </span>
         </div>
-        <Toggle enabled={enabled} setEnabled={setEnabled} />
+        <Toggle label={title} enabled={enabled} setEnabled={setEnabled} />
       </div>
-    </div>
+    </div></Localized>
   );
 
   const trustCopy = {
@@ -235,7 +240,7 @@ export default function ChampionRankBoost() {
   };
 
   return (
-    <div className="service-configurator relative min-h-screen font-sans">
+    <Localized><div className="service-configurator relative min-h-screen font-sans">
       {toastMessage && (
         <div
           role={toastType === "error" ? "alert" : "status"}
@@ -303,7 +308,7 @@ export default function ChampionRankBoost() {
             {/* Service nav */}
             <div className="space-y-2">
               {R6_SERVICE_BUTTONS.map((item) => (
-                <Link
+                <Localized key={item.href}><Link
                   key={item.href}
                   href={item.href}
                   className={`block w-full rounded-xl border px-4 py-3 text-sm font-medium transition text-left ${
@@ -313,7 +318,7 @@ export default function ChampionRankBoost() {
                   }`}
                 >
                   {item.label}
-                </Link>
+                </Link></Localized>
               ))}
             </div>
 
@@ -322,7 +327,7 @@ export default function ChampionRankBoost() {
               Rated 4.9+
               <span className="flex items-center gap-0.5">
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20}  className="h-5 w-5" />
+                  <Localized key={i}><Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20}  className="h-5 w-5" /></Localized>
                 ))}
               </span>
             </div>
@@ -437,9 +442,9 @@ export default function ChampionRankBoost() {
               <div>
                 <label className="mb-2 block text-sm font-semibold text-white">RP Gain Per Win</label>
                 <div className="relative">
-                  <select value={rpGain} onChange={(e) => setRpGain(e.target.value)}
+                  <select aria-label="RP gain per win" value={rpGain} onChange={(e) => setRpGain(e.target.value)}
                     className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3.5 pr-12 text-white outline-none transition hover:border-white/20 focus:border-white/20 cursor-pointer appearance-none">
-                    {rpOptions.map((o) => <option key={o} value={o} className="bg-[#0a0a0a] text-white">{o}</option>)}
+                    {rpOptions.map((o) => <Localized key={o}><option key={o} value={o} className="bg-[#0a0a0a] text-white">{o}</option></Localized>)}
                   </select>
                   <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-400">▾</span>
                 </div>
@@ -447,9 +452,9 @@ export default function ChampionRankBoost() {
               <div>
                 <label className="mb-2 block text-sm font-semibold text-white">Server</label>
                 <div className="relative">
-                  <select value={server} onChange={(e) => setServer(e.target.value)}
+                  <select aria-label="Server" value={server} onChange={(e) => setServer(e.target.value)}
                     className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3.5 pr-12 text-white outline-none transition hover:border-white/20 focus:border-white/20 cursor-pointer appearance-none">
-                    {servers.map((o) => <option key={o} value={o} className="bg-[#0a0a0a] text-white">{o}</option>)}
+                    {servers.map((o) => <Localized key={o}><option key={o} value={o} className="bg-[#0a0a0a] text-white">{o}</option></Localized>)}
                   </select>
                   <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-400">▾</span>
                 </div>
@@ -632,7 +637,7 @@ export default function ChampionRankBoost() {
                 </div>
                 <div className="flex items-center gap-2">
                   {paymentMethods.map((m) => (
-                    <Image key={m.name} src={m.icon} alt={m.name} width={28} height={28}  className="h-6 w-auto object-contain" />
+                    <Localized key={m.name}><Image key={m.name} src={m.icon} alt={m.name} width={28} height={28}  className="h-6 w-auto object-contain" /></Localized>
                   ))}
                 </div>
               </div>
@@ -670,7 +675,7 @@ export default function ChampionRankBoost() {
               <div className="flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
                 <div className="mb-4 flex gap-0.5">
                   {[0,1,2,3,4].map(i => (
-                    <Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20}  className="h-5 w-5" />
+                    <Localized key={i}><Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20}  className="h-5 w-5" /></Localized>
                   ))}
                 </div>
                 <div className="mb-1 text-3xl font-black text-emerald-400">4.9/5</div>
@@ -689,6 +694,6 @@ export default function ChampionRankBoost() {
           </div>
         </div>
       )}
-    </div>
+    </div></Localized>
   );
 }

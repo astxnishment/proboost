@@ -1,14 +1,17 @@
+import Localized from "../components/Localization";
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowUpRight,
   Clock3,
   Mail,
+  MessageCircle,
   ReceiptText,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
 import { PageContainer, Section, StatusBadge } from "../components/ui";
+import { LiveChatButton } from "../components/LiveChat";
 
 export const metadata: Metadata = {
   title: "Contact ProBoost Support",
@@ -38,7 +41,7 @@ const supportTopics = [
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <Localized><main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Section className="border-b border-[var(--line)]">
         <PageContainer size="content">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-end">
@@ -55,7 +58,7 @@ export default function ContactPage() {
             </div>
 
             <div className="surface p-6 sm:p-7">
-              <p className="eyebrow">Email support</p>
+              <p className="eyebrow">Talk to support</p>
               <a
                 href="mailto:support@proboost.gg"
                 className="mt-3 block break-all text-xl font-semibold text-[var(--foreground)] sm:text-2xl"
@@ -66,9 +69,13 @@ export default function ContactPage() {
                 Include the relevant order details so we can resolve your
                 request faster.
               </p>
+              <LiveChatButton className="button-base button-primary mt-6 w-full">
+                <MessageCircle aria-hidden className="h-4 w-4" />
+                Open support chat
+              </LiveChatButton>
               <a
                 href="mailto:support@proboost.gg"
-                className="button-base button-primary mt-6 w-full sm:w-fit"
+                className="button-base button-secondary mt-3 w-full"
               >
                 Email support
                 <ArrowUpRight aria-hidden className="h-4 w-4" />
@@ -82,7 +89,7 @@ export default function ContactPage() {
 
           <div className="mt-12 grid gap-3 md:grid-cols-3">
             {supportTopics.map((topic) => (
-              <article key={topic.title} className="surface p-5 sm:p-6">
+              <Localized key={topic.title}><article key={topic.title} className="surface p-5 sm:p-6">
                 <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accent-soft)] text-[var(--accent)]">
                   <topic.icon aria-hidden className="h-4.5 w-4.5" strokeWidth={1.7} />
                 </span>
@@ -90,7 +97,7 @@ export default function ContactPage() {
                 <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
                   {topic.description}
                 </p>
-              </article>
+              </article></Localized>
             ))}
           </div>
 
@@ -103,6 +110,6 @@ export default function ContactPage() {
         </div>
         </PageContainer>
       </Section>
-    </main>
+    </main></Localized>
   );
 }

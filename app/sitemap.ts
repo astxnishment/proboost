@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { ADDITIONAL_GAMES } from "./lib/additional-games";
 import { ALL_LANGS, SITE_URL } from "./lib/site";
 import { CS2_SERVICE_SLUGS } from "./lib/cs2";
 import { VALORANT_SERVICE_SLUGS } from "./lib/valorant";
 import { OVERWATCH_SERVICE_SLUGS } from "./lib/overwatch";
 
-const EN_SERVICE_PAGES = [
+const SIEGE_SERVICE_PAGES = [
   "rainbow-six-siege-rank-boost",
   "champion",
   "competitive",
@@ -23,6 +24,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   for (const lang of ALL_LANGS) {
+    for (const path of ["", "/contact", "/terms", "/privacy"]) {
+      entries.push({ url: `${SITE_URL}/${lang}${path}`, lastModified, changeFrequency: "monthly", priority: path ? 0.4 : 0.9 });
+    }
+    for (const game of ADDITIONAL_GAMES) {
+      for (const path of [game.slug, ...game.services.map(service => `${game.slug}/${service.slug}`)]) {
+        entries.push({ url: `${SITE_URL}/${lang}/${path}`, lastModified, changeFrequency: "weekly", priority: lang === "en" ? 0.8 : 0.6 });
+      }
+    }
     entries.push({
       url: `${SITE_URL}/${lang}/valorant-boost`,
       lastModified,
@@ -71,21 +80,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: lang === "en" ? 0.9 : 0.7,
     });
-    entries.push({
-      url: `${SITE_URL}/${lang}/rainbow-six-siege-boost/rainbow-six-siege-rank-boost`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: lang === "en" ? 0.9 : 0.7,
-    });
-  }
-
-  for (const page of EN_SERVICE_PAGES.filter((p) => p !== "rainbow-six-siege-rank-boost")) {
-    entries.push({
-      url: `${SITE_URL}/en/rainbow-six-siege-boost/${page}`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    });
+    for (const service of SIEGE_SERVICE_PAGES) {
+      entries.push({ url: `${SITE_URL}/${lang}/rainbow-six-siege-boost/${service}`, lastModified, changeFrequency: "weekly", priority: lang === "en" ? 0.9 : 0.7 });
+    }
   }
 
   return entries;

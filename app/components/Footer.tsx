@@ -1,3 +1,5 @@
+import Localized from "./Localization";
+import { GAME_DIRECTORY } from "../lib/games";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail } from "lucide-react";
@@ -7,6 +9,7 @@ const footerGroups = [
   {
     label: "Games",
     links: [
+      { href: "/#games", label: `Browse all ${GAME_DIRECTORY.length} games` },
       { href: "/en/rainbow-six-siege-boost", label: "Rainbow Six Siege" },
       { href: "/en/valorant-boost", label: "Valorant" },
       { href: "/en/counter-strike-2-boost", label: "Counter-Strike 2" },
@@ -49,7 +52,7 @@ const paymentMethods = [
 
 export default function Footer() {
   return (
-    <footer className="site-footer relative z-10 mt-auto border-t">
+    <Localized><footer className="site-footer relative z-10 mt-auto border-t">
       <PageContainer className="py-12 sm:py-14">
         <div className="grid gap-10 border-b border-[var(--line)] pb-10 lg:grid-cols-[minmax(260px,1.35fr)_2fr] lg:gap-16">
           <div className="max-w-sm">
@@ -82,20 +85,20 @@ export default function Footer() {
             className="grid grid-cols-2 gap-x-8 gap-y-9 sm:grid-cols-4"
           >
             {footerGroups.map((group) => (
-              <div key={group.label}>
+              <Localized key={group.label}><div key={group.label}>
                 <p className="text-sm font-semibold text-[var(--foreground)]">{group.label}</p>
                 <div className="mt-4 grid gap-3">
                   {group.links.map((link) => (
-                    <Link
+                    <Localized key={link.label}><Link
                       key={link.label}
                       href={link.href}
                       className="w-fit text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
                     >
                       {link.label}
-                    </Link>
+                    </Link></Localized>
                   ))}
                 </div>
-              </div>
+              </div></Localized>
             ))}
           </nav>
         </div>
@@ -107,7 +110,7 @@ export default function Footer() {
           </div>
           <div aria-label="Accepted payment methods" className="flex flex-wrap items-center gap-2">
             {paymentMethods.map((method) => (
-              <span key={method.name} title={method.name} className="payment-mark">
+              <Localized key={method.name}><span key={method.name} title={method.name} className="payment-mark">
                 <Image
                   src={method.src}
                   alt={method.name}
@@ -115,11 +118,11 @@ export default function Footer() {
                   height={96}
                   className="h-7 w-7 object-contain"
                 />
-              </span>
+              </span></Localized>
             ))}
           </div>
         </div>
       </PageContainer>
-    </footer>
+    </footer></Localized>
   );
 }

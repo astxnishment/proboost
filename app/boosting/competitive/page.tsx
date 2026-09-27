@@ -1,5 +1,8 @@
-﻿"use client";
+"use client";
 
+import { useOrderState } from "../../components/OrderDraftProvider";
+
+import Localized from "../../components/Localization";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,18 +32,20 @@ type Rank = {
 };
 
 function Toggle({
+  label,
   enabled,
   setEnabled,
 }: {
+  label: string;
   enabled: boolean;
   setEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <button
+    <Localized><button
       type="button"
       role="switch"
       aria-checked={enabled}
-      aria-label={enabled ? "Disable option" : "Enable option"}
+      aria-label={label}
       onClick={() => setEnabled(!enabled)}
       className={`keep-pill flex h-6 w-10 items-center rounded-full border p-0.5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] ${
         enabled
@@ -53,7 +58,7 @@ function Toggle({
           enabled ? "translate-x-5 bg-[var(--background)]" : "bg-[var(--muted)]"
         }`}
       />
-    </button>
+    </button></Localized>
   );
 }
 
@@ -83,27 +88,27 @@ const SERVICE_BUTTONS = R6_SERVICE_BUTTONS;
 export default function CompetitiveWins() {
   const { currency, formatPrice } = useCurrency();
   // State
-  const [currentRank, setCurrentRank] = React.useState("Copper");
-  const [currentDivision, setCurrentDivision] = React.useState("V");
-  const [numberOfWins, setNumberOfWins] = React.useState(1);
-  const [platform, setPlatform] = React.useState("PC");
-  const [server, setServer] = React.useState("Europe");
-  const [queueType, setQueueType] = React.useState<"Solo" | "Duo">("Solo");
-  const [duoBoosterCount, setDuoBoosterCount] = React.useState(1);
+  const [currentRank, setCurrentRank] = useOrderState(`boosting/competitive:currentRank`, "Copper");
+  const [currentDivision, setCurrentDivision] = useOrderState(`boosting/competitive:currentDivision`, "V");
+  const [numberOfWins, setNumberOfWins] = useOrderState(`boosting/competitive:numberOfWins`, 1);
+  const [platform, setPlatform] = useOrderState(`boosting/competitive:platform`, "PC");
+  const [server, setServer] = useOrderState(`boosting/competitive:server`, "Europe");
+  const [queueType, setQueueType] = useOrderState<"Solo" | "Duo">(`boosting/competitive:queueType`, "Solo");
+  const [duoBoosterCount, setDuoBoosterCount] = useOrderState(`boosting/competitive:duoBoosterCount`, 1);
 
-  const [specificBooster, setSpecificBooster] = React.useState(false);
-  const [playOffline, setPlayOffline] = React.useState(false);
-  const [specificOperators, setSpecificOperators] = React.useState(false);
-  const [streaming, setStreaming] = React.useState(false);
-  const [express, setExpress] = React.useState(false);
-  const [highKillCount, setHighKillCount] = React.useState(false);
-  const [oneTrickPony, setOneTrickPony] = React.useState(false);
-  const [rankInsurance, setRankInsurance] = React.useState(false);
-  const [vipPriority, setVipPriority] = React.useState(false);
-  const [insaneClipDrop, setInsaneClipDrop] = React.useState(false);
-  const [eliteTier, setEliteTier] = React.useState(false);
+  const [specificBooster, setSpecificBooster] = useOrderState(`boosting/competitive:specificBooster`, false);
+  const [playOffline, setPlayOffline] = useOrderState(`boosting/competitive:playOffline`, false);
+  const [specificOperators, setSpecificOperators] = useOrderState(`boosting/competitive:specificOperators`, false);
+  const [streaming, setStreaming] = useOrderState(`boosting/competitive:streaming`, false);
+  const [express, setExpress] = useOrderState(`boosting/competitive:express`, false);
+  const [highKillCount, setHighKillCount] = useOrderState(`boosting/competitive:highKillCount`, false);
+  const [oneTrickPony, setOneTrickPony] = useOrderState(`boosting/competitive:oneTrickPony`, false);
+  const [rankInsurance, setRankInsurance] = useOrderState(`boosting/competitive:rankInsurance`, false);
+  const [vipPriority, setVipPriority] = useOrderState(`boosting/competitive:vipPriority`, false);
+  const [insaneClipDrop, setInsaneClipDrop] = useOrderState(`boosting/competitive:insaneClipDrop`, false);
+  const [eliteTier, setEliteTier] = useOrderState(`boosting/competitive:eliteTier`, false);
 
-  const [promoCode, setPromoCode] = React.useState("");
+  const [promoCode, setPromoCode] = useOrderState(`boosting/competitive:promoCode`, "");
   const [promoExpanded, setPromoExpanded] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
   const [toastType, setToastType] = React.useState<"error" | "success">("error");
@@ -186,7 +191,7 @@ export default function CompetitiveWins() {
     setEnabled: React.Dispatch<React.SetStateAction<boolean>>,
     description?: string
   ) => (
-    <div className={`relative rounded-2xl border p-4 transition-all duration-200 ease-out ${
+    <Localized><div className={`relative rounded-2xl border p-4 transition-all duration-200 ease-out ${
       enabled
         ? "border-cyan-400/40 bg-cyan-400/10 shadow-lg shadow-cyan-500/20"
         : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
@@ -214,9 +219,9 @@ export default function CompetitiveWins() {
             {tag}
           </span>
         </div>
-        <Toggle enabled={enabled} setEnabled={setEnabled} />
+        <Toggle label={title} enabled={enabled} setEnabled={setEnabled} />
       </div>
-    </div>
+    </div></Localized>
   );
 
   const currentRankData = ranks.find((r) => r.name === currentRank);
@@ -253,7 +258,7 @@ export default function CompetitiveWins() {
   };
 
   return (
-    <div className="service-configurator relative min-h-screen font-sans">
+    <Localized><div className="service-configurator relative min-h-screen font-sans">
       {toastMessage && (
         <div
           role={toastType === "error" ? "alert" : "status"}
@@ -321,7 +326,7 @@ export default function CompetitiveWins() {
             {/* Service nav */}
             <div className="space-y-2">
               {SERVICE_BUTTONS.map((item) => (
-                <Link
+                <Localized key={item.href}><Link
                   key={item.href}
                   href={item.href}
                   className={`block w-full rounded-xl border px-4 py-3 text-sm font-medium transition ${
@@ -331,7 +336,7 @@ export default function CompetitiveWins() {
                   }`}
                 >
                   {item.label}
-                </Link>
+                </Link></Localized>
               ))}
             </div>
 
@@ -340,7 +345,7 @@ export default function CompetitiveWins() {
               Rated 4.9+
               <span className="flex items-center gap-0.5">
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20}  className="h-5 w-5" />
+                  <Localized key={i}><Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20}  className="h-5 w-5" /></Localized>
                 ))}
               </span>
             </div>
@@ -372,7 +377,7 @@ export default function CompetitiveWins() {
                   {/* Rank grid */}
                   <div className="grid grid-cols-4 gap-3 mb-4">
                     {ranks.map((rank) => (
-                      <button
+                      <Localized key={rank.name}><button
                         key={rank.name}
                         onClick={() => setCurrentRank(rank.name)}
                         className={rankCard(currentRank === rank.name)}
@@ -381,7 +386,7 @@ export default function CompetitiveWins() {
                           <Image src={rank.icon} alt={rank.name} width={40} height={40} className="h-10 w-10 object-contain transition-transform duration-200 group-hover:scale-110" style={{ width: "40px", height: "40px" }} />
                           <span className="text-xs font-semibold text-zinc-300 text-center leading-tight">{rank.name}</span>
                         </div>
-                      </button>
+                      </button></Localized>
                     ))}
                   </div>
 
@@ -389,9 +394,9 @@ export default function CompetitiveWins() {
                   {currentRank !== "Champion" && (
                     <div className="grid grid-cols-5 gap-2">
                       {divisions.map((div) => (
-                        <button key={div} onClick={() => setCurrentDivision(div)} className={pillButton(currentDivision === div)}>
+                        <Localized key={div}><button key={div} onClick={() => setCurrentDivision(div)} className={pillButton(currentDivision === div)}>
                           {div}
-                        </button>
+                        </button></Localized>
                       ))}
                     </div>
                   )}
@@ -409,9 +414,9 @@ export default function CompetitiveWins() {
             <section>
               <label className="mb-2 block text-sm font-semibold text-white">Server</label>
               <div className="relative">
-                <select value={server} onChange={(e) => setServer(e.target.value)}
+                <select aria-label="Server" value={server} onChange={(e) => setServer(e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3.5 pr-12 text-white outline-none transition hover:border-white/20 focus:border-white/20 cursor-pointer appearance-none">
-                  {servers.map((o) => <option key={o} value={o} className="bg-[#0a0a0a] text-white">{o}</option>)}
+                  {servers.map((o) => <Localized key={o}><option key={o} value={o} className="bg-[#0a0a0a] text-white">{o}</option></Localized>)}
                 </select>
                 <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-400">▾</span>
               </div>
@@ -635,7 +640,7 @@ export default function CompetitiveWins() {
                 </div>
                 <div className="flex items-center gap-2">
                   {paymentMethods.map((m) => (
-                    <Image key={m.name} src={m.icon} alt={m.name} width={28} height={28}  className="h-6 w-auto object-contain" />
+                    <Localized key={m.name}><Image key={m.name} src={m.icon} alt={m.name} width={28} height={28}  className="h-6 w-auto object-contain" /></Localized>
                   ))}
                 </div>
               </div>
@@ -673,7 +678,7 @@ export default function CompetitiveWins() {
               <div className="flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
                 <div className="mb-4 flex gap-0.5">
                   {[0,1,2,3,4].map(i => (
-                    <Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20}  className="h-5 w-5" />
+                    <Localized key={i}><Image key={i} src="/trustpilot-custom-star.webp" alt="" width={20} height={20}  className="h-5 w-5" /></Localized>
                   ))}
                 </div>
                 <div className="mb-1 text-3xl font-black text-emerald-400">4.9/5</div>
@@ -692,6 +697,6 @@ export default function CompetitiveWins() {
           </div>
         </div>
       )}
-    </div>
+    </div></Localized>
   );
 }

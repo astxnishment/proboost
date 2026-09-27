@@ -1,13 +1,10 @@
+import Localized from "./Localization";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowUpRight,
-  BarChart3,
-  Check,
   Clock3,
-  Crosshair,
-  Gauge,
   Headphones,
   LockKeyhole,
   Map,
@@ -15,10 +12,11 @@ import {
   Settings2,
   ShieldCheck,
   Target,
-  Trophy,
   UsersRound,
 } from "lucide-react";
 import FaqSection from "./FaqSection";
+import GameHero from "./GameHero";
+import GameServiceCatalog, { type GameService } from "./GameServiceCatalog";
 
 const SERVICES = [
   {
@@ -27,7 +25,9 @@ const SERVICES = [
     description:
       "Choose your current skill group, target rank, and preferred map.",
     details: ["Silver I to Global Elite", "Per-map progression"],
-    icon: Crosshair,
+    icon: "rank",
+    group: "rank",
+    artwork: "/cs2/ranks/skillgroup18.svg",
   },
   {
     slug: "premier-rating",
@@ -35,7 +35,8 @@ const SERVICES = [
     description:
       "Set an exact CS Rating target and configure the route in 500-point steps.",
     details: ["Live rating estimate", "Every Premier band"],
-    icon: BarChart3,
+    icon: "rating",
+    group: "rank",
   },
   {
     slug: "competitive-wins",
@@ -43,7 +44,8 @@ const SERVICES = [
     description:
       "Order a defined number of wins at your current skill group.",
     details: ["Fixed win packages", "Map preference"],
-    icon: Trophy,
+    icon: "wins",
+    group: "matches",
   },
   {
     slug: "faceit-leveling",
@@ -51,7 +53,8 @@ const SERVICES = [
     description:
       "Move through FACEIT levels with a route calculated from your current Elo.",
     details: ["Levels 1 to 10", "Elo-based scope"],
-    icon: Gauge,
+    icon: "faceit",
+    group: "rank",
   },
 ] as const;
 
@@ -128,101 +131,25 @@ const FAQ = [
   },
 ] as const;
 
-function requestHref(subject: string) {
-  return `mailto:support@proboost.gg?subject=${encodeURIComponent(subject)}`;
-}
-
 export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
   return (
-    <main
-      className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
-      style={{ "--cs2-accent": "#f47b20" } as CSSProperties}
+    <Localized><main
+      className="game-overview min-h-screen bg-[var(--background)] text-[var(--foreground)]"
+      style={{ "--game-accent": "#f47b20", "--cs2-accent": "#f47b20" } as CSSProperties}
     >
-      <section className="theme-preserve-media relative min-h-[540px] overflow-hidden border-b border-[var(--line)] bg-[#08090b] text-white">
-        <div
-          className="absolute inset-y-0 -right-[52%] w-[152%] opacity-55 sm:-right-[18%] sm:w-[118%] sm:opacity-80 md:right-0 md:w-[960px] md:opacity-100"
-          style={{
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
-            maskImage:
-              "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
-          }}
-        >
-          <Image
-            src="/cs2/cs2-hero.webp"
-            alt="Tactical Counter-Strike 2 specialist at an industrial bombsite"
-            fill
-            loading="eager"
-            fetchPriority="high"
-            sizes="(max-width: 639px) 152vw, (max-width: 767px) 118vw, 960px"
-            className="object-cover object-[70%_center] md:object-contain md:object-right"
-          />
-          <div aria-hidden className="absolute inset-0 bg-black/25 sm:bg-black/10" />
-        </div>
-        <div className="relative mx-auto flex min-h-[540px] max-w-[1280px] items-center px-5 py-14 sm:px-8 lg:px-10">
-          <div className="max-w-[560px] md:max-w-[48%]">
-            <div className="inline-flex items-center gap-2.5">
-              <Image
-                src="/game-icons/game_icon (5).webp"
-                alt=""
-                width={32}
-                height={32}
-                className="h-8 w-8 rounded-md"
-              />
-              <span className="text-xs font-semibold uppercase text-white/75">
-                Counter-Strike 2
-              </span>
-              <span
-                aria-hidden
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ backgroundColor: "var(--cs2-accent)" }}
-              />
-              <span className="text-xs font-medium text-white/55">Available</span>
-            </div>
-
-            <h1 className="sr-only">Counter-Strike 2 boosting services</h1>
-            <div aria-hidden="true" className="mt-6">
-              <Image
-                src="/homepage/cs2-text-homepage.webp"
-                alt=""
-                width={536}
-                height={160}
-                loading="eager"
-                className="h-auto w-[min(340px,76vw)]"
-              />
-              <span className="mt-4 block text-3xl font-semibold text-white sm:text-[2.25rem]">
-                Boosting services
-              </span>
-            </div>
-
-            <p className="mt-4 max-w-[50ch] text-base leading-7 text-white/70 sm:text-lg">
-              Competitive ranks, Premier rating, fixed wins, and FACEIT
-              progression configured around your exact starting point.
-            </p>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a
-                href="#services"
-                className="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-white bg-white px-6 text-sm font-semibold text-black transition hover:opacity-85"
-              >
-                Choose a service
-                <ArrowUpRight aria-hidden className="h-4 w-4" />
-              </a>
-              <a
-                href={requestHref("Counter-Strike 2 Service Request")}
-                className="theme-media-secondary inline-flex h-12 items-center justify-center whitespace-nowrap rounded-lg border px-6 text-sm font-semibold transition"
-              >
-                Ask support
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <GameHero
+        name="Counter-Strike 2"
+        description="Competitive ranks, Premier rating, and FACEIT levels. Choose your mode and build a climb around your exact starting point."
+        artwork="/cs2/cs2-hero.webp"
+        icon="/game-icons/game_icon (5).webp"
+        language={basePath.split("/")[1]}
+        imagePosition="65% center"
+      />
 
       <section className="border-b border-[var(--line)] bg-[var(--surface-muted)] px-5 sm:px-8 lg:px-10">
         <div className="mx-auto grid max-w-[1280px] grid-cols-2 lg:grid-cols-4">
           {HERO_POINTS.map((item, index) => (
-            <div
+            <Localized key={item.label}><div
               key={item.label}
               className={`flex min-h-[72px] items-center gap-3 px-3 py-3 sm:px-5 ${
                 index % 2 === 1 ? "border-l border-[var(--line)]" : ""
@@ -238,79 +165,24 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
               <span className="text-xs font-semibold text-[var(--foreground-soft)] sm:text-sm">
                 {item.label}
               </span>
-            </div>
+            </div></Localized>
           ))}
         </div>
       </section>
 
-      <section
-        id="services"
-        className="scroll-mt-20 px-5 py-14 sm:px-8 sm:py-16 lg:px-10"
-      >
-        <div className="mx-auto max-w-[1280px]">
-          <div className="max-w-[720px]">
-            <p className="text-xs font-semibold uppercase text-[var(--muted)]">
-              CS2 services
-            </p>
-            <h2 className="mt-3 max-w-[14ch] text-4xl font-semibold leading-[1.04] sm:text-5xl">
-              Choose your route.
-            </h2>
-            <p className="mt-4 max-w-[58ch] text-base leading-7 text-[var(--muted)]">
-              Each service has its own calculator and selection logic. Start
-              with the mode you play, then define the exact result.
-            </p>
+      <section id="services" className="game-services-section">
+        <div className="page-container">
+          <div className="game-services-heading">
+            <div>
+              <p className="eyebrow">Counter-Strike 2 services</p>
+              <h2 className="section-title">Find your next milestone.</h2>
+            </div>
+            <p>Choose a Competitive rank, a Premier rating, a FACEIT level, or a set number of wins. You can set your target and see your price before checkout.</p>
           </div>
-
-          <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {SERVICES.map((service) => (
-              <Link
-                key={service.slug}
-                href={`${basePath}/${service.slug}`}
-                className="group flex min-h-[286px] flex-col rounded-lg border border-[var(--line)] bg-[var(--surface)] p-5 transition hover:border-[var(--line-strong)] hover:bg-[var(--surface-muted)]"
-              >
-                <span
-                  className="flex h-11 w-11 items-center justify-center rounded-lg"
-                  style={{
-                    backgroundColor:
-                      "color-mix(in srgb, var(--cs2-accent) 14%, var(--surface))",
-                    color:
-                      "color-mix(in srgb, var(--cs2-accent) 82%, var(--foreground))",
-                  }}
-                >
-                  <service.icon
-                    aria-hidden
-                    className="h-5 w-5"
-                    strokeWidth={1.8}
-                  />
-                </span>
-                <h3 className="mt-6 text-xl font-semibold">{service.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-                  {service.description}
-                </p>
-                <div className="mt-4 space-y-2">
-                  {service.details.map((detail) => (
-                    <p
-                      key={detail}
-                      className="flex items-center gap-2 text-sm text-[var(--foreground-soft)]"
-                    >
-                      <Check
-                        aria-hidden
-                        className="h-3.5 w-3.5 shrink-0 text-[var(--muted)]"
-                      />
-                      {detail}
-                    </p>
-                  ))}
-                </div>
-                <span className="mt-auto flex items-center justify-between pt-5 text-sm font-semibold">
-                  Configure service
-                  <ArrowUpRight
-                    aria-hidden
-                    className="h-4 w-4 text-[var(--muted)] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--foreground)]"
-                  />
-                </span>
-              </Link>
-            ))}
-          </div>
+          <GameServiceCatalog
+            language={basePath.split("/")[1]}
+            services={SERVICES.map(service => ({ ...service, href: `${basePath}/${service.slug}` })) satisfies GameService[]}
+          />
         </div>
       </section>
 
@@ -336,7 +208,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
 
           <div className="grid sm:grid-cols-2">
             {ORDER_CONTROLS.map((item, index) => (
-              <div
+              <Localized key={item.title}><div
                 key={item.title}
                 className={`border-t border-[var(--line)] py-6 sm:px-6 ${
                   index % 2 === 1 ? "sm:border-l" : ""
@@ -353,7 +225,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
                 <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
                   {item.description}
                 </p>
-              </div>
+              </div></Localized>
             ))}
           </div>
         </div>
@@ -370,7 +242,7 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
 
           <div className="mt-10 grid border-y border-[var(--line)] lg:grid-cols-3">
             {PROCESS.map((item, index) => (
-              <div
+              <Localized key={item.label}><div
                 key={item.label}
                 className={`px-1 py-8 sm:px-6 ${
                   index > 0
@@ -392,13 +264,13 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
                 <p className="mt-3 max-w-[42ch] text-sm leading-6 text-[var(--muted)]">
                   {item.description}
                 </p>
-              </div>
+              </div></Localized>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
+      <section id="faq" className="border-t border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
         <div className="mx-auto max-w-[1280px]">
           <div className="mb-8">
             <p className="text-xs font-semibold uppercase text-[var(--muted)]">
@@ -447,6 +319,6 @@ export default function Cs2BoostingPage({ basePath }: { basePath: string }) {
           </div>
         </div>
       </section>
-    </main>
+    </main></Localized>
   );
 }

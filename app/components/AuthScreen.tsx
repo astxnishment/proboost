@@ -1,6 +1,8 @@
-﻿"use client";
+"use client";
 
-
+import Localized, { useLanguage } from "./Localization";
+import { localizedHref } from "../lib/localization";
+import { authErrorMessage } from "../lib/auth-errors";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,8 +43,8 @@ type AuthScreenProps = {
 
 export default function AuthScreen({ mode }: AuthScreenProps) {
   const router = useRouter();
+  const language = useLanguage();
   const clerk = useClerk();
-  const [selectedLang, setSelectedLang] = React.useState<LanguageCode>("en");
   const [email, setEmail] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -69,62 +71,53 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
         });
         if (res.status === "complete") {
           await clerk.setActive({ session: res.createdSessionId });
-          router.push("/");
+          router.push(localizedHref("/", language));
+        } else {
+          setError("Additional verification is required. Please contact support for help signing in.");
         }
       } else {
         const res = await clerk.client.signUp.create({ emailAddress: email, password, username });
         if (res.status === "complete") {
           await clerk.setActive({ session: res.createdSessionId });
-          router.push("/");
+          router.push(localizedHref("/", language));
         } else if (res.status === "missing_requirements") {
           await res.prepareEmailAddressVerification({ strategy: "email_code" });
-          router.push("/signup/verify");
+          router.push(localizedHref("/signup/verify", language));
+        } else {
+          setError("We could not finish creating your account. Please try again or contact support.");
         }
       }
     } catch (err: unknown) {
-      const clerkErr = err as { errors?: { message: string }[] };
-      setError(clerkErr?.errors?.[0]?.message ?? "Something went wrong. Please try again.");
+      setError(authErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOAuth = (strategy: OAuthStrategy) => {
+  const handleOAuth = async (strategy: OAuthStrategy) => {
+    if (loading) return;
+    setLoading(true);
+    setError("");
     const origin = window.location.origin;
     const params = {
       strategy,
       redirectUrl: `${origin}/sso-callback`,
-      redirectUrlComplete: `${origin}/`,
+      redirectUrlComplete: `${origin}/${language}`,
     };
-    if (mode === "login") {
-      clerk.client.signIn.authenticateWithRedirect(params);
-    } else {
-      clerk.client.signUp.authenticateWithRedirect(params);
+    try {
+      if (mode === "login") await clerk.client.signIn.authenticateWithRedirect(params);
+      else await clerk.client.signUp.authenticateWithRedirect(params);
+    } catch (error) {
+      setError(authErrorMessage(error));
+      setLoading(false);
     }
   };
 
-  React.useEffect(() => {
-    const saved = localStorage.getItem("proboost_lang");
-    const id = window.setTimeout(() => {
-      if (saved && saved in i18n) {
-        setSelectedLang(saved as LanguageCode);
-      }
-    }, 0);
-    const handleLanguageChange = (event: Event) => {
-      const language = (event as CustomEvent<LanguageCode>).detail;
-      if (language && language in i18n) setSelectedLang(language);
-    };
-    window.addEventListener("proboost:language-change", handleLanguageChange);
-    return () => {
-      window.clearTimeout(id);
-      window.removeEventListener("proboost:language-change", handleLanguageChange);
-    };
-  }, []);
-  const t = i18n[selectedLang];
+  const t = i18n.en;
   const content = t[mode];
   const altHref = mode === "login" ? "/signup" : "/login";
   return (
-    <main className="auth-shell flex min-h-[calc(100vh-var(--header-height))] items-center py-10 sm:py-14">
+    <Localized><main className="auth-shell flex min-h-[calc(100vh-var(--header-height))] items-center py-10 sm:py-14">
       {/* Required by Clerk for Smart CAPTCHA on custom sign-up flows */}
       <div id="clerk-captcha" />
 
@@ -151,7 +144,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
                 { icon: ShieldCheck, title: t.historyTitle, description: t.historyDesc },
                 { icon: Clock3, title: t.liveTitle, description: t.liveDesc },
               ].map((item) => (
-                <div key={item.title} className="flex max-w-md items-start gap-3">
+                <Localized key={item.title}><div key={item.title} className="flex max-w-md items-start gap-3">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/16 bg-black/30">
                     <item.icon aria-hidden className="h-4 w-4" />
                   </span>
@@ -159,7 +152,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
                     <p className="text-sm font-semibold text-white">{item.title}</p>
                     <p className="mt-0.5 text-xs leading-5 text-white/64">{item.description}</p>
                   </div>
-                </div>
+                </div></Localized>
               ))}
             </div>
           </div>
@@ -293,6 +286,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
+                disabled={loading}
                 onClick={() => handleOAuth("oauth_google")}
                 className="button-base button-secondary px-3"
               >
@@ -306,6 +300,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
               </button>
               <button
                 type="button"
+                disabled={loading}
                 onClick={() => handleOAuth("oauth_discord")}
                 className="button-base button-secondary px-3"
               >
@@ -325,6 +320,6 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           </div>
         </section>
       </div>
-    </main>
+    </main></Localized>
   );
 }

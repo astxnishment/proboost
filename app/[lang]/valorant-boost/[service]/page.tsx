@@ -1,3 +1,4 @@
+import { localizeMetadata } from "../../../lib/localized-metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ValorantServiceConfigurator from "@/app/components/valorant/ValorantServiceConfigurator";
@@ -31,7 +32,7 @@ export async function generateMetadata({
   const config = VALORANT_SERVICE_CONFIG[service];
   const path = `valorant-boost/${service}`;
 
-  return {
+  return localizeMetadata({
     title: config.title,
     description: config.metadataDescription,
     alternates: {
@@ -50,7 +51,7 @@ export async function generateMetadata({
         },
       ],
     },
-  };
+  }, lang);
 }
 
 export default async function LocalizedValorantServicePage({

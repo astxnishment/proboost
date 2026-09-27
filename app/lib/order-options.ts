@@ -69,6 +69,9 @@ const PLATFORM_ICONS: Record<string, string> = {
   Xbox: "/xbox.png",
   PlayStation: "/playstation.png",
   "Nintendo Switch": "/homepage/icons/nintendo-switch.svg",
+  "Nintendo Switch 2": "/homepage/icons/nintendo-switch.svg",
+  Mobile: "/homepage/icons/mobile-homepage.webp",
+  Mac: "/platforms/apple.svg",
 };
 
 export function getPlatformIcon(platform: string): string {

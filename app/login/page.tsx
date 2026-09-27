@@ -1,5 +1,6 @@
+import Localized from "../components/Localization";
 import AuthScreen from "../components/AuthScreen";
 
 export default function LoginPage() {
-  return <AuthScreen mode="login" />;
+  return <Localized><AuthScreen mode="login" /></Localized>;
 }

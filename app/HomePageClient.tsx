@@ -1,5 +1,6 @@
 "use client";
 
+import Localized, { useLanguage } from "./components/Localization";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,9 +10,13 @@ import {
   Gamepad2,
   Headphones,
   RotateCcw,
+  Search,
+  X,
+  Check,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
+import { GAME_DIRECTORY, GAME_CATEGORY_LABELS, isPveGame } from "./lib/games";
 import type { LanguageCode } from "./components/Dropdown";
 import { useCurrency } from "./components/CurrencyProvider";
 import { ButtonLink, PageContainer, Section, SectionHeading, StatusBadge } from "./components/ui";
@@ -42,7 +47,6 @@ const i18n: Record<LangCode, {
   platformReady: string;
   enterService: string;
   openNow: string;
-  comingSoon: string;
   soon: string;
   howItWorksLabel: string;
   howItWorksTitle: string;
@@ -64,10 +68,10 @@ const i18n: Record<LangCode, {
 }> = {
   en: {
     badge: "Trusted by 10,000+ players across all platforms",
-    hero: "Rank up faster with verified specialists.",
-    sub: "ProBoost connects you with real, high-rated players who handle your rank climb safely and fast. Pick your game, set your goal, and let a verified booster do the rest.",
-    ctaPrimary: "Open Rainbow Six Siege Boost",
-    ctaSecondary: "Browse Supported Games",
+    hero: "Your next rank. Within reach.",
+    sub: "Big goals. Better teammates. Choose your game and build your next climb with a verified specialist.",
+    ctaPrimary: "Find your game",
+    ctaSecondary: "How it works",
     ratedTitle: "Rated highly by repeat customers",
     ratedSub: "Fast entry points, clear service navigation, and strong visual hierarchy.",
     selectedGame: "Selected Game",
@@ -81,12 +85,11 @@ const i18n: Record<LangCode, {
     verifiedRatingDetail: "Built around transparent delivery, account-safe handling, and fast support.",
     avgResponseDetail: "Orders and questions are reviewed quickly so customers are not left waiting.",
     selectYourGame: "Select Your Game",
-    pickGame: "Pick your game and get started.",
-    gameSectionSub: "Select from our supported titles. Live services open immediately \u2014 new games are added each season as boosters are vetted and verified.",
-    platformReady: "Platform-ready workflow",
+    pickGame: "Your game. Your next level.",
+    gameSectionSub: "From the first placement to your next milestone. Find the right service for your climb.",
+    platformReady: "Across your favorite platforms",
     enterService: "Enter service",
     openNow: "Open now",
-    comingSoon: "Coming soon",
     soon: "Soon",
     howItWorksLabel: "How It Works",
     howItWorksTitle: "Simple, transparent, and fast.",
@@ -135,7 +138,6 @@ const i18n: Record<LangCode, {
     platformReady: "Workflow pronto per la piattaforma",
     enterService: "Entra nel servizio",
     openNow: "Aperto ora",
-    comingSoon: "Prossimamente",
     soon: "Presto",
     howItWorksLabel: "Come funziona",
     howItWorksTitle: "Semplice, trasparente e veloce.",
@@ -184,7 +186,6 @@ const i18n: Record<LangCode, {
     platformReady: "Workflow pr\u00eat pour la plateforme",
     enterService: "Acc\u00e9der au service",
     openNow: "Ouvert",
-    comingSoon: "Bient\u00f4t disponible",
     soon: "Bient\u00f4t",
     howItWorksLabel: "Comment \u00e7a marche",
     howItWorksTitle: "Simple, transparent et rapide.",
@@ -233,7 +234,6 @@ const i18n: Record<LangCode, {
     platformReady: "Flujo listo para la plataforma",
     enterService: "Entrar al servicio",
     openNow: "Abierto",
-    comingSoon: "Pr\u00f3ximamente",
     soon: "Pronto",
     howItWorksLabel: "C\u00f3mo funciona",
     howItWorksTitle: "Simple, transparente y r\u00e1pido.",
@@ -282,7 +282,6 @@ const i18n: Record<LangCode, {
     platformReady: "Plattformfertiger Workflow",
     enterService: "Service betreten",
     openNow: "Ge\u00f6ffnet",
-    comingSoon: "Demnächst",
     soon: "Bald",
     howItWorksLabel: "So funktioniert es",
     howItWorksTitle: "Einfach, transparent und schnell.",
@@ -331,7 +330,6 @@ const i18n: Record<LangCode, {
     platformReady: "Platformklare workflow",
     enterService: "Service betreden",
     openNow: "Open nu",
-    comingSoon: "Binnenkort beschikbaar",
     soon: "Binnenkort",
     howItWorksLabel: "Hoe het werkt",
     howItWorksTitle: "Eenvoudig, transparant en snel.",
@@ -380,7 +378,6 @@ const i18n: Record<LangCode, {
     platformReady: "Fluxo pronto para a plataforma",
     enterService: "Entrar no servi\u00e7o",
     openNow: "Aberto agora",
-    comingSoon: "Em breve",
     soon: "Em breve",
     howItWorksLabel: "Como funciona",
     howItWorksTitle: "Simples, transparente e r\u00e1pido.",
@@ -429,7 +426,6 @@ const i18n: Record<LangCode, {
     platformReady: "\u0413\u043e\u0442\u043e\u0432\u0438\u0439 \u0434\u043e \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0438",
     enterService: "\u0423\u0432\u0456\u0439\u0442\u0438 \u0432 \u0441\u0435\u0440\u0432\u0456\u0441",
     openNow: "\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u043e",
-    comingSoon: "\u041d\u0435\u0437\u0430\u0431\u0430\u0440\u043e",
     soon: "\u0421\u043a\u043e\u0440\u043e",
     howItWorksLabel: "\u042f\u043a \u0446\u0435 \u043f\u0440\u0430\u0446\u044e\u0454",
     howItWorksTitle: "\u041f\u0440\u043e\u0441\u0442\u043e, \u043f\u0440\u043e\u0437\u043e\u0440\u043e \u0456 \u0448\u0432\u0438\u0434\u043a\u043e.",
@@ -478,7 +474,6 @@ const i18n: Record<LangCode, {
     platformReady: "\u0413\u043e\u0442\u043e\u0432 \u043a \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0435",
     enterService: "\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u0432 \u0441\u0435\u0440\u0432\u0438\u0441",
     openNow: "\u041e\u0442\u043a\u0440\u044b\u0442\u043e",
-    comingSoon: "\u0421\u043a\u043e\u0440\u043e",
     soon: "\u0421\u043a\u043e\u0440\u043e",
     howItWorksLabel: "\u041a\u0430\u043a \u044d\u0442\u043e \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442",
     howItWorksTitle: "\u041f\u0440\u043e\u0441\u0442\u043e, \u043f\u0440\u043e\u0437\u0440\u0430\u0447\u043d\u043e \u0438 \u0431\u044b\u0441\u0442\u0440\u043e.",
@@ -509,7 +504,7 @@ type GameCard = {
   name: string;
   href: string;
   logo: string;
-  live: boolean;
+  competitive: boolean;
   glow: string;
   bg?: string;
   iconOnly?: boolean;
@@ -519,20 +514,25 @@ type GameCard = {
   objectPosition?: string;
 };
 
-const gameCards: GameCard[] = [
-  { name: "Rainbow Six Siege", href: "/en/rainbow-six-siege-boost", bg: "/homepage/r6-homepage.webp",             logo: "/homepage/r6-text-homepage.png",            live: true,  glow: "#aea896" },
-  { name: "Valorant",          href: "/en/valorant-boost",          bg: "/homepage/valorant-homepage.webp",         logo: "/homepage/valorant-text-homepage.webp",     live: true,  glow: "#ff5261" },
-  { name: "Counter-Strike 2",  href: "/en/counter-strike-2-boost",  bg: "/homepage/cs2-homepage.webp",              logo: "/homepage/cs2-text-homepage.webp",          live: true,  glow: "#ff6b1b" },
-  { name: "Overwatch 2",       href: "/en/overwatch-2-boost",       bg: "/homepage/overwatch-homepage-v2.webp",     logo: "/game-icons/overwatch-2-logo.webp",         live: true,  glow: "#f56600", iconOnly: true, logoBackground: "rgba(255,255,255,0.08)", logoFilter: "brightness(1.8) saturate(1.1)", objectPosition: "50% 42%" },
-  { name: "Rocket League",     href: "#",                           bg: "/homepage/rocketleague-homepage.webp",     logo: "/homepage/rocketleague-text-homepage.webp", live: false, glow: "#e9852d" },
-  { name: "League of Legends", href: "#",                           bg: "/homepage/lol-homepage.webp",              logo: "/homepage/lol-text-homepage.webp",          live: false, glow: "#0fa2b7" },
-  { name: "Marvel Rivals",     href: "#",                           bg: "/homepage/marvelrivals-homepage.webp",     logo: "/homepage/marvelrivals-text-homepage.webp", live: false, glow: "#fcd92d" },
-  { name: "Apex Legends",      href: "#",                           bg: "/homepage/apex-homepage.webp",             logo: "/homepage/apex-text-homepage.webp",         live: false, glow: "#f75e34" },
-  { name: "World of Warcraft", href: "#",                           bg: "/homepage/wow-homepage-v2.webp",           logo: "/game-icons/game_icon (1).webp",            live: false, glow: "#e4b74c", iconOnly: true, objectPosition: "50% 42%" },
-  { name: "Fortnite",          href: "#",                           bg: "/homepage/fortnite-homepage-v3.webp",      logo: "/game-icons/game_icon (8).webp",            live: false, glow: "#8b5cf6", iconOnly: true, objectPosition: "50% 39%" },
-  { name: "Call of Duty",      href: "#",                           bg: "/homepage/cod-homepage-v3.webp",           logo: "/game-icons/game_icon (10).webp",           live: false, glow: "#d4d4d8", iconOnly: true, objectPosition: "50% 43%" },
-  { name: "Dota 2",            href: "#",                           bg: "/homepage/dota2-homepage-v3.webp",         logo: "/game-icons/game_icon (6).webp",            live: false, glow: "#df493d", iconOnly: true, objectPosition: "50% 42%" },
-];
+const GAME_ARTWORK = {
+  r6: { bg: "/homepage/r6-homepage.webp", logo: "/homepage/r6-text-homepage.png", glow: "#aea896" },
+  valorant: { bg: "/homepage/valorant-homepage.webp", logo: "/homepage/valorant-text-homepage.webp", glow: "#ff5261", objectPosition: "82% 50%" },
+  cs2: { bg: "/homepage/cs2-homepage.webp", logo: "/homepage/cs2-text-homepage.webp", glow: "#ff6b1b" },
+  "overwatch-2": { bg: "/homepage/overwatch-homepage-v2.webp", logo: "/game-icons/overwatch-2-logo.webp", glow: "#f56600", iconOnly: true, logoBackground: "rgba(255,255,255,0.08)", logoFilter: "brightness(1.8) saturate(1.1)", objectPosition: "50% 42%" },
+  "rocket-league": { bg: "/homepage/rocketleague-homepage.webp", logo: "/homepage/rocketleague-text-homepage.webp", glow: "#6ba6ff" },
+  lol: { bg: "/homepage/lol-homepage.webp", logo: "/homepage/lol-text-homepage.webp", glow: "#0fa2b7" },
+  "marvel-rivals": { bg: "/homepage/marvelrivals-homepage.webp", logo: "/homepage/marvelrivals-text-homepage.webp", glow: "#fcd92d", objectPosition: "66% 50%" },
+  apex: { bg: "/homepage/apex-homepage.webp", logo: "/homepage/apex-text-homepage.webp", glow: "#f75e34" },
+  wow: { bg: "/homepage/wow-homepage-v2.webp", logo: "/game-icons/game_icon (1).webp", glow: "#e4b74c", iconOnly: true, objectPosition: "50% 42%" },
+  fortnite: { bg: "/homepage/fortnite-homepage-v3.webp", logo: "/game-icons/game_icon (8).webp", glow: "#8b5cf6", iconOnly: true, objectPosition: "50% 39%" },
+  "call-of-duty": { bg: "/homepage/cod-homepage-v3.webp", logo: "/game-icons/game_icon (10).webp", glow: "#d4d4d8", iconOnly: true, objectPosition: "50% 43%" },
+  tft: { bg: "/games/tft/character.png", logo: "/games/tft/logo.svg", glow: "#efbd65", objectPosition: "50% 35%" },
+  "destiny-2": { bg: "/games/destiny-2/hero.jpg", logo: "/games/destiny-2/icon.jpg", glow: "#8ccee0", iconOnly: true, objectPosition: "48% 50%" },
+  "ea-fc-27": { bg: "/games/ea-fc-27/hero.jpg", logo: "/games/ea-fc-27/logo.png", glow: "#a6e76b", objectPosition: "50% 40%" },
+  "dota-2": { bg: "/homepage/dota2-homepage-v3.webp", logo: "/game-icons/game_icon (6).webp", glow: "#df493d", iconOnly: true, objectPosition: "50% 42%" },
+};
+const gameCards: GameCard[] = GAME_DIRECTORY.map(game => ({ name: game.name, href: `/en/${game.slug}`, competitive: !isPveGame(game), ...GAME_ARTWORK[game.id] }));
+const heroGames = gameCards.filter(game => ["Valorant", "Marvel Rivals", "Teamfight Tactics"].includes(game.name));
 
 const platformLogos = [
   { name: "PlayStation", src: "/homepage/icons/playstation-homepage.webp", color: "#006fcd" },
@@ -696,8 +696,22 @@ const membershipI18n: Record<LangCode, {
   },
 };
 
+const discoveryLabels: Record<LangCode, { all: string; search: string; empty: string; reset: string }> = {
+  en: { all: "All games", search: "Search games…", empty: "No games match your search.", reset: "Reset filters" },
+  it: { all: "Tutti i giochi", search: "Cerca giochi…", empty: "Nessun gioco trovato.", reset: "Reimposta filtri" },
+  fr: { all: "Tous les jeux", search: "Rechercher un jeu…", empty: "Aucun jeu trouvé.", reset: "Réinitialiser" },
+  es: { all: "Todos los juegos", search: "Buscar juegos…", empty: "No se encontraron juegos.", reset: "Restablecer filtros" },
+  de: { all: "Alle Spiele", search: "Spiele suchen…", empty: "Keine Spiele gefunden.", reset: "Filter zurücksetzen" },
+  nl: { all: "Alle games", search: "Zoek games…", empty: "Geen games gevonden.", reset: "Filters wissen" },
+  pt: { all: "Todos os jogos", search: "Buscar jogos…", empty: "Nenhum jogo encontrado.", reset: "Redefinir filtros" },
+  uk: { all: "Усі ігри", search: "Пошук ігор…", empty: "Ігор не знайдено.", reset: "Скинути фільтри" },
+  ru: { all: "Все игры", search: "Поиск игр…", empty: "Игры не найдены.", reset: "Сбросить фильтры" },
+};
+
 export default function HomePageClient() {
-  const [selectedLang, setSelectedLang] = React.useState<LangCode>("en");
+  const selectedLang = useLanguage();
+  const [gameQuery, setGameQuery] = React.useState("");
+  const [showAllGames, setShowAllGames] = React.useState(true);
   const [billingYearly, setBillingYearly] = React.useState(false);
   const {
     formatNativePrice,
@@ -705,23 +719,6 @@ export default function HomePageClient() {
     formatPriceNumber,
     symbol,
   } = useCurrency();
-
-  React.useEffect(() => {
-    const saved = window.localStorage.getItem("proboost_lang") as LangCode | null;
-    if (saved && i18n[saved]) {
-      window.setTimeout(() => setSelectedLang(saved), 0);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    const handleLanguageChange = (event: Event) => {
-      const code = (event as CustomEvent<LangCode>).detail;
-      if (code && i18n[code]) setSelectedLang(code);
-    };
-
-    window.addEventListener("proboost:language-change", handleLanguageChange);
-    return () => window.removeEventListener("proboost:language-change", handleLanguageChange);
-  }, []);
 
   const monthlyPrice = 9.99;
   const displayPrice = formatPriceNumber(
@@ -731,8 +728,16 @@ export default function HomePageClient() {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
-  const t = i18n[selectedLang];
-  const m = membershipI18n[selectedLang];
+  const t = i18n.en;
+  const m = membershipI18n.en;
+  const d = discoveryLabels.en;
+  const booking = GAME_CATEGORY_LABELS[selectedLang];
+  const normalizedQuery = gameQuery.trim().toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  const visibleGames = gameCards.filter((game) => {
+    const aliases: Record<string, string> = { "Rainbow Six Siege": "r6 r6s", "Counter-Strike 2": "cs2 csgo", "Overwatch 2": "ow2", "League of Legends": "lol", "World of Warcraft": "wow", "Rocket League": "rl", "Call of Duty": "cod warzone", "Marvel Rivals": "mr", "Dota 2": "dota", "Teamfight Tactics": "tft team fight tactics", "Destiny 2": "d2 destiny", "EA SPORTS FC 27": "fc27 fc 27 fifa eafc football" };
+    const searchable = `${game.name} ${aliases[game.name] ?? ""}`.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+    return (showAllGames || game.competitive) && searchable.includes(normalizedQuery);
+  });
   const membershipBenefits = [
     { icon: Gamepad2, value: "50% off", ...m.perks[0] },
     { icon: Activity, value: "Priority", ...m.perks[1] },
@@ -748,64 +753,66 @@ export default function HomePageClient() {
   ];
 
   return (
-    <main className="bg-[var(--background)] text-[var(--foreground)]">
+    <Localized><main className="bg-[var(--background)] text-[var(--foreground)]">
       <Section spacing="compact" className="homepage-hero">
         <PageContainer>
-          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.92fr)] lg:gap-16">
-            <div className="max-w-[690px]">
+          <div className="home-hero-layout">
+            <div className="home-hero-content">
               <StatusBadge tone="accent">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-                {t.badge}
+                <Gamepad2 aria-hidden size={16} />
+                {t.selectYourGame}
               </StatusBadge>
-              <h1 className="display-title mt-6">{t.hero}</h1>
-              <p className="body-large mt-6">{t.sub}</p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href={`/${selectedLang}/rainbow-six-siege-boost`} size="large">
+              <h1 className="home-hero-title">Your next rank.<br /><span>Within reach.</span></h1>
+              <p className="body-large">{t.sub}</p>
+              <div className="home-hero-actions">
+                <ButtonLink href="#games" size="large">
                   {t.ctaPrimary}
                   <ArrowRight aria-hidden className="h-4 w-4" />
                 </ButtonLink>
-                <a href="#games" className="button-large button-secondary">
-                  {t.ctaSecondary}
+                <a href="#how-it-works" className="button-large button-secondary">
+                  {t.howItWorksLabel}
                 </a>
               </div>
+              <div className="home-hero-notes">
+                <span><Check aria-hidden size={15} />{t.steps[1].title}</span>
+                <span><Check aria-hidden size={15} />{t.steps[2].title}</span>
+              </div>
             </div>
-
-            <Link
-              href={`/${selectedLang}/rainbow-six-siege-boost`}
-              className="image-frame group block h-[300px] sm:h-[430px] lg:h-[540px]"
-            >
-              <Image
-                src="/homepage/r6-homepage.webp"
-                alt="Rainbow Six Siege operator"
-                fill
-                loading="eager"
-                fetchPriority="high"
-                sizes="(max-width: 1023px) 100vw, 46vw"
-                className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.025]"
-              />
-              <StatusBadge className="absolute left-4 top-4 border-white/20 bg-black/70 text-white" tone="default">
-                {t.openNow}
-              </StatusBadge>
-              <span className="absolute inset-x-4 bottom-4 flex min-h-16 items-center justify-between rounded-[var(--radius-control)] border border-white/15 bg-black/75 px-4 text-white">
-                <Image
-                  src="/homepage/r6-text-homepage.png"
-                  alt="Rainbow Six Siege"
-                  width={281}
-                  height={84}
-                  className="h-auto w-[min(220px,66%)] object-contain object-left"
-                />
-                <span className="icon-button border border-white/20 bg-white text-black">
-                  <ArrowRight aria-hidden className="h-4 w-4" />
+            <div className="home-hero-showcase">
+              <div className="home-hero-posters">
+                {heroGames.map((game) => (
+                  <Localized key={game.href}><Link
+                    key={game.href}
+                    href={game.href.replace(/^\/en/, `/${selectedLang}`)}
+                    className="home-hero-poster theme-preserve-media"
+                    aria-label={game.name}
+                    style={{ "--poster-accent": game.glow } as React.CSSProperties}
+                  >
+                    <Image src={game.bg!} alt="" fill sizes="(max-width: 639px) 30vw, (max-width: 899px) 28vw, 18vw" loading="eager" className="home-hero-poster-art" style={{ objectPosition: game.objectPosition }} />
+                    <span className="home-hero-poster-caption">
+                      <Image src={game.logo} alt="" width={180} height={60} className="home-hero-poster-logo" />
+                      <ArrowRight aria-hidden size={16} />
+                    </span>
+                  </Link></Localized>
+                ))}
+              </div>
+              <a href="#games" className="home-hero-browse">
+                <span className="home-hero-game-icons" aria-hidden="true">
+                  {GAME_DIRECTORY.filter(game => ["cs2", "overwatch-2", "rocket-league", "lol"].includes(game.id)).map(game => (
+                    <Localized key={game.id}><span key={game.id}><Image src={game.icon} alt="" width={32} height={32} /></span></Localized>
+                  ))}
                 </span>
-              </span>
-            </Link>
+                <span>{d.all}<strong>{gameCards.length}</strong></span>
+                <ArrowRight aria-hidden size={17} />
+              </a>
+            </div>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-[var(--line)] pt-5">
+          <div className="home-platforms">
             <p className="mr-2 text-sm font-medium text-[var(--muted)]">{t.platformReady}</p>
             <div className="flex flex-wrap gap-2" aria-label="Supported platforms">
               {platformLogos.map((platform) => (
-                <span
+                <Localized key={platform.name}><span
                   key={platform.name}
                   role="img"
                   aria-label={platform.name}
@@ -821,33 +828,47 @@ export default function HomePageClient() {
                     unoptimized
                     className="h-6 w-6 object-contain mix-blend-screen"
                   />
-                </span>
+                </span></Localized>
               ))}
             </div>
           </div>
         </PageContainer>
       </Section>
 
-      <Section id="games" className="bg-[var(--surface-muted)]">
+      <Section id="games" className="homepage-games bg-[var(--surface-muted)]">
         <PageContainer>
           <SectionHeading
             eyebrow={t.selectYourGame}
             title={t.pickGame}
             description={t.gameSectionSub}
           />
-          <div className="mt-10 grid auto-rows-[280px] gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {gameCards.map((game, index) => {
+          <div className="game-discovery-toolbar">
+            <div className="game-discovery-filters" role="group" aria-label={t.selectYourGame}>
+              <button type="button" aria-pressed={showAllGames} onClick={() => setShowAllGames(true)}>{d.all}<span>{gameCards.length}</span></button>
+              <button type="button" aria-pressed={!showAllGames} onClick={() => setShowAllGames(false)}>{booking.competitive}<span>{gameCards.filter(game => game.competitive).length}</span></button>
+            </div>
+            <label className="game-search">
+              <Search size={18} aria-hidden />
+              <span className="sr-only">{d.search}</span>
+              <input type="search" value={gameQuery} onChange={event => setGameQuery(event.target.value)} placeholder={d.search} aria-controls="game-results" />
+              {gameQuery && <button type="button" onClick={() => setGameQuery("")} aria-label={d.reset}><X size={16} aria-hidden /></button>}
+            </label>
+          </div>
+          <p className="sr-only" role="status" aria-live="polite">{visibleGames.length} / {gameCards.length} — {d.all}</p>
+          <div id="game-results" className="home-games-grid">
+            {visibleGames.map((game) => {
               const localizedHref = game.href.replace(/^\/en/, `/${selectedLang}`);
               const card = (
                 <article
-                  className="home-game-card theme-preserve-media group relative h-[280px] overflow-hidden rounded-[var(--radius-card)] border border-white/10"
+                  className="home-game-card theme-preserve-media group relative overflow-hidden rounded-[var(--radius-card)] border border-white/10"
+                  data-available="true"
                 >
                   {game.bg ? (
                     <Image
                       src={game.bg}
                       alt={game.name}
                       fill
-                      loading={index < 4 ? "eager" : "lazy"}
+                      loading="lazy"
                       sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.025]"
                       style={{ objectPosition: game.objectPosition }}
@@ -869,13 +890,13 @@ export default function HomePageClient() {
                   <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08)_30%,rgba(0,0,0,0.34)_72%,rgba(0,0,0,0.7)_100%)]" />
                   <StatusBadge
                     className="home-game-card-status absolute left-3 top-3 z-10 border-white/15 text-white"
-                    tone={game.live ? "accent" : "default"}
+                    tone="default"
                   >
                     <span
                       className="h-1.5 w-1.5 rounded-full"
-                      style={{ backgroundColor: game.live ? game.glow : "#8a8a93" }}
+                      style={{ backgroundColor: game.glow }}
                     />
-                    {game.live ? t.openNow : t.comingSoon}
+                    {t.openNow}
                   </StatusBadge>
                   <div className="home-game-card-footer absolute inset-x-3 bottom-3 z-10 flex min-h-[68px] items-center justify-between rounded-[var(--radius-control)] border px-4">
                     {game.iconOnly ? (
@@ -904,26 +925,27 @@ export default function HomePageClient() {
                         className="h-auto max-h-8 w-auto max-w-[76%] object-contain object-left"
                       />
                     )}
-                    {game.live ? (
-                      <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-white" />
-                    ) : null}
+                    <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-white" />
                   </div>
                 </article>
               );
 
-              return game.live ? (
-                <Link
+              return (
+                <Localized key={game.name}><Link
                   key={game.name}
                   href={localizedHref}
                   aria-label={`${game.name} ${t.enterService}`}
                 >
                   {card}
-                </Link>
-              ) : (
-                <div key={game.name}>{card}</div>
+                </Link></Localized>
               );
             })}
           </div>
+          {visibleGames.length === 0 && <div className="game-search-empty">
+            <Search aria-hidden size={28} />
+            <h3 className="card-title">{d.empty}</h3>
+            <button type="button" className="button-secondary button-small" onClick={() => { setGameQuery(""); setShowAllGames(true); }}>{d.reset}</button>
+          </div>}
         </PageContainer>
       </Section>
 
@@ -939,7 +961,7 @@ export default function HomePageClient() {
               {t.steps.map((item, index) => {
                 const StepIcon = [Gamepad2, SlidersHorizontal, Activity][index];
                 return (
-                  <article
+                  <Localized key={item.step}><article
                     key={item.step}
                     className="surface flex min-h-[190px] flex-col p-6"
                   >
@@ -953,7 +975,7 @@ export default function HomePageClient() {
                       <h3 className="card-title">{item.title}</h3>
                       <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.description}</p>
                     </div>
-                  </article>
+                  </article></Localized>
                 );
               })}
             </div>
@@ -1038,7 +1060,7 @@ export default function HomePageClient() {
               <h3 className="mt-3 text-2xl font-semibold text-[var(--foreground)]">Everything that comes with Plus.</h3>
               <div className="mt-7 grid gap-x-8 gap-y-7 sm:grid-cols-2">
                 {membershipBenefits.slice(0, 4).map((benefit) => (
-                  <div key={benefit.title} className="grid grid-cols-[40px_1fr] gap-3.5">
+                  <Localized key={benefit.title}><div key={benefit.title} className="grid grid-cols-[40px_1fr] gap-3.5">
                     <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accent-soft)] text-[var(--accent-hover)]">
                       <benefit.icon aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.8} />
                     </span>
@@ -1047,7 +1069,7 @@ export default function HomePageClient() {
                       <p className="mt-1 text-sm font-medium text-[var(--foreground-soft)]">{benefit.title}</p>
                       <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{benefit.desc}</p>
                     </div>
-                  </div>
+                  </div></Localized>
                 ))}
               </div>
               <div className="mt-8 border-t border-[var(--line)] pt-6">
@@ -1060,6 +1082,6 @@ export default function HomePageClient() {
           </article>
         </PageContainer>
       </Section>
-    </main>
+    </main></Localized>
   );
 }

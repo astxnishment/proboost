@@ -1,11 +1,14 @@
 "use client";
 
+import Localized, { useLanguage } from "./Localization";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { Menu, Moon, Sun, X } from "lucide-react";
+import { localizedHref, localeFromPath } from "../lib/localization";
+import { findGameByPath } from "../lib/games";
 import GameSelectorChip from "./GameSelectorChip";
 import {
   CurrencyDropdown,
@@ -23,20 +26,16 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const menuButtonRef = React.useRef<HTMLButtonElement>(null);
+  const drawerRef = React.useRef<HTMLDivElement>(null);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<"black" | "white">("black");
-  const [selectedLang, setSelectedLang] = React.useState<LanguageCode>("en");
+  const selectedLang = useLanguage();
 
   React.useEffect(() => {
     const activeTheme = document.documentElement.dataset.theme === "white" ? "white" : "black";
-    const savedLang = window.localStorage.getItem("proboost_lang") as LanguageCode | null;
-    const routeLang = pathname.match(
-      /^\/(en|it|fr|es|de|nl|pt|uk|ru)(?:\/|$)/
-    )?.[1] as LanguageCode | undefined;
     const readyId = window.setTimeout(() => {
       setTheme(activeTheme);
-      if (routeLang) setSelectedLang(routeLang);
-      else if (savedLang) setSelectedLang(savedLang);
     }, 0);
 
     const media = window.matchMedia("(prefers-color-scheme: light)");
@@ -58,16 +57,41 @@ export default function Navbar() {
     if (!mobileOpen) return;
 
     const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMobileOpen(false);
-    };
+    const menuButton = menuButtonRef.current;
+    const drawer = drawerRef.current;
+    const background = [document.getElementById("main-content"), document.querySelector("footer")];
+    const previousInert = background.map(element => element?.inert ?? false);
+    background.forEach(element => { if (element) element.inert = true; });
+    const focusable = () => Array.from(drawer?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex="0"]'
+    ) ?? []).filter(element => element.getClientRects().length > 0);
+    focusable()[0]?.focus();
 
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) setMobileOpen(false);
+      if (event.key !== "Tab") return;
+      const elements = focusable();
+      const index = elements.indexOf(document.activeElement as HTMLElement);
+      if (event.shiftKey && index <= 0) {
+        event.preventDefault();
+        elements.at(-1)?.focus();
+      } else if (!event.shiftKey && (index === elements.length - 1 || index < 0)) {
+        event.preventDefault();
+        elements[0]?.focus();
+      }
+    };
+    const desktop = window.matchMedia("(min-width: 1180px)");
+    const closeOnDesktop = () => { if (desktop.matches) setMobileOpen(false); };
     document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("keydown", handleKey);
+    desktop.addEventListener("change", closeOnDesktop);
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
+      background.forEach((element, index) => { if (element) element.inert = previousInert[index]; });
+      window.removeEventListener("keydown", handleKey);
+      desktop.removeEventListener("change", closeOnDesktop);
+      if (menuButton?.getClientRects().length) menuButton.focus();
     };
   }, [mobileOpen]);
 
@@ -86,25 +110,9 @@ export default function Navbar() {
     setTheme(nextTheme);
   };
 
-  const activeGameId = /^\/(en|it|fr|es|de|nl|pt|uk|ru)\/rainbow-six-siege-boost/.test(pathname)
-    ? "r6"
-    : /^\/(en|it|fr|es|de|nl|pt|uk|ru)\/valorant-boost/.test(pathname)
-      ? "valorant"
-      : /^\/(en|it|fr|es|de|nl|pt|uk|ru)\/counter-strike-2-boost/.test(pathname)
-        ? "cs2"
-      : /^\/(en|it|fr|es|de|nl|pt|uk|ru)\/overwatch-2-boost/.test(pathname)
-        ? "overwatch-2"
-      : undefined;
-  const serviceRoot =
-    activeGameId === "r6"
-      ? `/${selectedLang}/rainbow-six-siege-boost`
-      : activeGameId === "valorant"
-        ? `/${selectedLang}/valorant-boost`
-        : activeGameId === "cs2"
-          ? `/${selectedLang}/counter-strike-2-boost`
-        : activeGameId === "overwatch-2"
-          ? `/${selectedLang}/overwatch-2-boost`
-        : "/#games";
+  const activeGame = findGameByPath(pathname);
+  const activeGameId = activeGame?.id;
+  const serviceRoot = activeGame ? `/${selectedLang}/${activeGame.slug}` : "/#games";
   const navLinks = [
     { label: "Services", href: serviceRoot },
     { label: "Membership", href: "/#rewards" },
@@ -118,21 +126,20 @@ export default function Navbar() {
     label === "Services"
       ? Boolean(activeGameId || pathname.startsWith("/boosting"))
       : label === "Contact"
-        ? pathname === "/contact"
+        ? /^\/(?:[a-z]{2}\/)?contact$/.test(pathname)
         : false;
 
   const selectLanguage = (nextLanguage: LanguageCode) => {
-    setSelectedLang(nextLanguage);
-    const localizedPath = pathname.match(
-      /^\/(en|it|fr|es|de|nl|pt|uk|ru)(\/(?:rainbow-six-siege-boost|valorant-boost|counter-strike-2-boost|overwatch-2-boost)(?:\/.*)?)$/
-    );
-    if (localizedPath) {
-      router.push(`/${nextLanguage}${localizedPath[2]}`);
+    const nextPath = localizedHref(pathname, nextLanguage);
+    if (nextPath !== pathname) router.push(nextPath + window.location.search + window.location.hash);
+    else if (!localeFromPath(pathname) && pathname.startsWith("/boosting")) {
+      const service = pathname.slice("/boosting".length).replace("/rank-up", "/rainbow-six-siege-rank-boost");
+      router.push(`/${nextLanguage}/rainbow-six-siege-boost${service}`);
     }
   };
 
   return (
-    <header className="site-header fixed left-0 right-0 top-0 z-50 border-b">
+    <Localized><header className="site-header fixed left-0 right-0 top-0 z-50 border-b">
       <PageContainer>
         <div className="header-layout grid h-[var(--header-height)] grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -155,14 +162,14 @@ export default function Navbar() {
 
           <nav className="desktop-main-nav items-center justify-center gap-1 text-sm text-[var(--muted)]">
               {navLinks.map((item) => (
-                <Link
+                <Localized key={item.label}><Link
                   key={item.label}
                   href={item.href}
                   aria-current={isNavLinkActive(item.label) ? "page" : undefined}
                   className="rounded-[var(--radius-control)] px-3 py-2 font-medium transition hover:bg-[var(--surface-subtle)] hover:text-[var(--foreground)] aria-[current=page]:bg-[var(--accent-soft)] aria-[current=page]:text-[var(--foreground)]"
                 >
                   {item.label}
-                </Link>
+                </Link></Localized>
               ))}
           </nav>
 
@@ -175,7 +182,7 @@ export default function Navbar() {
             </div>
             <div className="theme-segment hidden rounded-[var(--radius-control)] border p-1 sm:flex" aria-label="Color theme">
               {THEME_OPTIONS.map((item) => (
-                <button
+                <Localized key={item.value}><button
                   key={item.value}
                   type="button"
                   data-theme-option={item.value}
@@ -186,7 +193,7 @@ export default function Navbar() {
                   className="theme-segment-option flex h-8 w-8 items-center justify-center rounded-lg transition"
                 >
                   <item.icon aria-hidden className="h-3.5 w-3.5" strokeWidth={1.8} />
-                </button>
+                </button></Localized>
               ))}
             </div>
             {isSignedIn ? (
@@ -217,6 +224,7 @@ export default function Navbar() {
             )}
             <button
               type="button"
+              ref={menuButtonRef}
               aria-label="Toggle navigation menu"
               aria-expanded={mobileOpen}
               aria-controls="mobile-navigation"
@@ -239,6 +247,7 @@ export default function Navbar() {
             className="nav-mobile-layer theme-overlay fixed inset-x-0 bottom-0 top-[var(--header-height)] z-[55]"
           />
           <div
+            ref={drawerRef}
             id="mobile-navigation"
             role="dialog"
             aria-modal="true"
@@ -246,6 +255,12 @@ export default function Navbar() {
             className="nav-mobile-layer site-mobile-menu fixed bottom-0 right-0 top-[var(--header-height)] z-[60] w-full max-w-[420px] overflow-y-auto border-l p-5"
           >
             <div className="flex min-h-full flex-col">
+              <div className="mb-5 flex items-center justify-between">
+                <p className="eyebrow">Menu</p>
+                <button type="button" className="icon-button button-secondary" aria-label="Close menu" onClick={() => setMobileOpen(false)}>
+                  <X aria-hidden className="h-4 w-4" />
+                </button>
+              </div>
               <div>
                 <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">Choose your game</p>
                 <GameSelectorChip activeGameId={activeGameId} language={selectedLang} />
@@ -253,14 +268,14 @@ export default function Navbar() {
 
               <nav aria-label="Mobile navigation" className="mt-7 grid gap-1 border-y border-[var(--line)] py-4">
                 {navLinks.map((item) => (
-                  <Link
+                  <Localized key={item.label}><Link
                     key={item.label}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
                     className="rounded-[var(--radius-control)] px-3 py-3 text-base font-medium text-[var(--foreground-soft)] transition hover:bg-[var(--surface-subtle)] hover:text-[var(--foreground)]"
                   >
                     {item.label}
-                  </Link>
+                  </Link></Localized>
                 ))}
               </nav>
 
@@ -277,7 +292,7 @@ export default function Navbar() {
                   <p className="mb-2 text-sm font-semibold text-[var(--foreground)]">Appearance</p>
                   <div className="theme-segment grid grid-cols-2 gap-1 rounded-[var(--radius-control)] border p-1">
                     {THEME_OPTIONS.map((item) => (
-                      <button
+                      <Localized key={item.value}><button
                         key={item.value}
                         type="button"
                         data-theme-option={item.value}
@@ -287,7 +302,7 @@ export default function Navbar() {
                       >
                         <item.icon aria-hidden className="h-4 w-4" strokeWidth={1.8} />
                         {item.label}
-                      </button>
+                      </button></Localized>
                     ))}
                   </div>
                 </div>
@@ -296,6 +311,6 @@ export default function Navbar() {
           </div>
         </>
       ) : null}
-    </header>
+    </header></Localized>
   );
 }

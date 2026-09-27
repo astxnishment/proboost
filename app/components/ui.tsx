@@ -1,3 +1,4 @@
+import Localized from "./Localization";
 import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
@@ -15,7 +16,7 @@ export function PageContainer({
   ...props
 }: ContainerProps) {
   return (
-    <div
+    <Localized><div
       className={classes(
         size === "page" && "page-container",
         size === "content" && "content-container",
@@ -23,7 +24,7 @@ export function PageContainer({
         className,
       )}
       {...props}
-    />
+    /></Localized>
   );
 }
 
@@ -37,14 +38,14 @@ export function Section({
   ...props
 }: SectionProps) {
   return (
-    <section
+    <Localized><section
       className={classes(
         spacing === "default" && "section-shell",
         spacing === "compact" && "section-shell-compact",
         className,
       )}
       {...props}
-    />
+    /></Localized>
   );
 }
 
@@ -67,7 +68,7 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   const Heading = titleAs;
   return (
-    <div
+    <Localized><div
       className={classes(
         "section-heading",
         align === "center" && "section-heading-centered",
@@ -79,7 +80,7 @@ export function SectionHeading({
         {title}
       </Heading>
       {description ? <p className="body-large">{description}</p> : null}
-    </div>
+    </div></Localized>
   );
 }
 
@@ -93,7 +94,7 @@ export function Surface({
   ...props
 }: SurfaceProps) {
   return (
-    <div
+    <Localized><div
       className={classes(
         variant === "standard" && "surface",
         variant === "interactive" && "surface-interactive",
@@ -102,7 +103,7 @@ export function Surface({
         className,
       )}
       {...props}
-    />
+    /></Localized>
   );
 }
 
@@ -116,11 +117,11 @@ export function StatusBadge({
   ...props
 }: StatusBadgeProps) {
   return (
-    <span
+    <Localized><span
       className={classes("status-badge", className)}
       data-tone={tone}
       {...props}
-    />
+    /></Localized>
   );
 }
 
@@ -136,7 +137,7 @@ export function ButtonLink({
   ...props
 }: ButtonLinkProps) {
   return (
-    <Link
+    <Localized><Link
       className={classes(
         size === "small" && "button-small",
         size === "standard" && "button-base",
@@ -147,6 +148,6 @@ export function ButtonLink({
         className,
       )}
       {...props}
-    />
+    /></Localized>
   );
 }

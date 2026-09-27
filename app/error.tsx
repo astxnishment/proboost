@@ -1,5 +1,6 @@
 "use client";
 
+import Localized from "./components/Localization";
 import { AlertCircle, RotateCcw } from "lucide-react";
 
 export default function ErrorPage({
@@ -9,7 +10,7 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   return (
-    <main className="flex min-h-[calc(100svh-var(--header-height))] items-center justify-center px-4 py-12">
+    <Localized><main className="flex min-h-[calc(100svh-var(--header-height))] items-center justify-center px-4 py-12">
       <div className="surface w-full max-w-md p-6 text-center sm:p-8">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--danger-line)] bg-[var(--danger-surface)] text-[var(--danger)]">
           <AlertCircle aria-hidden="true" className="h-6 w-6" />
@@ -24,6 +25,6 @@ export default function ErrorPage({
           Try again
         </button>
       </div>
-    </main>
+    </main></Localized>
   );
 }
