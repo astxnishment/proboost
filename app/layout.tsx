@@ -8,6 +8,7 @@ import LiveChatProvider from "./components/LiveChat";
 import { SITE_NAME, SITE_URL } from "./lib/site";
 import Localized, { LanguageProvider } from "./components/Localization";
 import { OrderDraftProvider } from "./components/OrderDraftProvider";
+import GoogleAdsProvider from "./components/GoogleAdsProvider";
 
 const themeInitScript = `
   (function () {
@@ -97,6 +98,7 @@ export default function RootLayout({
         </head>
         <body className="flex min-h-full flex-col">
           <LanguageProvider>
+          <GoogleAdsProvider>
           <LocalizedAuthProvider>
           <CurrencyProvider>
             <OrderDraftProvider>
@@ -113,6 +115,7 @@ export default function RootLayout({
             </OrderDraftProvider>
           </CurrencyProvider>
           </LocalizedAuthProvider>
+          </GoogleAdsProvider>
           </LanguageProvider>
         </body>
       </html>

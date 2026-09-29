@@ -30,9 +30,10 @@ export function isSupportedLanguage(
 // Relative URLs are resolved against metadataBase from the root layout.
 export function langAlternates(subPath: string): Record<string, string> {
   const languages: Record<string, string> = {};
+  const suffix = subPath ? `/${subPath}` : "";
   for (const lang of ALL_LANGS) {
-    languages[lang] = `/${lang}/${subPath}`;
+    languages[lang] = `/${lang}${suffix}`;
   }
-  languages["x-default"] = `/en/${subPath}`;
+  languages["x-default"] = `/en${suffix}`;
   return languages;
 }

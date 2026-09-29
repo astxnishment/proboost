@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy — ProBoost.gg",
   description: "Learn how ProBoost.gg collects, uses, and protects your personal data.",
   alternates: {
-    canonical: "/privacy",
+    canonical: "/en/privacy",
   },
 };
 
@@ -127,8 +127,7 @@ const sections = [
     content: (
       <>
         <p>
-          We use cookies and similar technologies to improve functionality and analyse traffic. Types of
-          cookies we use:
+          Essential cookies support authentication and payment confirmation. We also remember your cookie choice in your browser for up to 180 days.
         </p>
         <ul>
           <li>
@@ -136,17 +135,11 @@ const sections = [
             function (e.g. session authentication)
           </li>
           <li>
-            <strong className="text-[var(--foreground-soft)]">Analytics cookies</strong> — help us understand how visitors
-            interact with our site
-          </li>
-          <li>
-            <strong className="text-[var(--foreground-soft)]">Marketing cookies</strong> — used to show relevant
-            advertising (only with consent)
+            Google Ads measurement is optional. When enabled, Google tags load only after you choose Allow ad measurement. They use advertising cookies and receive ad-click information, browser and page information, and a confirmed purchase reference, amount and currency. We do not send your name, email, account credentials or card details in purchase events. Personalised advertising is disabled.
           </li>
         </ul>
         <p>
-          You can control or disable cookies through your browser settings. Note that disabling certain
-          cookies may affect site functionality.
+          Use Cookie settings to reject optional cookies or withdraw consent. Withdrawing removes advertising cookies accessible to this site and reloads the page without Google Ads tags. You can also manage cookies through your browser settings.
         </p>
       </>
     ),

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Terms and Conditions — ProBoost.gg",
   description: "Read the Terms and Conditions governing your use of ProBoost.gg.",
   alternates: {
-    canonical: "/terms",
+    canonical: "/en/terms",
   },
 };
 

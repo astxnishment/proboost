@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { randomBytes } from "node:crypto";
 import { isLocale, translate } from "@/app/lib/localization";
 import { parseCatalogGameOrder } from "@/app/lib/additional-pricing";
 import {
@@ -32,6 +33,7 @@ import {
   getChargeAmount,
   isCurrencyCode,
 } from "@/app/lib/currency";
+import { CHECKOUT_COOKIE, isCheckoutBinding } from "@/app/lib/purchase-confirmation";
 
 const SERVICE_TYPES = [
   "rank-up",
@@ -586,6 +588,10 @@ export async function POST(req: NextRequest) {
     }
 
     const stripe = new Stripe(secretKey);
+    const previousBinding = req.cookies.get(CHECKOUT_COOKIE)?.value;
+    const checkoutBinding = isCheckoutBinding(previousBinding)
+      ? previousBinding
+      : randomBytes(32).toString("base64url");
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       // Stripe does not currently offer Ukrainian checkout chrome.
@@ -604,6 +610,9 @@ export async function POST(req: NextRequest) {
         },
       ],
       metadata: {
+        source: "proboost",
+        checkout_browser: checkoutBinding,
+        service_type: order.serviceType,
         base_currency: "GBP",
         display_currency: currency,
         base_total: total.toFixed(2),
@@ -613,7 +622,17 @@ export async function POST(req: NextRequest) {
       cancel_url: `${req.nextUrl.origin}/${language}`,
     });
 
-    return NextResponse.json({ url: session.url });
+    const response = NextResponse.json({ url: session.url });
+    // Bind confirmation to the browser that started checkout, so a shared
+    // confirmation URL cannot attribute a purchase to a different visitor.
+    response.cookies.set(CHECKOUT_COOKIE, checkoutBinding, {
+      httpOnly: true,
+      secure: req.nextUrl.protocol === "https:",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 2 * 24 * 60 * 60,
+    });
+    return response;
   } catch (err) {
     console.error("Checkout error:", err);
     return NextResponse.json(

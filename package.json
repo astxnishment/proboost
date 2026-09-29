@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:catalog": "node --test tests/catalog-pricing.test.cjs",
+    "test:ads": "node --test tests/google-ads.test.cjs tests/google-ads-consent.test.cjs",
     "test:chat": "node --test tests/live-chat.test.cjs",
     "test:localization": "node --test tests/localization.test.cjs"
   },

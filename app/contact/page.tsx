@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Contact ProBoost Support",
   description: "Contact ProBoost support for order, payment, account, and service help.",
   alternates: {
-    canonical: "/contact",
+    canonical: "/en/contact",
   },
 };
 
