@@ -14,7 +14,11 @@ declare global {
   }
 }
 
-const config = liveChatConfig(process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID, process.env.NEXT_PUBLIC_TAWK_WIDGET_ID);
+// Public embed identifiers from ProBoost's Tawk inbox; deployments may override them.
+const config = liveChatConfig(
+  process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID ?? "6abc1b642868e33441711d83",
+  process.env.NEXT_PUBLIC_TAWK_WIDGET_ID ?? "1k3ncm050",
+);
 const ChatContext = createContext<(() => void) | null>(null);
 const topics = [
   { title: "Choosing a service", detail: "Tell us your game, platform, and the goal you have in mind.", icon: Gamepad2 },

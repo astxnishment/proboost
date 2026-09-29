@@ -1,13 +1,17 @@
 # Live chat setup
 
-ProBoost has a site-wide support launcher, a support button on the contact page, and direct access from the new game order summaries. The live-chat connection uses **tawk.to**. Without widget identifiers, visitors see a clear unavailable message and an email link. No messages are collected or shown as sent by the local fallback.
+ProBoost has a site-wide support launcher, a support button on the contact page, and direct access from the new game order summaries. The live-chat connection uses **tawk.to**. ProBoost's public widget identifiers are configured in `app/components/LiveChat.tsx`, so the inbox is available without additional hosting configuration:
 
-## Connect your inbox
+`https://embed.tawk.to/6abc1b642868e33441711d83/1k3ncm050`
+
+These are public embed identifiers, not account credentials. Environment variables can override them for a different inbox. Empty or invalid overrides disable the integration and show an email fallback; no messages are collected or shown as sent by that fallback.
+
+## Change the connected inbox
 
 1. Create or open the ProBoost property in your own tawk.to account.
 2. Open **Administration → Chat Widget** (under Channels in some dashboard versions).
 3. Find the public embed URL in the widget code: `https://embed.tawk.to/PROPERTY_ID/WIDGET_ID`. These two identifiers are public; no API secret is needed.
-4. Set these values in `.env.local` for local testing, and in your hosting environment before building the production site:
+4. To override the default inbox, set these values in `.env.local` for local testing, and in your hosting environment before building the production site:
 
    ```dotenv
    NEXT_PUBLIC_TAWK_PROPERTY_ID=your_property_id
@@ -38,6 +42,6 @@ Run `npm run test:chat` for the provider lifecycle tests. With your real widget 
 5. Blocking the provider script shows the fallback without losing the current order configuration.
 6. At phone sizes, the launcher does not cover **Review order** and the panel fits the viewport.
 
-Message delivery cannot be verified without a real property/widget and a staffed inbox. No test messages have been sent as part of the code-only setup.
+End-to-end message delivery requires a staffed inbox and a visitor/agent exchange. Opening the connected widget alone does not verify delivery. No test messages have been sent as part of this integration.
 
 References: [tawk.to JavaScript API](https://developer.tawk.to/jsapi/), [finding the widget identifiers](https://help.tawk.to/article/adding-a-tawkto-widget-to-your-buildly-website).
