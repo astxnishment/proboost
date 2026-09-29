@@ -23,7 +23,7 @@ export async function generateMetadata({
   return localizeMetadata({
     title: "Rainbow Six Siege Rank Boost",
     description:
-      "Climb from any rank to Champion with verified Rainbow Six Siege boosters. Transparent pricing, solo or duo queue, all platforms and regions.",
+      "Choose your current rank and target. Your price and delivery estimate update instantly.",
     alternates: {
       canonical: `/${lang}/rainbow-six-siege-boost/rainbow-six-siege-rank-boost`,
       languages: langAlternates(

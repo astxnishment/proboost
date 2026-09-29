@@ -1861,5 +1861,19 @@
   "— request a copy of the data we hold about you",
   "— request deletion of your personal data",
   "— required for the site to function (e.g. session authentication)",
-  "— used to show relevant advertising (only with consent)"
+  "— used to show relevant advertising (only with consent)",
+  "The displayed delivery time is an estimate. Match results, order volume and booster availability can affect completion time.",
+  "Boosting may violate game terms and can lead to account penalties. We cannot guarantee protection from bans or suspensions.",
+  "Refund eligibility depends on order progress. See our Terms of Use for details.",
+  "Solo and Duo Options",
+  "Solo requires account sharing. In Duo, you play alongside your booster without sharing your account.",
+  "Contact support@proboost.gg for questions about your order.",
+  "estimate, not a guaranteed completion time",
+  "Payment options are shown at Stripe checkout.",
+  "Your booster appears offline while playing. This does not prevent account penalties.",
+  "Prioritise your order. Completion time still depends on match results and booster availability.",
+  "Add extra wins after reaching your target rank. Future rank changes remain possible.",
+  "Request an elite booster for your order. Availability may vary.",
+  "Priority assignment, subject to booster availability.",
+  "Request specific operators and agree your choices with support after checkout."
 ]

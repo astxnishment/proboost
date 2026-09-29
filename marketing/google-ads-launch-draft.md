@@ -4,10 +4,11 @@ Prepared 29 September 2026. This is a setup draft, not a campaign created in Goo
 
 ## Current status
 
-- The user selected £20 in response to the daily-budget question. Target countries and the first game are still unconfirmed.
-- The only accessible Ads account is Origin Repairs, account 624-336-6664. Creating a separate ProBoost account was blocked by automatic approval review pending explicit user approval. No ProBoost campaign has been created and no advertising spend has been enabled.
+- The user approved £20 average/day, Rainbow Six Siege and United Kingdom targeting, and authorized a separate ProBoost Ads account.
+- A new ProBoost Ads account, 281-690-8376, has been created. Business name and the R6 landing page are filled in. Setup is waiting for the user's confirmation of Google's website-image use declaration. No ProBoost campaign has been created and no advertising spend has been enabled. The unrelated Origin Repairs account, 624-336-6664, is unchanged.
 - Real Google Ads tag and conversion IDs are not available. Website measurement remains disabled without both configuration values below.
-- Search Console ownership of `proboost.gg` is already verified. The page-indexing report, last updated 21 September, showed 13 indexed pages; the overview also showed 10 search clicks. On 29 September, the sitemap was submitted successfully and reported 625 discovered URLs before this release consolidated the canonical sitemap to 621. Recrawl requests for the Spanish and Italian Overwatch pages were accepted. Sitemap submission does not guarantee indexing.
+- Search Console ownership of `proboost.gg` is already verified. The page-indexing report, last updated 21 September, showed 13 indexed pages; the overview also showed 10 search clicks. On 29 September, the sitemap was submitted successfully and reported 625 discovered URLs before the published SEO release consolidated the canonical sitemap to 621. Indexing requests for `/en` and the Spanish and Italian Overwatch pages were accepted. Sitemap submission does not guarantee indexing.
+- Direct URL inspection on 29 September confirms the R6 rank-boost landing URL is already indexed: “URL is on Google” and “Page is indexed”.
 
 ## Budget and decision rule
 
@@ -21,11 +22,11 @@ Use one selected game and one selected market initially. Review search terms and
 
 | Setting | Draft value |
 | --- | --- |
-| Status | Paused until account, billing, market, game and measurement are ready |
-| Campaign | ProBoost — Search — first selected game and country |
+| Status | Not yet created; keep paused until account, billing and measurement are ready |
+| Campaign | ProBoost — Search — R6 — UK |
 | Budget | £20 average/day total, not £20 for each game |
 | Network | Google Search only initially; Search Partners and Display off |
-| Location | Confirmed country; presence targeting |
+| Location | United Kingdom; presence targeting |
 | Language | English for the English landing pages below |
 | Keywords | Exact and phrase; review search terms because close variants still apply |
 | Initial bidding | Decide after Keyword Planner estimates and real margin are available; use a CPC ceiling compatible with margin and conservative conversion assumptions |
@@ -35,7 +36,7 @@ Use one selected game and one selected market initially. Review search terms and
 
 Presence targeting reaches people Google believes are in or regularly in the selected location. Exact and phrase keywords can still match close variants. [Google location options](https://developers.google.com/google-ads/api/docs/targeting/location-targeting), [close variants](https://support.google.com/google-ads/answer/9342105?hl=en-AU)
 
-## Rainbow Six Siege candidate
+## Approved first campaign: Rainbow Six Siege
 
 Final URL: https://proboost.gg/en/rainbow-six-siege-boost/rainbow-six-siege-rank-boost
 
@@ -74,9 +75,9 @@ Starter keywords:
 
 Possible sitelinks: [R6 services](https://proboost.gg/en/rainbow-six-siege-boost), [Competitive wins](https://proboost.gg/en/rainbow-six-siege-boost/competitive), [Coaching](https://proboost.gg/en/rainbow-six-siege-boost/elearning), [Contact](https://proboost.gg/en/contact).
 
-Before advertising this landing page, substantiate or revise its existing “Zero-Ban Protection”, “zero risks”, win-rate/on-time statistics and refund claims. These are not repeated in the draft ads. Google eligibility and publisher approval have not been established.
+The landing-page cleanup replaces absolute ban-protection, unconditional refund and unsupported performance claims with factual configuration, refund and account-responsibility information. Google eligibility and publisher approval have not been established.
 
-## Valorant candidate
+## Future alternative: Valorant (not approved for launch)
 
 Final URL: https://proboost.gg/en/valorant-boost/valorant-rank-boost
 
@@ -163,3 +164,5 @@ The success page retrieves the Checkout Session from Stripe on the server and ve
 Run `npm run test:ads` and the existing localization tests. Before launch, use Google Tag Assistant to verify reject, accept, withdrawal, an actual confirmed payment, accurate amount/currency, preservation of ad-click attribution and transaction-ID deduplication. Do not use test Stripe transactions to inflate the live conversion action. A live payment check must use a real order or an explicitly approved controlled purchase.
 
 This is browser-return measurement: ad blockers, refusal of consent, or a customer not returning from Stripe can cause undercounting. It does not create a durable order database, webhook fulfillment workflow or customer emails. Historical sessions created before the browser-binding change cannot be confirmed by the new success page; support can inspect them directly in Stripe.
+
+New R6 rank-boost checkouts preserve normalized rank, region, platform, queue and add-on choices as readable, versioned `r6_*` fields on both the Stripe Checkout Session and PaymentIntent. This includes the free Play Offline and Specific Operators options. These fulfillment fields are not sent to Google Ads. Specific operator names still need to be agreed with support; only the request toggle is collected by the current form. Historical payments cannot acquire missing selections retroactively.

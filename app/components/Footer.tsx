@@ -42,14 +42,6 @@ const footerGroups = [
   },
 ];
 
-const paymentMethods = [
-  { name: "Visa", src: "/payments/visa.webp" },
-  { name: "Mastercard", src: "/payments/mastercard.webp" },
-  { name: "PayPal", src: "/payments/paypal.webp" },
-  { name: "Apple Pay", src: "/payments/apay.webp" },
-  { name: "Google Pay", src: "/payments/gpay.webp" },
-] as const;
-
 export default function Footer() {
   return (
     <Localized><footer className="site-footer relative z-10 mt-auto border-t">
@@ -108,19 +100,9 @@ export default function Footer() {
             <p>© {new Date().getFullYear()} ProBoost. All rights reserved.</p>
             <p>Not affiliated with game publishers or developers.</p>
           </div>
-          <div aria-label="Accepted payment methods" className="flex flex-wrap items-center gap-2">
-            {paymentMethods.map((method) => (
-              <Localized key={method.name}><span key={method.name} title={method.name} className="payment-mark">
-                <Image
-                  src={method.src}
-                  alt={method.name}
-                  width={97}
-                  height={96}
-                  className="h-7 w-7 object-contain"
-                />
-              </span></Localized>
-            ))}
-          </div>
+          <p className="text-xs leading-5 text-[var(--muted-soft)]">
+            Payment options are shown at Stripe checkout.
+          </p>
         </div>
       </PageContainer>
     </footer></Localized>

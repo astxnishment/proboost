@@ -138,6 +138,8 @@ export type RankUpOrder = OrderCommon & {
   desiredRank: string;
   desiredDivision: string;
   rpGain?: string;
+  playOffline?: boolean;
+  specificOperators?: boolean;
 };
 
 export type ChampionOrder = OrderCommon & {

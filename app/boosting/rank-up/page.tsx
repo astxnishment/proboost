@@ -13,12 +13,12 @@ import PlatformSelector from "../../components/PlatformSelector";
 import RankDivisionSelector from "../../components/RankDivisionSelector";
 import { useCurrency } from "../../components/CurrencyProvider";
 import { computeOrderPrice, type RankUpOrder } from "@/app/lib/pricing";
+import { getChargeAmount } from "@/app/lib/currency";
 import {
   createCheckoutSession,
   getCheckoutErrorMessage,
 } from "@/app/lib/checkout";
 import {
-  ORDER_PAYMENT_METHODS,
   ORDER_PLATFORMS,
   ORDER_SERVERS,
   RP_OPTIONS,
@@ -26,14 +26,9 @@ import {
 import {
   Check,
   ChevronDown,
-  CircleDollarSign,
-  CircleHelp,
   Clock3,
   Headphones,
-  LockKeyhole,
   ShieldCheck,
-  Sparkles,
-  Star,
   User,
   Users,
   X,
@@ -79,8 +74,8 @@ const faqAnswersByLang: Record<string, [string, string, string, string, string]>
     "In Rainbow Six Siege, Boosting is the process by which a player can increase their Rank thanks to the help of professional players called Boosters. These Boosters can play with the player's account or team up with them via the DuoQ option.",
     "For Solo boosting, you will share your account credentials with your booster. For Duo boosting, you play alongside your booster so no account sharing is required.",
     "Our boosters are professional and discreet. They will not engage in voice chat or communicate with your friends list beyond what is necessary.",
-    "Delivery time depends on your current and target rank. On average, each rank step takes approximately 2\u20133 hours.",
-    "Yes. ProBoost uses only real, verified players \u2014 no bots, no scripts. All boosters connect via VPN to match your region and reduce detection risk.",
+    "The displayed delivery time is an estimate. Match results, order volume and booster availability can affect completion time.",
+    "Boosting may violate game terms and can lead to account penalties. We cannot guarantee protection from bans or suspensions.",
   ],
   it: [
     "In Rainbow Six Siege, il Boosting \u00e8 il processo grazie al quale un giocatore pu\u00f2 aumentare il proprio Rank con l\u2019aiuto di giocatori professionisti chiamati Booster. Questi Booster possono giocare con l\u2019account del giocatore o unirsi a loro tramite l\u2019opzione DuoQ.",
@@ -141,7 +136,7 @@ const faqAnswersByLang: Record<string, [string, string, string, string, string]>
 };
 
 const addOnDescsByLang: Record<string, { playOffline: string; express: string; rankInsurance: string; eliteTier: string; specificOperators: string; highKillCount: string; vipPriority: string; streaming: string; oneTrickPony: string; insaneClipDrop: string }> = {
-  en: { playOffline: "The Booster will appear offline during the progression of the order, to ensure maximum safety.", express: "Your order will be prioritized and completed faster than standard delivery.", rankInsurance: "Stay secure at your new rank. Your boost ends with extra wins added as a buffer, so you don't risk dropping back down right away.", eliteTier: "Your boost will be handled by one of our top 0.01% highest-rated boosters.", specificOperators: "Choose which operators the booster will play during your boost session.", highKillCount: "The booster will focus on achieving a high number of kills each game for better stats.", vipPriority: "Your order jumps to the front of the queue and gets assigned to a booster immediately.", streaming: "Watch your boost live via a private stream link so you can follow every game in real time.", oneTrickPony: "The booster will play only one specific operator of your choice for the entire boost.", insaneClipDrop: "Receive highlight clips of the best plays and kills from your boost sessions." },
+  en: { playOffline: "Your booster appears offline while playing. This does not prevent account penalties.", express: "Prioritise your order. Completion time still depends on match results and booster availability.", rankInsurance: "Add extra wins after reaching your target rank. Future rank changes remain possible.", eliteTier: "Request an elite booster for your order. Availability may vary.", specificOperators: "Request specific operators and agree your choices with support after checkout.", highKillCount: "The booster will focus on achieving a high number of kills each game for better stats.", vipPriority: "Priority assignment, subject to booster availability.", streaming: "Watch your boost live via a private stream link so you can follow every game in real time.", oneTrickPony: "The booster will play only one specific operator of your choice for the entire boost.", insaneClipDrop: "Receive highlight clips of the best plays and kills from your boost sessions." },
   it: { playOffline: "Il Booster apparirà offline durante il completamento dell'ordine, per garantire la massima sicurezza.", express: "Il tuo ordine sarà prioritario e completato più velocemente della consegna standard.", rankInsurance: "Rimani al sicuro nel tuo nuovo rank. Il boost termina con vittorie extra come margine, così non rischi di scendere subito.", eliteTier: "Il tuo boost sarà gestito da uno dei nostri booster con valutazione più alta, nel top 0,01%.", specificOperators: "Scegli quali operatori il booster userà durante la tua sessione di boost.", highKillCount: "Il booster si concentrerà su un alto numero di kill in ogni partita per migliorare le statistiche.", vipPriority: "Il tuo ordine passa in testa alla coda e viene assegnato a un booster immediatamente.", streaming: "Guarda il tuo boost in diretta tramite un link stream privato per seguire ogni partita in tempo reale.", oneTrickPony: "Il booster userà un solo operatore specifico da te scelto per tutta la durata del boost.", insaneClipDrop: "Ricevi clip dei migliori momenti e kill dalle tue sessioni di boost." },
   fr: { playOffline: "Le Booster apparaîtra hors ligne pendant l'exécution de la commande, pour une sécurité maximale.", express: "Votre commande sera prioritaire et complétée plus rapidement que la livraison standard.", rankInsurance: "Restez en sécurité à votre nouveau rang. Votre boost se termine avec des victoires supplémentaires en tampon, pour éviter de redescendre immédiatement.", eliteTier: "Votre boost sera géré par l'un de nos boosters les mieux notés, dans le top 0,01%.", specificOperators: "Choisissez quels opérateurs le booster jouera pendant votre session de boost.", highKillCount: "Le booster se concentrera sur un nombre élevé de kills par partie pour de meilleures statistiques.", vipPriority: "Votre commande passe en tête de file et est assignée à un booster immédiatement.", streaming: "Regardez votre boost en direct via un lien de stream privé pour suivre chaque partie en temps réel.", oneTrickPony: "Le booster jouera uniquement avec l'opérateur spécifique de votre choix pendant tout le boost.", insaneClipDrop: "Recevez des clips des meilleures actions et kills de vos sessions de boost." },
   es: { playOffline: "El Booster aparecerá offline durante la ejecución del pedido, para garantizar la máxima seguridad.", express: "Tu pedido tendrá prioridad y se completará más rápido que la entrega estándar.", rankInsurance: "Mantente seguro en tu nuevo rango. El boost termina con victorias extra como margen, para que no caigas de rango de inmediato.", eliteTier: "Tu boost será gestionado por uno de nuestros boosters mejor valorados, en el top 0,01%.", specificOperators: "Elige qué operadores usará el booster durante tu sesión de boost.", highKillCount: "El booster se centrará en conseguir un alto número de kills en cada partida para mejorar las estadísticas.", vipPriority: "Tu pedido pasa al frente de la cola y se asigna a un booster de inmediato.", streaming: "Mira tu boost en vivo mediante un enlace de stream privado para seguir cada partida en tiempo real.", oneTrickPony: "El booster jugará únicamente con el operador específico que elijas durante todo el boost.", insaneClipDrop: "Recibe clips de las mejores jugadas y kills de tus sesiones de boost." },
@@ -153,7 +148,7 @@ const addOnDescsByLang: Record<string, { playOffline: string; express: string; r
 };
 
 export default function ProBoostCalculator() {
-  const { currency, formatPrice } = useCurrency();
+  const { currency, formatPrice, formatNativePrice } = useCurrency();
   const ranks: Rank[] = [
     {
       name: "Copper",
@@ -210,7 +205,6 @@ export default function ProBoostCalculator() {
   };
   const platforms = ORDER_PLATFORMS;
   const servers = ORDER_SERVERS;
-  const paymentMethods = ORDER_PAYMENT_METHODS;
   const rpOptions = RP_OPTIONS;
 
   const flattenRank = (rankName: string, division: string) => {
@@ -315,6 +309,8 @@ export default function ProBoostCalculator() {
     server,
     promoCode,
     specificBooster,
+    playOffline,
+    specificOperators,
     streaming,
     express,
     highKillCount,
@@ -333,6 +329,14 @@ export default function ProBoostCalculator() {
     amountToExtraDiscount,
     total,
   } = computeOrderPrice(order);
+
+  const addOnPrice = (option: "streaming" | "specificBooster") => {
+    const enabled = computeOrderPrice({ ...order, [option]: true }).total;
+    const disabled = computeOrderPrice({ ...order, [option]: false }).total;
+    return formatNativePrice(
+      (getChargeAmount(enabled, currency) - getChargeAmount(disabled, currency)) / 100
+    );
+  };
 
   const isDesiredRankDisabled = (rankName: string) =>
     flattenRank(rankName, "I") <= currentValue;
@@ -387,13 +391,12 @@ export default function ProBoostCalculator() {
   const desiredRankData = ranks.find((r) => r.name === desiredRank);
 
   const [checkoutLoading, setCheckoutLoading] = React.useState(false);
-  const [showDetails, setShowDetails] = React.useState(false);
 
   const englishAddOns = {
     playOffline: { title: "Play Offline", desc: addOnDescsByLang.en.playOffline },
     express: { title: "Express Delivery", desc: addOnDescsByLang.en.express },
     rankInsurance: { title: "Rank Insurance", desc: addOnDescsByLang.en.rankInsurance },
-    eliteTier: { title: "Elite 0.01% Tier", desc: addOnDescsByLang.en.eliteTier },
+    eliteTier: { title: "Elite", desc: addOnDescsByLang.en.eliteTier },
     specificOperators: { title: "Specific Operators", desc: addOnDescsByLang.en.specificOperators },
     highKillCount: { title: "High Kill Count", desc: addOnDescsByLang.en.highKillCount },
     vipPriority: { title: "VIP Priority", desc: addOnDescsByLang.en.vipPriority },
@@ -402,11 +405,11 @@ export default function ProBoostCalculator() {
     insaneClipDrop: { title: "Insane Clip Drop", desc: addOnDescsByLang.en.insaneClipDrop },
   };
   const englishTrustFeatures = [
-    { title: "Money-Back Guarantee", desc: "Your satisfaction is our promise - if we don't deliver, you get a full refund. No questions asked." },
-    { title: "Zero-Ban Protection", desc: "100% safe boosting with advanced VPN routes and real players only - zero bots, zero risks." },
-    { title: "Fair & Transparent Pricing", desc: "Top-tier quality at honest prices - you pay for real performance, not empty promises." },
-    { title: "The World's Strongest Players", desc: "Every booster is verified, ranked, and battle-tested - elite talent that guarantees results." },
-    { title: "24/7 Live Support", desc: "We're always online to assist you - instant updates, real people, real help anytime." },
+    { title: "Refund Policy", desc: "Refund eligibility depends on order progress. See our Terms of Use for details." },
+    { title: "Game Account Responsibility", desc: "Boosting may violate game terms and can lead to account penalties. We cannot guarantee protection from bans or suspensions." },
+    { title: "Fair & Transparent Pricing", desc: "Choose your current rank and target. Your price and delivery estimate update instantly." },
+    { title: "Solo and Duo Options", desc: "Solo requires account sharing. In Duo, you play alongside your booster without sharing your account." },
+    { title: "Contact", desc: "Contact support@proboost.gg for questions about your order." },
   ];
 
   const localizedUi = {
@@ -438,7 +441,7 @@ export default function ProBoostCalculator() {
       summary: "Summary",
       policyTitle: "Estimated Starting Time Policy",
       policyLine1: "The delivery time displayed is an",
-      policyHighlight1: "estimate based on average completion times",
+      policyHighlight1: "estimate, not a guaranteed completion time",
       policyLine2: "Actual delivery or starting time may vary depending on factors such as",
       policyHighlight2: ["order volume", "customer response times", "booster availability"],
       policyLine3: "We appreciate your understanding and will do our best to meet your expectations promptly.",
@@ -503,7 +506,7 @@ export default function ProBoostCalculator() {
       checkoutButton: "Checkout",
       redirectingLabel: "Redirecting...",
       safePaymentsTitle: "Safe & Secure Payments",
-      safePaymentsDesc: "100% secure checkout powered by Stripe & PayPal",
+      safePaymentsDesc: "Payment options are shown at Stripe checkout.",
       policyAnd: "and",
       modalTitle: "Why we\u2019re cheaper than the rest",
       modalSubtitle: "Pricing breakdown",
@@ -558,7 +561,6 @@ export default function ProBoostCalculator() {
       },
     ],
   };
-  const competitorSavings = total * 0.35;
 
   const handleCheckout = async () => {
     if (!hasValidRankPath) {
@@ -618,10 +620,10 @@ export default function ProBoostCalculator() {
           </p>
           <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-[var(--muted)]">
             {[
-              { text: ui.badges[2], Icon: ShieldCheck },
-              { text: ui.badges[1], Icon: LockKeyhole },
-              { text: ui.badges[3], Icon: Headphones },
-              { text: "Fast delivery", Icon: Clock3 },
+              { text: "Solo and Duo Options", Icon: Users },
+              { text: "Select Platform", Icon: ShieldCheck },
+              { text: "Contact", Icon: Headphones },
+              { text: "Estimate", Icon: Clock3 },
             ].map(({ text, Icon }) => (
               <Localized key={text}><span key={text} className="flex items-center gap-2">
                 <Icon aria-hidden="true" className="h-4 w-4" />
@@ -831,7 +833,7 @@ export default function ProBoostCalculator() {
                 </div>
 
                 <div className="space-y-4">
-                  {addOnCard(annotations.addOns?.streaming?.title ?? localizedAnnotations.en.addOns.streaming.title, `+${formatPrice(10)}`, streaming, setStreaming, annotations.addOns?.streaming?.desc ?? localizedAnnotations.en.addOns.streaming.desc)}
+                  {addOnCard(annotations.addOns?.streaming?.title ?? localizedAnnotations.en.addOns.streaming.title, `+${addOnPrice("streaming")}`, streaming, setStreaming, annotations.addOns?.streaming?.desc ?? localizedAnnotations.en.addOns.streaming.desc)}
                   {addOnCard(annotations.addOns?.oneTrickPony?.title ?? localizedAnnotations.en.addOns.oneTrickPony.title, "+30%", oneTrickPony, setOneTrickPony, annotations.addOns?.oneTrickPony?.desc ?? localizedAnnotations.en.addOns.oneTrickPony.desc)}
                   {addOnCard(annotations.addOns?.insaneClipDrop?.title ?? localizedAnnotations.en.addOns.insaneClipDrop.title, "+15%", insaneClipDrop, setInsaneClipDrop, annotations.addOns?.insaneClipDrop?.desc ?? localizedAnnotations.en.addOns.insaneClipDrop.desc)}
                 </div>
@@ -897,12 +899,6 @@ export default function ProBoostCalculator() {
                     <span className="text-sm font-semibold text-[var(--foreground)]">{annotations.extraBooster}</span>
                     <p className="text-xs text-[var(--muted)]">{annotations.increaseBoosters}</p>
                   </div>
-                  <div className="group/boost relative">
-                    <CircleHelp aria-hidden="true" className="h-5 w-5 cursor-help text-[var(--muted)]" />
-                    <div className="theme-popover invisible absolute right-0 top-8 z-[var(--z-popover)] w-64 rounded-lg border p-4 text-sm text-[var(--muted)] group-hover/boost:visible">
-                      {annotations.extraBoosterTooltip}
-                    </div>
-                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -953,23 +949,19 @@ export default function ProBoostCalculator() {
                 <>
                   <div className="flex justify-between">
                     <span>{annotations.playWithBooster}</span>
-                    <span className="font-semibold">+80%</span>
                   </div>
                   <div className="flex justify-between">
                     <span>{annotations.oneBooster}</span>
-                    <span className="font-semibold">{annotations.free}</span>
                   </div>
                   {duoBoosterCount > 1 && (
                     <div className="flex justify-between">
                       <span>+{duoBoosterCount - 1} {duoBoosterCount > 2 ? annotations.extraBoosterPlural : annotations.extraBoosterSuffix}</span>
-                      <span className="font-semibold text-[var(--foreground)]">+{(duoBoosterCount - 1) * 75}%</span>
                     </div>
                   )}
                 </>
               )}
               <div className="flex justify-between">
                 <span>{rpGain}</span>
-                <span className="font-semibold">{annotations.free}</span>
               </div>
               <div className="flex justify-between">
                 <span>{server}</span>
@@ -986,6 +978,8 @@ export default function ProBoostCalculator() {
 
             <div className="space-y-3 border-b border-[var(--line)] py-5">
               <button
+                type="button"
+                aria-pressed={specificBooster}
                 onClick={() => setSpecificBooster(!specificBooster)}
                 className="flex w-full items-center justify-between rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 cursor-pointer hover:border-[var(--line-strong)] transition"
               >
@@ -993,7 +987,10 @@ export default function ProBoostCalculator() {
                   <Image src="/booster.png" alt="Booster" width={36} height={36}  className="h-9 w-9 object-contain" />
                   {ui.specificBooster}
                 </span>
-                <ChevronDown aria-hidden="true" className={`h-5 w-5 text-[var(--muted)] transition-transform duration-200 ${specificBooster ? "rotate-180" : ""}`} />
+                <span className="flex items-center gap-2">
+                  <span className="text-sm text-[var(--muted)]">+{addOnPrice("specificBooster")}</span>
+                  <ChevronDown aria-hidden="true" className={`h-5 w-5 text-[var(--muted)] transition-transform duration-200 ${specificBooster ? "rotate-180" : ""}`} />
+                </span>
               </button>
               {specificBooster && (
                 <div className="rounded-lg bg-[var(--surface-muted)] px-4 py-3 text-sm text-[var(--muted)] leading-relaxed">
@@ -1079,18 +1076,6 @@ export default function ProBoostCalculator() {
                     <p className="text-[10px] text-[var(--muted)]">{annotations.safePaymentsDesc}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {paymentMethods.map((method) => (
-                    <Localized key={method.name}><Image
-                      key={method.name}
-                      src={method.icon}
-                      alt={method.name}
-                      width={28}
-                      height={28}
-                      className="h-6 w-auto object-contain"
-                    /></Localized>
-                  ))}
-                </div>
               </div>
               <p className="mt-3 text-center text-[10px] leading-4 text-[var(--muted-soft)]">
                 By placing an order at <span className="text-[var(--muted)] font-medium">proboost.gg</span>{" "}
@@ -1110,60 +1095,6 @@ export default function ProBoostCalculator() {
           <FaqSection copy={faqCopy} />
         </div>
       </div>
-      {showDetails && (
-        <div className="theme-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md" onClick={() => setShowDetails(false)}>
-          <div role="dialog" aria-modal="true" aria-labelledby="pricing-dialog-title" className="theme-popover relative mx-4 max-h-[calc(100svh-32px)] w-full max-w-3xl overflow-y-auto rounded-lg border p-6 sm:p-8" onClick={(e) => e.stopPropagation()}>
-            <button type="button" aria-label={annotations.modalClose} onClick={() => setShowDetails(false)} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] text-[var(--muted)] transition hover:border-[var(--line-strong)] hover:text-[var(--foreground)]">
-              <X aria-hidden="true" className="h-4 w-4" />
-            </button>
-
-            <p className="eyebrow mb-1.5 text-center">{annotations.modalSubtitle}</p>
-            <h2 id="pricing-dialog-title" className="mb-7 text-center text-xl font-semibold text-[var(--foreground)] sm:text-2xl">{annotations.modalTitle}</h2>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              <div className="flex flex-col rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-5">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--surface-strong)] text-[var(--foreground)]">
-                  <CircleDollarSign aria-hidden="true" className="h-5 w-5" />
-                </div>
-                <div className="mb-1 text-3xl font-semibold">10%</div>
-                <div className="mb-1 text-sm font-semibold">{annotations.modalFeeTitle}</div>
-                <p className="text-xs leading-relaxed text-[var(--muted)]">{annotations.modalFeeDesc}</p>
-              </div>
-
-              <div className="flex flex-col rounded-lg border border-[var(--line)] bg-[var(--surface-muted)] p-5">
-                <div className="mb-4 flex gap-0.5">
-                  {[0,1,2,3,4].map(i => (
-                    <Localized key={i}><Star key={i} aria-hidden="true" className="h-4 w-4 fill-[var(--foreground)] text-[var(--foreground)]" /></Localized>
-                  ))}
-                </div>
-                <div className="mb-1 text-3xl font-semibold">4.9<span className="text-lg text-[var(--muted)]">/5</span></div>
-                <div className="mb-1 text-sm font-semibold">{annotations.modalQualityTitle}</div>
-                <p className="text-xs leading-relaxed text-[var(--muted)]">{annotations.modalQualityDesc}</p>
-              </div>
-
-              <div className="flex flex-col rounded-lg border border-[var(--accent-line)] bg-[var(--accent-soft)] p-5">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--accent-hover)]">
-                  <Sparkles aria-hidden="true" className="h-5 w-5" />
-                </div>
-                <div className="mb-1 text-3xl font-semibold text-[var(--accent-hover)]">~35%</div>
-                <div className="mb-1 text-sm font-semibold">{annotations.modalSavingsTitle}</div>
-                <p className="text-xs leading-relaxed text-[var(--muted)]">
-                  {annotations.modalSavingsDesc
-                    .replace("£{amount}", formatPrice(competitorSavings))
-                    .replace("{amount}", formatPrice(competitorSavings))}
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowDetails(false)}
-              className="button-base button-secondary mx-auto mt-6"
-            >
-              {annotations.modalClose}
-            </button>
-          </div>
-        </div>
-      )}
     </div></Localized>
   );
 }

@@ -7,6 +7,8 @@ import {
   computeOrderPrice,
   describeOrder,
   ELEARNING_SERVICES,
+  DIVISIONS,
+  RANKS,
   VALORANT_DIVISIONS,
   VALORANT_RANKS,
   type Order,
@@ -14,7 +16,9 @@ import {
 import {
   ORDER_PLATFORMS,
   ORDER_SERVERS,
+  RP_OPTIONS,
 } from "@/app/lib/order-options";
+import { rankUpFulfillmentMetadata } from "@/app/lib/rank-up-fulfillment";
 import {
   CS2_MAPS,
   CS2_RANKS,
@@ -188,8 +192,28 @@ function parseOrder(body: unknown): Order | null {
       const currentDivision = str(b.currentDivision);
       const desiredRank = str(b.desiredRank);
       const desiredDivision = str(b.desiredDivision);
+      const rpGain = str(b.rpGain);
       if (!currentRank || !currentDivision || !desiredRank || !desiredDivision)
         return null;
+      // Keep fulfillment metadata restricted to actual configurator choices.
+      // Missing optional fields remain valid for older checkout requests.
+      const rankOptions: readonly string[] = RANKS;
+      const divisionOptions: readonly string[] = DIVISIONS;
+      const platformOptions: readonly string[] = ORDER_PLATFORMS;
+      const serverOptions: readonly string[] = ORDER_SERVERS;
+      const rpOptions: readonly string[] = RP_OPTIONS;
+      if (
+        !rankOptions.includes(currentRank) ||
+        !rankOptions.includes(desiredRank) ||
+        !divisionOptions.includes(currentDivision) ||
+        !divisionOptions.includes(desiredDivision) ||
+        (common.platform !== undefined && !platformOptions.includes(common.platform)) ||
+        (common.server !== undefined && !serverOptions.includes(common.server)) ||
+        (rpGain !== undefined && !rpOptions.includes(rpGain))
+      ) return null;
+      const currentStep = rankOptions.indexOf(currentRank) * DIVISIONS.length + divisionOptions.indexOf(currentDivision);
+      const desiredStep = rankOptions.indexOf(desiredRank) * DIVISIONS.length + divisionOptions.indexOf(desiredDivision);
+      if (desiredStep <= currentStep) return null;
       return {
         ...common,
         serviceType,
@@ -197,7 +221,11 @@ function parseOrder(body: unknown): Order | null {
         currentDivision,
         desiredRank,
         desiredDivision,
-        rpGain: str(b.rpGain),
+        rpGain,
+        // Match the effective 1–4 booster count already used by pricing.
+        duoBoosterCount: Math.min(4, Math.max(1, Math.floor(common.duoBoosterCount))),
+        playOffline: bool(b.playOffline),
+        specificOperators: bool(b.specificOperators),
       };
     }
     case "champion": {
@@ -578,6 +606,9 @@ export async function POST(req: NextRequest) {
     }
 
     const { name, description } = describeOrder(order);
+    const fulfillmentMetadata = order.serviceType === "rank-up"
+      ? rankUpFulfillmentMetadata(order)
+      : undefined;
 
     const secretKey = process.env.STRIPE_SECRET_KEY;
     if (!secretKey || secretKey === "sk_test_XXXXXXXX") {
@@ -617,7 +648,19 @@ export async function POST(req: NextRequest) {
         display_currency: currency,
         base_total: total.toFixed(2),
         language,
+        ...fulfillmentMetadata,
       },
+      // Session metadata is not copied to the payment automatically. Preserve
+      // the fulfillment choices on both records, without the browser binding.
+      ...(fulfillmentMetadata ? {
+        payment_intent_data: {
+          metadata: {
+            source: "proboost",
+            service_type: order.serviceType,
+            ...fulfillmentMetadata,
+          },
+        },
+      } : {}),
       success_url: `${req.nextUrl.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.nextUrl.origin}/${language}`,
     });
