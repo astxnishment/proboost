@@ -27,6 +27,9 @@ These are public embed identifiers, not account credentials. Environment variabl
 - Chat is mounted in the root layout, so normal internal navigation preserves the conversation. The provider manages chat history, agent access, and offline submissions.
 - The integration does not automatically send a message or copy Clerk profile details, passwords, payment information, or order configuration to the chat.
 - Minimizing the provider widget returns to the ProBoost launcher. Its unread count comes from actual incoming agent-message events.
+- The support panel fades and slides over 220 ms, including its backdrop. Closing uses the native dialog transition, so rapid reopening reverses the motion instead of leaving a delayed close timer behind. Reduced-motion preferences disable these transitions.
+- The launcher stays mounted and fades out while either panel is open. Hidden controls are inert. Escape and backdrop clicks close the support panel, focus returns to the button that opened it, and the page cannot scroll behind the modal.
+- The provider is hidden before its first render. The local panel hands off only after the provider confirms it is open; stale hide/minimize events cannot restore a duplicate launcher over the conversation.
 - Closing the support panel while connecting cancels the pending auto-open. A late provider response must not reopen it.
 - If loading fails or exceeds 15 seconds, visitors can open your direct tawk.to chat link in a new tab or use email.
 - The launcher stays above the mobile order bar and below navigation drawers. The support panel supports Escape, focus containment, and focus return.
@@ -41,6 +44,7 @@ Run `npm run test:chat` for the provider lifecycle tests. With your real widget 
 4. With agents offline, the configured offline form accepts a message and your team receives the notification.
 5. Blocking the provider script shows the fallback without losing the current order configuration.
 6. At phone sizes, the launcher does not cover **Review order** and the panel fits the viewport.
+7. Open and close rapidly, use Escape and the backdrop, and open from a contact/order button. Confirm that focus returns to that button, scrolling resumes, and the widget never reopens after cancellation.
 
 End-to-end message delivery requires a staffed inbox and a visitor/agent exchange. Opening the connected widget alone does not verify delivery. No test messages have been sent as part of this integration.
 

@@ -1777,13 +1777,25 @@ html[data-theme="white"] .request-faq a { color: color-mix(in srgb, var(--game-a
 }
 
 /* Site-wide support. The native dialog handles focus, Escape, and background inertness. */
-.support-launcher { position: fixed; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: 45; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 14px 19px; border: 1px solid var(--accent-line); border-radius: 18px; background: var(--accent); color: var(--accent-foreground); box-shadow: 0 8px 28px #0003; font-size: 13px; font-weight: 650; cursor: pointer; transition: background .15s, transform .15s; }
-.support-launcher:hover { background: var(--accent-hover); transform: translateY(-2px); }
+html { scrollbar-gutter: stable; }
+html:has(.support-panel[open]) { overflow: hidden; }
+.support-launcher { position: fixed; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: 45; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 14px 19px; border: 1px solid var(--accent-line); border-radius: 18px; background: var(--accent); color: var(--accent-foreground); box-shadow: 0 8px 28px #0003; font-size: 13px; font-weight: 650; cursor: pointer; opacity: 1; visibility: visible; transition: background var(--motion-fast), opacity var(--motion-fast), transform var(--motion-base) var(--ease-standard), visibility 0s; }
+@media (hover: hover) {
+  .support-launcher:hover { background: var(--accent-hover); transform: translateY(-2px); }
+}
+.support-launcher[data-hidden="true"] { opacity: 0; visibility: hidden; transform: translateY(8px) scale(.96); pointer-events: none; transition-delay: 0s, 0s, 0s, var(--motion-fast); }
 .support-unread { position: absolute; right: -5px; top: -6px; display: grid; place-items: center; min-width: 23px; height: 23px; padding-inline: 4px; border: 2px solid var(--surface); border-radius: 20px; background: var(--foreground); color: var(--background); font-size: 11px; }
-.support-panel { position: fixed; inset: auto 24px 24px auto; margin: 0; padding: 0; width: min(390px, calc(100% - 32px)); max-width: none; max-height: calc(100dvh - 48px); border: 1px solid var(--line-strong); border-radius: 20px; background: var(--surface); color: var(--foreground); box-shadow: 0 24px 90px #0005; overflow: hidden; }
+.support-panel { position: fixed; inset: auto 24px 24px auto; margin: 0; padding: 0; width: min(390px, calc(100% - 32px)); max-width: none; max-height: calc(100dvh - 48px); border: 1px solid var(--line-strong); border-radius: 20px; background: var(--surface); color: var(--foreground); box-shadow: 0 24px 90px #0005; overflow: hidden; opacity: 0; transform: translateY(14px) scale(.98); transform-origin: bottom right; transition: opacity var(--motion-fast) ease-out, transform var(--motion-base) var(--ease-standard), overlay var(--motion-base) allow-discrete, display var(--motion-base) allow-discrete; }
+.support-panel[open] { opacity: 1; transform: none; }
+.support-panel:not([open]), .support-panel:not([open])::backdrop { pointer-events: none; }
 .support-panel-content { display: flex; flex-direction: column; max-height: inherit; }
 .support-panel-content > :not(.support-panel-body) { flex-shrink: 0; }
-.support-panel::backdrop { background: #06060b55; }
+.support-panel::backdrop { background: #06060b00; transition: background-color var(--motion-base) ease-out, overlay var(--motion-base) allow-discrete, display var(--motion-base) allow-discrete; }
+.support-panel[open]::backdrop { background: #06060b55; }
+@starting-style {
+  .support-panel[open] { opacity: 0; transform: translateY(14px) scale(.98); }
+  .support-panel[open]::backdrop { background: #06060b00; }
+}
 .support-panel-header { display: flex; align-items: center; gap: 12px; padding: 20px; border-bottom: 1px solid var(--accent-line); background: linear-gradient(110deg, var(--accent-soft), var(--surface)); }
 .support-avatar { display: grid; place-items: center; width: 43px; height: 43px; flex-shrink: 0; border: 1px solid var(--accent-line); border-radius: 13px; background: var(--accent-soft); color: var(--accent-hover); }
 .support-panel-header strong { display: block; font-size: 14px; font-weight: 650; }
@@ -1828,7 +1840,9 @@ body:has([aria-label="Keyless prompt"]) .support-launcher { bottom: calc(80px + 
   .support-panel-footer { flex-wrap: wrap; padding: 13px 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .support-launcher { transition: none; }
+  .support-launcher, .support-panel, .support-panel::backdrop { transition: none; }
+  .support-launcher:hover { transform: none; }
+  .support-primary .animate-spin { animation: none; }
 }
 
 /* Full service configurators for the expanded game catalog. */

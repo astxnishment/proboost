@@ -13,6 +13,7 @@ export function liveChatConfig(propertyId?: string, widgetId?: string): LiveChat
 
 export type TawkApi = {
   customStyle?: { zIndex: number };
+  onBeforeLoad?: () => void;
   onLoad?: () => void;
   onChatMaximized?: () => void;
   onChatMinimized?: () => void;
@@ -21,6 +22,9 @@ export type TawkApi = {
   showWidget?: () => void;
   hideWidget?: () => void;
   maximize?: () => void;
+  isChatMaximized?: () => boolean;
+  isChatMinimized?: () => boolean;
+  isChatHidden?: () => boolean;
 };
 
 type ChatEvents = {
@@ -34,57 +38,71 @@ type ChatEvents = {
 // Keeps delayed provider callbacks from opening a chat after the visitor dismisses it.
 export function createChatController(api: TawkApi, events: ChatEvents) {
   let ready = false;
-  let pending = false;
+  let requested = false;
+  let opening = false;
   let opened = false;
   let disposed = false;
   let unread = 0;
 
   const didOpen = () => {
-    if (disposed || opened) return;
+    if (disposed || !ready) return;
+    // Ignore stale callbacks and provider auto-open triggers after dismissal.
+    if (!requested) { api.hideWidget?.(); return; }
+    if (api.isChatHidden?.() === true || api.isChatMaximized?.() === false || opened) return;
+    opening = false;
     opened = true;
-    pending = false;
     unread = 0;
     events.onUnread(0);
     events.onOpen();
   };
   const didClose = () => {
+    requested = false;
+    opening = false;
     if (disposed || !opened) return;
     opened = false;
     events.onClose();
   };
   const open = () => {
-    if (!ready || disposed) return;
+    if (!ready || disposed || !requested || opened || opening) return;
+    opening = true;
     try {
       api.showWidget!();
       api.maximize!();
-      didOpen();
+      // Some provider versions don't emit maximize again when reopening a hidden
+      // maximized widget. Confirm the actual state instead of assuming it opened.
+      if (api.isChatMaximized?.() === true && api.isChatHidden?.() !== true) didOpen();
     } catch {
       ready = false;
-      pending = false;
       didClose();
       events.onError();
     }
   };
 
   api.customStyle = { zIndex: 80 };
+  api.onBeforeLoad = () => { api.hideWidget?.(); };
   api.onLoad = () => {
     if (disposed) return;
     if (!api.showWidget || !api.hideWidget || !api.maximize) {
-      pending = false;
+      requested = false;
       events.onError();
       return;
     }
     ready = true;
-    api.hideWidget();
     events.onReady();
-    if (pending) open();
+    if (requested) open();
+    else api.hideWidget();
   };
   api.onChatMaximized = didOpen;
-  api.onChatHidden = didClose;
-  api.onChatMinimized = () => {
-    if (disposed) return;
-    api.hideWidget?.();
+  api.onChatHidden = () => {
+    // The initial hide event can arrive after show/maximize. It must not put
+    // our launcher back over an opening or already-visible conversation.
+    if (disposed || !ready || opening || api.isChatHidden?.() === false) return;
     didClose();
+  };
+  api.onChatMinimized = () => {
+    if (disposed || !ready || opening || api.isChatMinimized?.() === false) return;
+    didClose();
+    api.hideWidget?.();
   };
   api.onChatMessageAgent = () => {
     if (!disposed && !opened) events.onUnread(++unread);
@@ -93,14 +111,22 @@ export function createChatController(api: TawkApi, events: ChatEvents) {
   return {
     requestOpen() {
       if (disposed) return;
-      pending = true;
+      requested = true;
       if (ready) open();
     },
-    cancelPending() { pending = false; },
+    cancelPending() {
+      if (opened || disposed) return;
+      requested = false;
+      opening = false;
+      if (ready) api.hideWidget?.();
+    },
     isReady() { return ready && !disposed; },
+    isOpen() { return opened && !disposed; },
+    isPending() { return requested && !opened && !disposed; },
     dispose() {
       disposed = true;
-      pending = false;
+      requested = false;
+      opening = false;
       api.hideWidget?.();
     },
   };

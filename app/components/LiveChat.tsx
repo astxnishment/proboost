@@ -19,7 +19,7 @@ const config = liveChatConfig(
   process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID ?? "6abc1b642868e33441711d83",
   process.env.NEXT_PUBLIC_TAWK_WIDGET_ID ?? "1k3ncm050",
 );
-const ChatContext = createContext<(() => void) | null>(null);
+const ChatContext = createContext<((trigger?: HTMLElement) => void) | null>(null);
 const topics = [
   { title: "Choosing a service", detail: "Tell us your game, platform, and the goal you have in mind.", icon: Gamepad2 },
   { title: "An existing order", detail: "Have your order reference and sign-in email ready so we can find your order.", icon: ReceiptText },
@@ -28,7 +28,7 @@ const topics = [
 
 export function LiveChatButton({ children, className }: { children: ReactNode; className?: string }) {
   const open = useContext(ChatContext);
-  return <Localized><button type="button" className={className} onClick={() => open?.()} aria-haspopup="dialog">{children}</button></Localized>;
+  return <Localized><button type="button" className={className} onClick={event => open?.(event.currentTarget)} aria-haspopup="dialog">{children}</button></Localized>;
 }
 
 export default function LiveChatProvider({ children }: { children: ReactNode }) {
@@ -36,6 +36,10 @@ export default function LiveChatProvider({ children }: { children: ReactNode }) 
   const launcher = useRef<HTMLButtonElement>(null);
   const controller = useRef<ReturnType<typeof createChatController> | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const focusFrame = useRef<number | null>(null);
+  const opener = useRef<HTMLElement | null>(null);
+  const wantsChat = useRef(false);
+  const backdropPress = useRef(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [providerOpen, setProviderOpen] = useState(false);
   const [requested, setRequested] = useState(false);
@@ -44,51 +48,95 @@ export default function LiveChatProvider({ children }: { children: ReactNode }) 
   const [topic, setTopic] = useState(0);
 
   const clearTimer = () => { if (timer.current) clearTimeout(timer.current); timer.current = null; };
-  const showPanel = () => { dialog.current?.showModal(); setPanelOpen(true); };
-  const closePanel = () => { controller.current?.cancelPending(); dialog.current?.close(); setPanelOpen(false); };
+  const showPanel = () => {
+    if (!dialog.current?.open) dialog.current?.showModal();
+    setPanelOpen(true);
+  };
+  const closePanel = () => {
+    wantsChat.current = false;
+    backdropPress.current = false;
+    controller.current?.cancelPending();
+    dialog.current?.close();
+    setPanelOpen(false);
+  };
+  const restoreFocus = () => {
+    if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+    focusFrame.current = requestAnimationFrame(() => {
+      if (controller.current?.isOpen() || controller.current?.isPending() || dialog.current?.open) return;
+      const target = opener.current?.isConnected ? opener.current : launcher.current;
+      target?.focus({ preventScroll: true });
+    });
+  };
   const fail = () => {
+    const showFallback = wantsChat.current;
+    wantsChat.current = false;
     clearTimer();
     controller.current?.cancelPending();
     setState("error");
+    if (showFallback) showPanel();
   };
-  const openSupport = () => {
-    if (controller.current?.isReady()) controller.current.requestOpen();
+  const openSupport = (trigger?: HTMLElement) => {
+    if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+    opener.current = trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    if (controller.current?.isReady()) startChat();
     else showPanel();
   };
   const startChat = () => {
-    if (!config || state === "loading") return;
-    if (controller.current?.isReady()) { controller.current.requestOpen(); return; }
+    if (!config || controller.current?.isOpen() || controller.current?.isPending()) return;
+    wantsChat.current = true;
     setState("loading");
+    clearTimer();
+    timer.current = setTimeout(fail, 15_000);
     if (!controller.current) {
       const api = window.Tawk_API ??= {};
       window.Tawk_LoadStart = new Date();
       controller.current = createChatController(api, {
-        onReady: () => { clearTimer(); setState("ready"); },
-        onOpen: () => { setProviderOpen(true); closePanel(); },
-        onClose: () => { setProviderOpen(false); requestAnimationFrame(() => launcher.current?.focus()); },
+        onReady: () => {
+          if (!controller.current?.isPending()) { clearTimer(); setState("ready"); }
+        },
+        onOpen: () => { clearTimer(); setState("ready"); setProviderOpen(true); closePanel(); },
+        onClose: () => {
+          setProviderOpen(false);
+          restoreFocus();
+        },
         onUnread: setUnread,
         onError: fail,
       });
     }
     controller.current.requestOpen();
-    timer.current = setTimeout(fail, 15_000);
     setRequested(true);
   };
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
+    if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
     controller.current?.dispose();
+    controller.current = null;
   }, []);
+
+  const isBackdrop = (event: { target: EventTarget; currentTarget: HTMLDialogElement; clientX: number; clientY: number }) => {
+    if (event.target !== event.currentTarget) return false;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    return event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
+  };
 
   const emailHref = `mailto:support@proboost.gg?subject=${encodeURIComponent(`ProBoost support — ${topics[topic].title}`)}`;
 
   return <Localized><ChatContext.Provider value={openSupport}>
     {children}
     {requested && config && <Script id="proboost-live-chat" src={config.scriptUrl} strategy="afterInteractive" onError={fail} />}
-    {!providerOpen && <button ref={launcher} type="button" className="support-launcher" onClick={openSupport} aria-haspopup="dialog" aria-controls="proboost-support" aria-expanded={panelOpen} aria-label={unread ? `Open support, ${unread} unread ${unread === 1 ? "message" : "messages"}` : "Open support chat"}>
+    <button ref={launcher} type="button" className="support-launcher" data-hidden={panelOpen || providerOpen} inert={panelOpen || providerOpen} aria-hidden={panelOpen || providerOpen} onClick={event => openSupport(event.currentTarget)} aria-haspopup="dialog" aria-controls="proboost-support" aria-expanded={panelOpen || providerOpen} aria-label={unread ? `Open support, ${unread} unread ${unread === 1 ? "message" : "messages"}` : "Open support chat"}>
       <MessageCircle size={21} aria-hidden /><span>Support</span>{unread > 0 && <span className="support-unread" aria-hidden>{unread > 9 ? "9+" : unread}</span>}
-    </button>}
-    <dialog ref={dialog} id="proboost-support" className="support-panel" aria-labelledby="support-title" aria-describedby="support-intro" lang="en" onClose={() => { controller.current?.cancelPending(); setPanelOpen(false); }} onCancel={() => { controller.current?.cancelPending(); setPanelOpen(false); }} onClick={event => { if (event.target === event.currentTarget) closePanel(); }} onKeyDown={event => {
+    </button>
+    <dialog ref={dialog} id="proboost-support" className="support-panel" aria-labelledby="support-title" aria-describedby="support-intro" lang="en" onClose={() => {
+      // Native close events are queued: don't cancel a freshly reopened panel.
+      if (dialog.current?.open) return;
+      setPanelOpen(false);
+      restoreFocus();
+    }} onCancel={event => { event.preventDefault(); closePanel(); }} onPointerDown={event => { backdropPress.current = isBackdrop(event); }} onPointerCancel={() => { backdropPress.current = false; }} onClick={event => {
+      if (backdropPress.current && isBackdrop(event)) closePanel();
+      backdropPress.current = false;
+    }} onKeyDown={event => {
       if (event.key !== "Tab") return;
       const controls = event.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled), a[href]");
       const first = controls[0];
