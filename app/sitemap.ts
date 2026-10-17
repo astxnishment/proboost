@@ -4,6 +4,12 @@ import { ALL_LANGS, SITE_URL, langAlternates } from "./lib/site";
 import { CS2_SERVICE_SLUGS } from "./lib/cs2";
 import { VALORANT_SERVICE_SLUGS } from "./lib/valorant";
 import { OVERWATCH_SERVICE_SLUGS } from "./lib/overwatch";
+import { GAME_DIRECTORY } from "./lib/games";
+
+// This release changed the visible hub copy, links and structured data.
+// Keep a real content-edit date rather than marking every build as an update.
+const CATALOG_UPDATED_AT = "2026-10-17";
+const UPDATED_CATALOG_PATHS = new Set<string>(["", ...GAME_DIRECTORY.map(game => game.slug)]);
 
 const SIEGE_SERVICE_PAGES = [
   "rainbow-six-siege-rank-boost",
@@ -32,6 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return {
       url: languages[lang],
       alternates: { languages },
+      ...(UPDATED_CATALOG_PATHS.has(path) ? { lastModified: CATALOG_UPDATED_AT } : {}),
       changeFrequency,
       priority,
     };

@@ -20,6 +20,23 @@ const { ADDITIONAL_GAMES } = require('../app/lib/additional-games.ts');
 const { ALL_LANGS, SITE_URL } = require('../app/lib/site.ts');
 const seo = require('../app/lib/game-seo.ts');
 
+test('the sitemap marks changed catalogs with stable edit dates and preserves canonical language routes', () => {
+  const sitemap = require('../app/sitemap.ts').default;
+  const first = sitemap();
+  assert.deepEqual(sitemap(), first);
+  assert.equal(new Set(first.map(entry => entry.url)).size, first.length);
+  for (const entry of first) {
+    const parts = new URL(entry.url).pathname.split('/').filter(Boolean);
+    assert.ok(ALL_LANGS.includes(parts[0]));
+    assert.equal(Object.keys(entry.alternates.languages).length, ALL_LANGS.length + 1);
+    if (parts.length === 1 || (parts.length === 2 && GAME_DIRECTORY.some(game => game.slug === parts[1]))) {
+      assert.equal(entry.lastModified, '2026-10-17');
+    } else {
+      assert.equal(entry.lastModified, undefined, 'unchanged services/legal pages should not get a new edit date');
+    }
+  }
+});
+
 test('every catalog game and language exposes its canonical hub and only real service links', () => {
   assert.equal(GAME_DIRECTORY.length, 15);
   for (const game of GAME_DIRECTORY) for (const language of ALL_LANGS) {
