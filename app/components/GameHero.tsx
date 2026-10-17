@@ -2,6 +2,9 @@ import Localized from "./Localization";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronRight, Headphones } from "lucide-react";
+import { GAME_DIRECTORY } from "../lib/games";
+import { getGameSeo } from "../lib/game-seo";
+import GameSearchStructuredData from "./GameSearchStructuredData";
 
 const LABELS = {
   en: ["All games", "Boosting services", "Choose a service", "Ask support", "Services", "How it works", "FAQs"],
@@ -16,7 +19,7 @@ const LABELS = {
 } as const;
 
 export default function GameHero({
-  name, description, artwork, icon,  servicesId = "services", imagePosition = "center", eyebrow,
+  name, description, artwork, icon, language = "en", servicesId = "services", imagePosition = "center", eyebrow,
 }: {
   name: string;
   description: string;
@@ -28,8 +31,12 @@ export default function GameHero({
   eyebrow?: string;
 }) {
   const t = LABELS.en;
+  const game = GAME_DIRECTORY.find(game => game.name === name);
+  const seo = game ? getGameSeo(game.slug, language) : undefined;
 
   return (
+    <>
+    {game && <GameSearchStructuredData slug={game.slug} language={language} />}
     <Localized><>
       <section className="game-hero" aria-labelledby="game-title">
         <div className="page-container">
@@ -44,8 +51,8 @@ export default function GameHero({
                 <Image src={icon} width={32} height={32} alt="" />
                 <span>{eyebrow ?? t[1]}</span>
               </div>
-              <h1 id="game-title">{name}</h1>
-              <p>{description}</p>
+              <h1 id="game-title">{seo?.heading ?? name}</h1>
+              <p>{seo?.description ?? description}</p>
               <div className="game-hero-actions">
                 <a className="button-large game-primary-button" href={`#${servicesId}`}>
                   {t[2]} <ArrowRight size={17} aria-hidden />
@@ -71,5 +78,6 @@ export default function GameHero({
         </div>
       </nav>
     </></Localized>
+    </>
   );
 }

@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { GAME_DIRECTORY, GAME_CATEGORY_LABELS, isPveGame } from "./lib/games";
+import { getGameSeo } from "./lib/game-seo";
 import type { LanguageCode } from "./components/Dropdown";
 import { useCurrency } from "./components/CurrencyProvider";
 import { ButtonLink, PageContainer, Section, SectionHeading, StatusBadge } from "./components/ui";
@@ -858,6 +859,7 @@ export default function HomePageClient() {
           <div id="game-results" className="home-games-grid">
             {visibleGames.map((game) => {
               const localizedHref = game.href.replace(/^\/en/, `/${selectedLang}`);
+              const searchLabel = getGameSeo(game.href.split("/")[2], selectedLang)?.linkLabel ?? game.name;
               const card = (
                 <article
                   className="home-game-card theme-preserve-media group relative overflow-hidden rounded-[var(--radius-card)] border border-white/10"
@@ -899,6 +901,7 @@ export default function HomePageClient() {
                     {t.openNow}
                   </StatusBadge>
                   <div className="home-game-card-footer absolute inset-x-3 bottom-3 z-10 flex min-h-[68px] items-center justify-between rounded-[var(--radius-control)] border px-4">
+                    <span className="flex min-w-0 flex-col gap-1.5 py-3">
                     {game.iconOnly ? (
                       <span className="flex min-w-0 items-center gap-3 text-[15px] font-semibold text-white">
                         <span
@@ -922,9 +925,11 @@ export default function HomePageClient() {
                         alt={game.name}
                         width={190}
                         height={44}
-                        className="h-auto max-h-8 w-auto max-w-[76%] object-contain object-left"
+                        className="h-auto max-h-7 w-auto max-w-[90%] object-contain object-left"
                       />
                     )}
+                    <span className="text-xs font-medium leading-4 text-white/80">{searchLabel}</span>
+                    </span>
                     <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-white" />
                   </div>
                 </article>
@@ -934,7 +939,7 @@ export default function HomePageClient() {
                 <Localized key={game.name}><Link
                   key={game.name}
                   href={localizedHref}
-                  aria-label={`${game.name} ${t.enterService}`}
+                  aria-label={searchLabel}
                 >
                   {card}
                 </Link></Localized>

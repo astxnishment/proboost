@@ -1,5 +1,6 @@
 import Localized from "./Localization";
 import { GAME_DIRECTORY } from "../lib/games";
+import { getGameSeo } from "../lib/game-seo";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail } from "lucide-react";
@@ -80,15 +81,17 @@ export default function Footer() {
               <Localized key={group.label}><div key={group.label}>
                 <p className="text-sm font-semibold text-[var(--foreground)]">{group.label}</p>
                 <div className="mt-4 grid gap-3">
-                  {group.links.map((link) => (
-                    <Localized key={link.label}><Link
+                  {group.links.map((link) => {
+                    const game = GAME_DIRECTORY.find(game => link.href === `/en/${game.slug}`);
+                    const label = game ? getGameSeo(game.slug)?.linkLabel ?? link.label : link.label;
+                    return <Localized key={link.label}><Link
                       key={link.label}
                       href={link.href}
                       className="w-fit text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
                     >
-                      {link.label}
+                      {label}
                     </Link></Localized>
-                  ))}
+                  })}
                 </div>
               </div></Localized>
             ))}

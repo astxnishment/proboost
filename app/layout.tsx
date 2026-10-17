@@ -30,17 +30,17 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,
   title: {
-    default: "ProBoost — Rank Boosting by Verified Pros",
+    default: "Game Boosting & Coaching — R6, CS2, Valorant | ProBoost",
     template: "%s | ProBoost",
   },
   description:
-    "ProBoost connects you with verified, high-rated players who handle your rank climb safely and fast. Rainbow Six Siege and Valorant boosting, competitive wins, coaching, and more.",
+    "Explore R6 boosting, CS2 boosting, Valorant, Overwatch 2 and more. Compare game services, choose your goal and review your price before checkout.",
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: "ProBoost — Rank Boosting by Verified Pros",
+    title: "Game Boosting & Coaching — R6, CS2, Valorant | ProBoost",
     description:
-      "Rank up faster with verified specialists. Safe, manual gameplay — no bots, no automation.",
+      "Explore R6 boosting, CS2 boosting, Valorant, Overwatch 2 and more. Compare game services, choose your goal and review your price before checkout.",
     images: [
       {
         url: "/brand/proboost-og.webp",
@@ -52,9 +52,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ProBoost — Rank Boosting by Verified Pros",
+    title: "Game Boosting & Coaching — R6, CS2, Valorant | ProBoost",
     description:
-      "Rank up faster with verified specialists. Safe, manual gameplay — no bots, no automation.",
+      "Explore R6 boosting, CS2 boosting, Valorant, Overwatch 2 and more. Compare game services, choose your goal and review your price before checkout.",
     images: ["/brand/proboost-og.webp"],
   },
   icons: {

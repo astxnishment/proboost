@@ -1,10 +1,9 @@
-import { localizeMetadata } from "../../lib/localized-metadata";
+import { gameMetadata } from "../../lib/game-metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SiegeBoostingPage from "../../boosting/page";
 import {
   isSupportedLanguage,
-  langAlternates,
   SUPPORTED_LANGS,
 } from "../../lib/site";
 
@@ -20,15 +19,7 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!isSupportedLanguage(lang)) notFound();
 
-  return localizeMetadata({
-    title: "Rainbow Six Siege Boosting",
-    description:
-      "Professional Rainbow Six Siege boosting: rank boosts, Champion pushes, competitive wins, unrated matches, and coaching from verified top-tier players.",
-    alternates: {
-      canonical: `/${lang}/rainbow-six-siege-boost`,
-      languages: langAlternates("rainbow-six-siege-boost"),
-    },
-  }, lang);
+  return gameMetadata("rainbow-six-siege-boost", lang);
 }
 
 export default async function LangRainbowSixSiegeBoostPage({

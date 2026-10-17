@@ -1,10 +1,9 @@
-import { localizeMetadata } from "../../lib/localized-metadata";
+import { gameMetadata } from "../../lib/game-metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Cs2BoostingPage from "../../components/Cs2BoostingPage";
 import {
   isSupportedLanguage,
-  langAlternates,
   SUPPORTED_LANGS,
 } from "../../lib/site";
 
@@ -20,15 +19,7 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!isSupportedLanguage(lang)) notFound();
 
-  return localizeMetadata({
-    title: "Counter-Strike 2 Boosting Services",
-    description:
-      "Configure CS2 Competitive rank boosts, Premier rating, Competitive wins, and FACEIT levelling.",
-    alternates: {
-      canonical: `/${lang}/counter-strike-2-boost`,
-      languages: langAlternates("counter-strike-2-boost"),
-    },
-  }, lang);
+  return gameMetadata("counter-strike-2-boost", lang);
 }
 
 export default async function LocalizedCs2BoostPage({

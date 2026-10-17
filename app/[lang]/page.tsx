@@ -9,7 +9,7 @@ export function generateStaticParams() { return ALL_LANGS.map(lang => ({ lang })
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
   if (!isSupportedLanguage(lang)) notFound();
-  const metadata = localizeMetadata({ title: 'ProBoost — Rank Boosting by Verified Pros', description: 'Choose your game, set your goal, and customize your order.', alternates: { canonical: `/${lang}`, languages: langAlternates('') } }, lang);
+  const metadata = localizeMetadata({ title: 'Game Boosting & Coaching — R6, CS2, Valorant | ProBoost', description: 'Explore R6 boosting, CS2 boosting, Valorant, Overwatch 2 and more. Compare game services, choose your goal and review your price before checkout.', alternates: { canonical: `/${lang}`, languages: langAlternates('') } }, lang);
   return { ...metadata, title: { absolute: metadata.title as string } };
 }
 export default async function Page({ params }: Props) {
