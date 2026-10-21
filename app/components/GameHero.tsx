@@ -1,5 +1,6 @@
 import Localized from "./Localization";
 import Image from "next/image";
+import GameArtwork from "./GameArtwork";
 import Link from "next/link";
 import { ArrowRight, ChevronRight, Headphones } from "lucide-react";
 import { GAME_DIRECTORY } from "../lib/games";
@@ -63,7 +64,7 @@ export default function GameHero({
               </div>
             </div>
             <div className="game-hero-visual">
-              <Image src={artwork} alt="" fill preload sizes="(max-width: 767px) 100vw, 50vw" style={{ objectPosition: imagePosition }} />
+              <GameArtwork src={artwork} alt="" fill preload sizes="(max-width: 767px) 100vw, 50vw" style={{ objectPosition: imagePosition }} />
               <div className="game-hero-visual-shade" aria-hidden />
               <span className="game-hero-caption" aria-hidden>{name}</span>
             </div>

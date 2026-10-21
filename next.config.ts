@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     minimumCacheTTL: 86_400,
+    qualities: [75, 90],
   },
   async headers() {
     const assetCache = [
@@ -31,6 +32,7 @@ const nextConfig: NextConfig = {
       },
       { source: "/brand/:path*", headers: assetCache },
       { source: "/homepage/:path*", headers: assetCache },
+      { source: "/games/:path*", headers: assetCache },
       { source: "/payments/:path*", headers: assetCache },
       { source: "/platforms/:path*", headers: assetCache },
       { source: "/ranks/:path*", headers: assetCache },

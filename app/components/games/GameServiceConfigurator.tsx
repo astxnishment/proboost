@@ -6,6 +6,7 @@ import Localized, { useLanguage } from "../Localization";
 import { LANGUAGE_LOCALES } from "../../lib/localization";
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
+import GameArtwork from "../GameArtwork";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, ChevronDown, Clock3, Crosshair, GraduationCap, Headphones, Layers3, LoaderCircle, LockKeyhole, Minus, Plus, ShieldCheck, Sparkles, Swords, Target, Trophy, UserRoundCheck, UsersRound, Video, Zap } from "lucide-react";
 import { type AdditionalGame, type CatalogService, rankSteps, coachingFocusOptions, WOW_CLASSES, WOW_CLASS_ROLES, WOW_RAIDS, WOW_DIFFICULTIES, WOW_RAID_SCOPES, WOW_DUNGEON_PREFERENCES } from "../../lib/additional-games";
@@ -124,7 +125,7 @@ export default function GameServiceConfigurator({ game, service, language }: { g
 
   return <Localized><main className="game-overview catalog-configurator" data-coaching-only={game.coachingOnly || undefined} lang="en" style={{ "--game-accent": game.accent } as CSSProperties}>
     <section className="catalog-service-hero theme-preserve-media">
-      <div className="catalog-service-art"><Image src={game.serviceArtwork ?? game.artwork} alt="" fill preload sizes="(max-width: 767px) 100vw, 65vw" /></div>
+      <div className="catalog-service-art"><GameArtwork src={game.serviceArtwork ?? game.artwork} alt="" fill preload sizes="(max-width: 767px) 100vw, 65vw" /></div>
       <div className="page-container catalog-service-hero-inner"><div className="catalog-service-hero-copy">
         <Link href={basePath} className="catalog-back-link"><ArrowLeft size={15} aria-hidden /><span>All {game.name} services</span></Link>
         <div className="catalog-service-eyebrow"><span><Icon size={21} aria-hidden /></span>{game.name} · {coaching ? "Play. Learn. Improve." : wow ? "Your next adventure" : "Your next milestone"}</div>

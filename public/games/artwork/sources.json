@@ -1,0 +1,79 @@
+[
+  {
+    "file": "rocket-league-hd.jpg",
+    "source": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/252950/4fa01c320d22f31d78fd9fcb27dbd3bd8871b903/ss_4fa01c320d22f31d78fd9fcb27dbd3bd8871b903.1920x1080.jpg?t=1791210513",
+    "retrieved": "2026-10-21",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "file": "rainbow-six-hd.jpg",
+    "source": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/359550/2efed3587d876f560cbf3f25d9a72fbd387b74e6/ss_2efed3587d876f560cbf3f25d9a72fbd387b74e6.1920x1080.jpg?t=1792001976",
+    "retrieved": "2026-10-21",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "file": "apex-legends-hd.jpg",
+    "source": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1172470/3fc2dfcf0e8d7d7202a3ca32ae26c7afaec723e2/ss_3fc2dfcf0e8d7d7202a3ca32ae26c7afaec723e2.1920x1080.jpg?t=1790164440",
+    "retrieved": "2026-10-21",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "file": "overwatch-hd.jpg",
+    "source": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2357570/6cea8a8817ae0a8dd5198052ffeba742b1a90b8e/ss_6cea8a8817ae0a8dd5198052ffeba742b1a90b8e.1920x1080.jpg?t=1791576843",
+    "retrieved": "2026-10-21",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "file": "marvel-rivals-hd.jpg",
+    "source": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2767030/a42d038cf0add8028021781bd18c3a7452220236/ss_a42d038cf0add8028021781bd18c3a7452220236.1920x1080.jpg?t=1792140776",
+    "retrieved": "2026-10-21",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "file": "call-of-duty-hd.jpg",
+    "source": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1938090/ca97243a998802a38c7cddf195cee327c5760353/ss_ca97243a998802a38c7cddf195cee327c5760353.1920x1080.jpg?t=1792523940",
+    "retrieved": "2026-10-21",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "file": "fortnite-hd.jpg",
+    "source": "https://cms-assets.unrealengine.com/cm6l5gfpm05kr07my04cqgy2x/cmt14h2ardvpq07o76t76zt0m",
+    "retrieved": "2026-10-21",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "file": "world-of-warcraft-hd.jpg",
+    "source": "https://blz-contentstack-images.akamaized.net/v3/assets/blt9c12f249ac15c7ec/blt7e9348cd83e7c474/6a860f3d7ec8fe64610002dd/BG_Masthead_2_2600_Index.jpg",
+    "retrieved": "2026-10-21",
+    "width": 2600,
+    "height": 1260
+  },
+  {
+    "file": "dota-2-hd.jpg",
+    "source": "https://cdn.steamstatic.com/apps/dota2/images/dota_react//home/heroes_full.jpg",
+    "retrieved": "2026-10-21",
+    "width": 4000,
+    "height": 2035
+  },
+  {
+    "file": "tft-hd.png",
+    "source": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/12210015038f15148d157c5a4facdd8bd5cb5e78-1232x978.png",
+    "retrieved": "2026-10-21",
+    "width": 1232,
+    "height": 978
+  },
+  {
+    "file": "ea-fc-27-hd.jpg",
+    "source": "https://drop-assets.ea.com/images/5tA42iw5Y2Pigq2zq7zf4i/e4ad1fba109f3b70eb97ac2c7def8a20/fc-27-standard-key-art-4x3.jpg",
+    "retrieved": "2026-10-21",
+    "width": 1440,
+    "height": 1080
+  }
+]

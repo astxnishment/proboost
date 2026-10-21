@@ -6,7 +6,7 @@ import Localized, { useLanguage } from "../Localization";
 import { translate } from "../../lib/localization";
 import type { CSSProperties } from "react";
 import React from "react";
-import Image from "next/image";
+import GameArtwork from "../GameArtwork";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -723,7 +723,7 @@ export default function OverwatchServiceConfigurator({
               "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
           }}
         >
-          <Image
+          <GameArtwork
             src="/homepage/overwatch-homepage.webp"
             alt="Overwatch 2 heroes in a competitive city arena"
             fill

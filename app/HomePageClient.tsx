@@ -3,6 +3,7 @@
 import Localized, { useLanguage } from "./components/Localization";
 import React from "react";
 import Image from "next/image";
+import GameArtwork from "./components/GameArtwork";
 import Link from "next/link";
 import {
   Activity,
@@ -789,7 +790,7 @@ export default function HomePageClient() {
                     aria-label={game.name}
                     style={{ "--poster-accent": game.glow } as React.CSSProperties}
                   >
-                    <Image src={game.bg!} alt="" fill sizes="(max-width: 639px) 30vw, (max-width: 899px) 28vw, 18vw" loading="eager" className="home-hero-poster-art" style={{ objectPosition: game.objectPosition }} />
+                    <GameArtwork src={game.bg!} alt="" fill sizes="(max-width: 639px) 30vw, (max-width: 899px) 28vw, 18vw" loading="eager" className="home-hero-poster-art" style={{ objectPosition: game.objectPosition }} />
                     <span className="home-hero-poster-caption">
                       <Image src={game.logo} alt="" width={180} height={60} className="home-hero-poster-logo" />
                       <ArrowRight aria-hidden size={16} />
@@ -866,7 +867,7 @@ export default function HomePageClient() {
                   data-available="true"
                 >
                   {game.bg ? (
-                    <Image
+                    <GameArtwork
                       src={game.bg}
                       alt={game.name}
                       fill

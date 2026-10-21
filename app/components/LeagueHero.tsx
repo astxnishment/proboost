@@ -1,4 +1,5 @@
 import Image from "next/image";
+import GameArtwork from "./GameArtwork";
 import Link from "next/link";
 import { ArrowRight, Check, ChevronRight, Headphones, Monitor } from "lucide-react";
 import Localized from "./Localization";
@@ -22,7 +23,7 @@ export default function LeagueHero({ language }: { language: string }) {
         <section className={styles.hero} aria-labelledby="game-title">
           {/* Official splash artwork: https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg */}
           <div className={styles.artwork} aria-hidden>
-            <Image src="/games/league-of-legends/ahri-splash.jpg" alt="" fill preload sizes="(max-width: 767px) 100vw, (max-width: 1400px) 70vw, 900px" />
+            <GameArtwork src="/games/league-of-legends/ahri-splash.jpg" alt="" fill preload sizes="(max-width: 767px) 100vw, (max-width: 1400px) 70vw, 900px" />
           </div>
           <div className={styles.copy}>
             <div className={styles.eyebrow}>

@@ -7,6 +7,7 @@ import { translate, LANGUAGE_LOCALES } from "../../lib/localization";
 import type { CSSProperties } from "react";
 import React from "react";
 import Image from "next/image";
+import GameArtwork from "../GameArtwork";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -819,7 +820,7 @@ export default function Cs2ServiceConfigurator({
     >
       <section className="theme-preserve-media relative min-h-[420px] overflow-hidden border-b border-[var(--line)] bg-[#08090b] text-white">
         <div className="absolute inset-0">
-          <Image
+          <GameArtwork
             src={isFaceit ? "/cs2/faceit/faceit-hero-v2.webp" : "/cs2/cs2-hero.webp"}
             alt={
               isFaceit

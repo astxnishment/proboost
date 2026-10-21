@@ -7,6 +7,7 @@ import { translate } from "../../lib/localization";
 import type { CSSProperties } from "react";
 import React from "react";
 import Image from "next/image";
+import GameArtwork from "../GameArtwork";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -642,7 +643,7 @@ export default function ValorantServiceConfigurator({
     >
       <section className="theme-preserve-media relative min-h-[450px] overflow-hidden border-b border-[var(--line)] bg-[#101116] text-white">
         <div className="absolute inset-0">
-          <Image
+          <GameArtwork
             src="/valorant/valorant-hero-v2.webp"
             alt="Tactical Valorant specialist in a competitive arena"
             fill
