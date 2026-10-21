@@ -14,11 +14,12 @@ const themeInitScript = `
   (function () {
     try {
       var saved = window.localStorage.getItem("proboost_theme");
-      var theme = saved === "white" || saved === "black"
-        ? saved
-        : (window.matchMedia("(prefers-color-scheme: light)").matches ? "white" : "black");
+      // Dark is the default. Only an explicit saved choice enables light mode.
+      var theme = saved === "white" ? "white" : "black";
       document.documentElement.dataset.theme = theme;
       document.documentElement.style.colorScheme = theme === "white" ? "light" : "dark";
+      var themeColor = document.querySelector('meta[name="theme-color"]');
+      if (themeColor) themeColor.setAttribute("content", theme === "white" ? "#f6f6f8" : "#060607");
     } catch (_) {
       document.documentElement.dataset.theme = "black";
       document.documentElement.style.colorScheme = "dark";
@@ -73,10 +74,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "dark light",
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#050505" },
-    { media: "(prefers-color-scheme: light)", color: "#f5f5f7" },
-  ],
+  themeColor: "#060607",
 };
 
 export default function RootLayout({

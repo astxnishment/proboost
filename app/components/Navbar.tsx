@@ -37,20 +37,8 @@ export default function Navbar() {
     const readyId = window.setTimeout(() => {
       setTheme(activeTheme);
     }, 0);
-
-    const media = window.matchMedia("(prefers-color-scheme: light)");
-    const syncSystemTheme = (event: MediaQueryListEvent) => {
-      if (window.localStorage.getItem("proboost_theme")) return;
-      const nextTheme = event.matches ? "white" : "black";
-      document.documentElement.dataset.theme = nextTheme;
-      document.documentElement.style.colorScheme = nextTheme === "white" ? "light" : "dark";
-      setTheme(nextTheme);
-    };
-    media.addEventListener("change", syncSystemTheme);
-    return () => {
-      window.clearTimeout(readyId);
-      media.removeEventListener("change", syncSystemTheme);
-    };
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", activeTheme === "white" ? "#f6f6f8" : "#060607");
+    return () => window.clearTimeout(readyId);
   }, [pathname]);
 
   React.useEffect(() => {
@@ -106,7 +94,8 @@ export default function Navbar() {
     document.documentElement.dataset.theme = nextTheme;
     // eslint-disable-next-line react-hooks/immutability
     document.documentElement.style.colorScheme = nextTheme === "white" ? "light" : "dark";
-    window.localStorage.setItem("proboost_theme", nextTheme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", nextTheme === "white" ? "#f6f6f8" : "#060607");
+    try { window.localStorage.setItem("proboost_theme", nextTheme); } catch { /* The theme still works when storage is unavailable. */ }
     setTheme(nextTheme);
   };
 
