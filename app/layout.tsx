@@ -12,18 +12,12 @@ import GoogleAdsProvider from "./components/GoogleAdsProvider";
 
 const themeInitScript = `
   (function () {
-    try {
-      var saved = window.localStorage.getItem("proboost_theme");
-      // Dark is the default. Only an explicit saved choice enables light mode.
-      var theme = saved === "white" ? "white" : "black";
-      document.documentElement.dataset.theme = theme;
-      document.documentElement.style.colorScheme = theme === "white" ? "light" : "dark";
-      var themeColor = document.querySelector('meta[name="theme-color"]');
-      if (themeColor) themeColor.setAttribute("content", theme === "white" ? "#f6f6f8" : "#060607");
-    } catch (_) {
-      document.documentElement.dataset.theme = "black";
-      document.documentElement.style.colorScheme = "dark";
-    }
+    // Every fresh page load starts dark, including browsers with an old saved
+    // light preference. Manual theme changes last for client-side navigation.
+    document.documentElement.dataset.theme = "black";
+    document.documentElement.style.colorScheme = "dark";
+    var themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.setAttribute("content", "#060607");
   })();
 `;
 

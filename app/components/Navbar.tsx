@@ -95,7 +95,7 @@ export default function Navbar() {
     // eslint-disable-next-line react-hooks/immutability
     document.documentElement.style.colorScheme = nextTheme === "white" ? "light" : "dark";
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", nextTheme === "white" ? "#f6f6f8" : "#060607");
-    try { window.localStorage.setItem("proboost_theme", nextTheme); } catch { /* The theme still works when storage is unavailable. */ }
+    // Keep this choice during navigation, but start the next page load dark.
     setTheme(nextTheme);
   };
 
