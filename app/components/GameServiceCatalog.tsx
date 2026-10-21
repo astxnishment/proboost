@@ -34,18 +34,18 @@ const LABELS = {
 
 const PVE_LABELS: Record<string, string> = { en: "Dungeons & raids", it: "Dungeon e raid", fr: "Donjons et raids", es: "Mazmorras y bandas", de: "Dungeons & Raids", nl: "Dungeons & raids", pt: "Masmorras e raides", uk: "Підземелля та рейди", ru: "Подземелья и рейды" };
 
-export default function GameServiceCatalog({ services, actionLabel }: { services: readonly GameService[]; language?: string; actionLabel?: string }) {
+export default function GameServiceCatalog({ services, actionLabel, showFilters = true }: { services: readonly GameService[]; language?: string; actionLabel?: string; showFilters?: boolean }) {
   const [filter, setFilter] = useState<ServiceGroup | "all">("all");
   const resultsId = useId();
   const languageCode = useLanguage();
   const t = { ...LABELS.en, pve: PVE_LABELS.en };
   const action = actionLabel ?? t.action;
   const groups = (["all", "rank", "matches", "pve", "coaching"] as const).filter(group => group === "all" || services.some(service => service.group === group));
-  const visible = services.filter(service => filter === "all" || service.group === filter);
+  const visible = services.filter(service => !showFilters || filter === "all" || service.group === filter);
 
   return (
     <Localized><div className="game-catalog">
-      {groups.length > 2 && <div className="game-catalog-filters" role="group" aria-label={t.filter}>
+      {showFilters && groups.length > 2 && <div className="game-catalog-filters" role="group" aria-label={t.filter}>
         {groups.map(group => (
           <Localized key={group}><button key={group} type="button" aria-pressed={filter === group} aria-controls={resultsId} onClick={() => setFilter(group)}>
             {t[group]}<span>{group === "all" ? services.length : services.filter(service => service.group === group).length}</span>

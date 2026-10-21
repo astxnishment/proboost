@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowRight, Settings2, UsersRound, ShieldCheck, Headphones, LockKeyhole, Target } from "lucide-react";
 import GameHero from "./GameHero";
 import GameServiceCatalog from "./GameServiceCatalog";
+import LeagueHero from "./LeagueHero";
+import leagueStyles from "./LeagueOverview.module.css";
 import { type AdditionalGame } from "../lib/additional-games";
 
 const STEPS = [
@@ -15,13 +17,14 @@ const STEPS = [
 export default function AdditionalGamePage({ game, language }: { game: AdditionalGame; language: string }) {
   const basePath = `/${language}/${game.slug}`;
   const wow = game.slug === "world-of-warcraft-boost";
+  const league = game.slug === "league-of-legends-boost";
   return (
-    <Localized><main className="game-overview min-h-screen bg-[var(--background)] text-[var(--foreground)]" lang="en" style={{ "--game-accent": game.accent } as CSSProperties}>
-      <GameHero name={game.name} description={game.description} artwork={game.artwork} icon={game.icon} language={language} imagePosition={game.imagePosition} eyebrow={game.coachingOnly ? "Private coaching" : undefined} />
-      <div className="catalog-assurances"><div className="page-container">{[{ icon: Target, text: "Your goal, your setup" }, { icon: UsersRound, text: "Game-specific services" }, { icon: LockKeyhole, text: "Secure checkout" }, { icon: Headphones, text: "Support throughout" }].map(({icon: Icon, text}) => <Localized key={text}><span key={text}><Icon size={17} aria-hidden />{text}</span></Localized>)}</div></div>
+    <Localized><main className={`game-overview min-h-screen bg-[var(--background)] text-[var(--foreground)]${league ? ` ${leagueStyles.overview}` : ""}`} lang="en" style={{ "--game-accent": league ? "var(--accent)" : game.accent } as CSSProperties}>
+      {league ? <LeagueHero language={language} /> : <GameHero name={game.name} description={game.description} artwork={game.artwork} icon={game.icon} language={language} imagePosition={game.imagePosition} eyebrow={game.coachingOnly ? "Private coaching" : undefined} />}
+      {!league && <div className="catalog-assurances"><div className="page-container">{[{ icon: Target, text: "Your goal, your setup" }, { icon: UsersRound, text: "Game-specific services" }, { icon: LockKeyhole, text: "Secure checkout" }, { icon: Headphones, text: "Support throughout" }].map(({icon: Icon, text}) => <Localized key={text}><span key={text}><Icon size={17} aria-hidden />{text}</span></Localized>)}</div></div>}
       <section id="services" className="request-catalog-section page-container" aria-labelledby="services-title">
         <div className="request-section-heading"><div><span className="request-eyebrow">{game.name} services</span><h2 id="services-title">{game.headline}</h2></div><p>{game.serviceIntro ?? (wow ? "Build a dungeon bundle, choose your raid, or work on your class with a coach. Every service has its own configuration." : "Choose a clear target or focus on the skills behind your next rank. Customize your service and see the total before checkout.")}</p></div>
-        <GameServiceCatalog language={language} services={game.services.map(service => ({ ...service, href: `${basePath}/${service.slug}` }))} />
+        <GameServiceCatalog language={language} showFilters={!league} services={game.services.map(service => ({ ...service, href: `${basePath}/${service.slug}` }))} />
       </section>
       <section id="how" className="request-process page-container" aria-labelledby="how-title">
         <div className="request-section-heading"><div><span className="request-eyebrow">From setup to progress</span><h2 id="how-title">Your next step, made simple.</h2></div></div>
